@@ -4,7 +4,7 @@ scalaVersion := "2.11.2"
 
 scalacOptions += "-deprecation"
 
-organization := "de.leanovate.doby"
+organization := "de.leanovate.play-mockws"
 
 val playVersion = "2.3.3"
 
