@@ -21,6 +21,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
+import scala.util.Try
 
 /**
  * Mock implementation for the [[play.api.libs.ws.WS]] client.
@@ -108,14 +109,16 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
           val contentAsBytes: Array[Byte] = Await.result(result.body |>>> Iteratee.consume[Array[Byte]](), 5 seconds)
           val body = new String(contentAsBytes, charset(result.header.headers).getOrElse("utf-8"))
           given (wsResponse.body) willReturn body
-          val returnedContentType = result.header.headers.get(CONTENT_TYPE).map(_.split(";").take(1).mkString.trim)
+
+          val returnedContentType = result.header.headers
+            .get(CONTENT_TYPE)
+            .flatMap { ct => Try(ct.split(";").take(1).mkString.trim).toOption }
+            .map(_.toLowerCase)
+
           returnedContentType match {
-            case Some("application/json") => given(wsResponse.json) willReturn Json.parse(body)
-            case Some("text/xml") => given(wsResponse.xml) willReturn scala.xml.XML.loadString(body)
-            case Some("application/xml") => given(wsResponse.xml) willReturn scala.xml.XML.loadString(body)
-            case Some("text/html") => throw new Exception(s"[$method $url]: receive html '$body'")
-            case Some("text/plain") | Some("application/octet-stream") | None => // wsResponse.body is already set
-            case Some(t) => throw new Exception(s"[$method $url]: cannot parse content type '$t'")
+            case Some("text/json") | Some("application/json") => given(wsResponse.json) willReturn Json.parse(body)
+            case Some("text/xml") | Some("application/xml") => given(wsResponse.xml) willReturn scala.xml.XML.loadString(body)
+            case _ => // wsResponse.body is already set
           }
 
           // underlying netty response

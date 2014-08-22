@@ -113,4 +113,44 @@ class MockWSTest extends FunSuite with Matchers {
     contentAsString(response) shouldEqual "firstsecondthird"
   }
 
+
+  test("mock WS can produce JSON") {
+    val ws = MockWS {
+      case (GET, "/json") => Action {
+        Ok(Json.obj("field" -> "value"))
+      }
+    }
+
+    val wsResponse = await( ws.url("/json").get() )
+    wsResponse.body shouldEqual """{"field":"value"}"""
+    (wsResponse.json \ "field").asOpt[String] shouldEqual Some("value")
+  }
+
+
+  test("mock WS can produce XML") {
+    val ws = MockWS {
+      case (GET, "/xml") => Action {
+        Ok(<foo><bar>value</bar></foo>)
+      }
+    }
+
+    val wsResponse = await( ws.url("/xml").get() )
+    wsResponse.body shouldEqual "<foo><bar>value</bar></foo>"
+    (wsResponse.xml \ "bar").text shouldEqual "value"
+  }
+
+
+  test("a call to an unknown route cause an exception") {
+    val ws = MockWS {
+      case (GET, "/url") => Action { Ok("") }
+    }
+
+    the [Exception] thrownBy {
+      ws.url("/url2").get()
+    } should have message "no route defined for GET /url2"
+
+    the [Exception] thrownBy {
+      ws.url("/url").delete()
+    } should have message "no route defined for DELETE /url"
+  }
 }
