@@ -32,13 +32,13 @@ import scala.language.postfixOps
  *   }
  * }}}
  *
- * MockWS.Route is a partial function.
+ * MockWS.Routes is a partial function.
  * It is also possible to combine routes together:
  * {{{
- *   val index = MockWS.Route {
+ *   val index = MockWS.Routes {
  *     case ("GET", "/") => Action { Ok("index") }
  *   }
- *   val hiWorld = MockWS.Route {
+ *   val hiWorld = MockWS.Routes {
  *     case ("GET", "/hi") => Action { Ok("world") }
  *   }
  *   val ws = MockWS(index orElse hiWorld)
@@ -46,7 +46,7 @@ import scala.language.postfixOps
  *
  * @param withRoutes routes defining the mock calls
  */
-case class MockWS(withRoutes: MockWS.Route) extends WSClient with Mockito {
+case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
 
   require(withRoutes != null)
 
@@ -178,5 +178,5 @@ case class MockWS(withRoutes: MockWS.Route) extends WSClient with Mockito {
 }
 
 object MockWS {
-  type Route = PartialFunction[(String, String), EssentialAction]
+  type Routes = PartialFunction[(String, String), EssentialAction]
 }
