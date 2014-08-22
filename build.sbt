@@ -2,6 +2,8 @@ name := "play-mockws"
 
 scalaVersion := "2.11.2"
 
+crossScalaVersions := Seq("2.10.4", "2.11.2")
+
 scalacOptions += "-deprecation"
 
 organization := "de.leanovate.play-mockws"
@@ -16,6 +18,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-test" % playVersion % "provided"
 )
 
-libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 
 Release.settings

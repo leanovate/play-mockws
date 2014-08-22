@@ -21,8 +21,7 @@ object Release {
     sbtrelease.ReleasePlugin.releaseSettings ++
     Seq(
 
-      // remove when issue fixed: https://github.com/sbt/sbt-release/issues/70
-      crossScalaVersions := Seq(scalaVersion.value),
+      crossBuild := true,
 
       profileName := "de.leanovate",
       publishMavenStyle := true,
