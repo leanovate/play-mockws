@@ -32,7 +32,7 @@ Other examples can be found in the [tests](src/test/scala/mockws/MockWSTest.scal
 
 Add MockWS as test dependency in the `build.sbt`:
 ```scala
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "0.0.9" % "test"
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "0.9" % "test"
 ```
 The last version can be found on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.leanovate.play-mockws%22)
 
