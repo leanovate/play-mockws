@@ -1,18 +1,24 @@
 play-mockws
 ===========
 
-MockWS is a mock [WS client for Play Framework](https://www.playframework.com/documentation/2.3.x/ScalaWS) in Scala.
+Play MockWS is a mock WS client for Play Framework.
 
-It can simulate HTTP requests to external web services.
+If you:
+- write an application in Scala with the [Play Framework](https://playframework.com/)
+- the application makes HTTP calls to external web services with the [WS client](https://www.playframework.com/documentation/2.3.x/ScalaWS)
+- want to test your implementation
+
+then you can use `play-mockws` to simulate HTTP requests to external web services in your tests.
 
 ## Example
 
 ```scala
+// simulation of a GET request to http://dns/url
 val ws = MockWS {
-  case (GET, "/url") => Action { Ok("http response") }
+  case (GET, "http://dns/url") => Action { Ok("http response") }
 }
 
-await(ws.url("/url").get()).body == "http response"
+await(ws.url("http://dns/url").get()).body == "http response"
 ```
 
 The simulation of the HTTP response for the WS call is simply implemented with a standard Play [Action](https://www.playframework.com/documentation/2.3.x/ScalaActions).
