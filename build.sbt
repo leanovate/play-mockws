@@ -21,3 +21,7 @@ libraryDependencies ++= Seq(
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 
 Release.settings
+
+instrumentSettings
+
+ScoverageKeys.highlighting := true
