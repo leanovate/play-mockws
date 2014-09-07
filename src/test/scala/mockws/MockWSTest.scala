@@ -93,7 +93,7 @@ class MockWSTest extends FunSuite with Matchers {
     def testedController(ws: WSClient) = Action.async {
       ws.url("/").stream().map { case (rh, content) =>
         Result(
-          header = ResponseHeader(rh.status),
+          header = ResponseHeader(rh.status, rh.headers.mapValues(_.head)),
           body = content
         )
       }
@@ -102,7 +102,7 @@ class MockWSTest extends FunSuite with Matchers {
     val ws = MockWS {
       case (GET, "/") => Action {
         Result(
-          header = ResponseHeader(201),
+          header = ResponseHeader(201, Map("x-header" -> "x-value")),
           body = Enumerator("first", "second", "third").map(_.getBytes)
         )
       }
@@ -111,6 +111,7 @@ class MockWSTest extends FunSuite with Matchers {
     val response = testedController(ws).apply(FakeRequest())
     status(response) shouldEqual CREATED
     contentAsString(response) shouldEqual "firstsecondthird"
+    header("x-header", response) shouldEqual Some("x-value")
   }
 
 
