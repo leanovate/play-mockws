@@ -141,7 +141,7 @@ class MockWSTest extends FunSuite with Matchers {
   }
 
 
-  test("a call to an unknown route cause an exception") {
+  test("a call to an unknown route causes an exception") {
     val ws = MockWS {
       case (GET, "/url") => Action { Ok("") }
     }
@@ -155,16 +155,31 @@ class MockWSTest extends FunSuite with Matchers {
     } should have message "no route defined for DELETE /url"
   }
 
-  test("mock WS supports custom content types") {
+  test("mock WS supports custom response content types") {
     val ws = MockWS {
       case (_, _) => Action {
-        Ok("hello").as("text/world")
+        Ok("hello").as("hello/world")
       }
     }
 
     val wsResponse = await( ws.url("/").get() )
     wsResponse.status shouldEqual OK
-    wsResponse.header(CONTENT_TYPE) shouldEqual Some("text/world")
+    wsResponse.header(CONTENT_TYPE) shouldEqual Some("hello/world")
     wsResponse.body shouldEqual "hello"
+  }
+
+  test("mock WS supports custom request content types") {
+    val ws = MockWS {
+      case (_, _) => Action { request =>
+        request.contentType match {
+          case Some(ct) => Ok(ct)
+          case None => BadRequest("no content type")
+        }
+      }
+    }
+
+    val wsResponse = await( ws.url("/").withHeaders(CONTENT_TYPE -> "hello/world").get)
+    wsResponse.status shouldEqual OK
+    wsResponse.body shouldEqual "hello/world"
   }
 }
