@@ -18,7 +18,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-test" % playVersion % "provided"
 )
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.2" % "test"
 
 Release.settings
 
