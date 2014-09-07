@@ -8,7 +8,7 @@ scalacOptions += "-deprecation"
 
 organization := "de.leanovate.play-mockws"
 
-val playVersion = "2.3.3"
+val playVersion = "2.3.4"
 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
