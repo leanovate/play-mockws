@@ -153,4 +153,17 @@ class MockWSTest extends FunSuite with Matchers {
       ws.url("/url").delete()
     } should have message "no route defined for DELETE /url"
   }
+
+  test("mock WS supports custom content types") {
+    val ws = MockWS {
+      case (_, _) => Action {
+        Ok("hello").as("text/world")
+      }
+    }
+
+    val wsResponse = await( ws.url("/").get() )
+    wsResponse.status shouldEqual OK
+    wsResponse.header(CONTENT_TYPE) shouldEqual Some("text/world")
+    wsResponse.body shouldEqual "hello"
+  }
 }
