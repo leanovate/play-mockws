@@ -1,19 +1,9 @@
-import com.typesafe.sbt.pgp.PgpKeys._
-import sbt._
+import com.typesafe.sbt.pgp.PgpKeys
 import sbt.Keys._
 import sbtrelease.ReleasePlugin.ReleaseKeys._
-import sbtrelease.ReleaseStateTransformations._
-import sbtrelease.ReleaseStep
 import xerial.sbt.Sonatype.SonatypeKeys._
 
 object Release {
-
-  lazy val publishSignedArtifactsAction = {
-    st: State =>
-      val extracted = Project.extract(st)
-      val ref = extracted.get(thisProjectRef)
-      extracted.runAggregated(publishSigned in Global in ref, st)
-  }
 
   val settings =
     xerial.sbt.Sonatype.sonatypeSettings ++
@@ -48,18 +38,6 @@ object Release {
           </developers>
       },
 
-      releaseProcess := Seq[ReleaseStep](
-        checkSnapshotDependencies,
-        inquireVersions,
-        runClean,
-        runTest,
-        setReleaseVersion,
-        commitReleaseVersion,
-        tagRelease,
-        publishArtifacts.copy(action = publishSignedArtifactsAction),
-        setNextVersion,
-        commitNextVersion,
-        pushChanges
-      )
+      publishArtifactsAction := PgpKeys.publishSigned.value
     )
 }
