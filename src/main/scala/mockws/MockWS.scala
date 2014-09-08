@@ -7,7 +7,6 @@ import org.mockito.BDDMockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.specs2.mock.Mockito
-import play.api.Logger
 import play.api.http.{ContentTypeOf, Writeable}
 import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.json.Json
@@ -51,6 +50,8 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
 
   require(withRoutes != null)
 
+  import mockws.MockWS.logger
+
   override def underlying[T]: T = this.asInstanceOf[T]
 
   private[this] val routes = (method: String, path: String) =>
@@ -67,7 +68,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
       def answer(invocation: InvocationOnMock): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] = {
 
         val action: EssentialAction = routes.apply(method, url)
-        Logger.info(s"calling $method $url")
+        logger.info(s"calling $method $url")
         val fakeRequest = FakeRequest(method, url).withHeaders(requestHeaders: _*)
         val futureResult = action(fakeRequest).run
         futureResult map { result =>
@@ -89,7 +90,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
         val futureResult = if (args.length == 3) {
           // ws was called with a body content. Extract this content and send it to the mock backend.
           val (bodyContent, mimeType) = extractBodyContent(args)
-          Logger.info(s"calling $method $url with '${new String(bodyContent)}' (mimeType:'$mimeType')")
+          logger.info(s"calling $method $url with '${new String(bodyContent)}' (mimeType:'$mimeType')")
           val requestBody = Enumerator(bodyContent) andThen Enumerator.eof
           val fakeRequest = mimeType match {
             case Some(m) => FakeRequest(method, url).withHeaders(CONTENT_TYPE -> m).withHeaders(requestHeaders: _*)
@@ -97,7 +98,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
           }
           requestBody |>>> action(fakeRequest)
         } else {
-          Logger.info(s"calling $method $url")
+          logger.info(s"calling $method $url")
           val fakeRequest = FakeRequest(method, url).withHeaders(requestHeaders: _*)
           action(fakeRequest).run
         }
@@ -182,4 +183,6 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
 
 object MockWS {
   type Routes = PartialFunction[(String, String), EssentialAction]
+
+  private val logger = play.api.Logger("mockws.MockWS")
 }
