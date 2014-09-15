@@ -10,7 +10,7 @@ import org.specs2.mock.Mockito
 import play.api.http.{ContentTypeOf, Writeable}
 import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSClient, WSRequestHolder, WSResponse, WSResponseHeaders}
+import play.api.libs.ws._
 import play.api.mvc.EssentialAction
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -77,6 +77,27 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
             override val headers: Map[String, Seq[String]] = result.header.headers.mapValues(Seq(_))
           }
           (wsResponseHeaders, result.body)
+        }
+      }
+    }
+
+    def answerIteratee(method: String) = new Answer[Future[Iteratee[Array[Byte], _]]] {
+      def answer(invocation: InvocationOnMock): Future[Iteratee[Array[Byte], _]] = {
+        val args = invocation.getArguments
+
+        // request body
+        val action: EssentialAction = routes.apply(method, url)
+        logger.info(s"calling $method $url")
+        val fakeRequest = FakeRequest(method, url).withHeaders(requestHeaders: _*)
+        val futureResult = action(fakeRequest).run
+        futureResult.flatMap { result =>
+          val consumer = args(0).asInstanceOf[WSResponseHeaders => Iteratee[Array[Byte], _]]
+          val wsResponseHeaders = new WSResponseHeaders {
+            override val status: Int = result.header.status
+            override val headers: Map[String, Seq[String]] = result.header.headers.mapValues(Seq(_))
+          }
+          val it = consumer.apply(wsResponseHeaders)
+          result.body.apply(it)
         }
       }
     }
@@ -148,6 +169,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
     given (ws.withVirtualHost(any)) willReturn ws
 
     given (ws.get()) will wsRequestHolderAnswer(GET)
+    given (ws.get(any)(any)) will answerIteratee(GET)
     given (ws.post(any[AnyRef])(any, any)) will wsRequestHolderAnswer(POST)
     given (ws.put(any[AnyRef])(any, any)) will wsRequestHolderAnswer(PUT)
     given (ws.delete()) will wsRequestHolderAnswer(DELETE)

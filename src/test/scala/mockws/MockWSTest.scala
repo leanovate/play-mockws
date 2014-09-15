@@ -2,14 +2,17 @@ package mockws
 
 import org.scalatest.{FunSuite, Matchers}
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.iteratee.Enumerator
+import play.api.libs.iteratee.Concurrent._
+import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.json.Json
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{WSClient, WSResponseHeaders}
 import play.api.mvc.BodyParsers.parse
 import play.api.mvc.Results._
 import play.api.mvc.{Action, ResponseHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+
+import scala.concurrent.Promise
 
 /**
  * Tests that [[MockWS]] simulates a WS client
@@ -97,6 +100,39 @@ class MockWSTest extends FunSuite with Matchers {
           body = content
         )
       }
+    }
+
+    val ws = MockWS {
+      case (GET, "/") => Action {
+        Result(
+          header = ResponseHeader(201, Map("x-header" -> "x-value")),
+          body = Enumerator("first", "second", "third").map(_.getBytes)
+        )
+      }
+    }
+
+    val response = testedController(ws).apply(FakeRequest())
+    status(response) shouldEqual CREATED
+    contentAsString(response) shouldEqual "firstsecondthird"
+    header("x-header", response) shouldEqual Some("x-value")
+  }
+
+
+  test("mock WS simulates a GET with a consumer") {
+
+    def testedController(ws: WSClient) = Action.async {
+      val resultP = Promise[Result]()
+      def consumer(rh: WSResponseHeaders): Iteratee[Array[Byte], Unit] = {
+        val (wsConsumer, content) = joined[Array[Byte]]
+        resultP.success(Result(
+          header = ResponseHeader(rh.status, rh.headers.mapValues(_.head)),
+          body = content
+        ))
+        wsConsumer
+      }
+
+      ws.url("/").get(consumer).map(_.run)
+      resultP.future
     }
 
     val ws = MockWS {
