@@ -21,14 +21,7 @@ val ws = MockWS {
 await(ws.url("http://dns/url").get()).body == "http response"
 ```
 
-The simulation of the HTTP response for the WS call is simply implemented with a standard Play [Action](https://www.playframework.com/documentation/2.3.x/ScalaActions).
-
-An example how to structure an implementation to test it with MockWS can be found [here](src/test/scala/mockws/Example.scala).
-
-Other examples can be found in the [tests](src/test/scala/mockws/MockWSTest.scala).
-
-
-## Usage
+## Adding play-mockws to your project
 
 Add MockWS as test dependency in the `build.sbt`:
 ```scala
@@ -43,10 +36,60 @@ import mockws.MockWS
 val ws = MockWS { ... }
 ```
 
+## Usage
+
+##### General usage
+
+A `MockWS` instance can be directly constructed with a partial function like this:
+```scala
+val ws = MockWS {
+  case (GET, "/") => Action { Ok("homepage") }
+  case (POST, "/users") => Action { request => Created((request.body.asJson.get \ "id").as[String]) }
+  case (GET, "/users/24") => Action { NotFound("") }
+}
+```
+The partial function binds 2 Strings: the http verb and the URL, to a Play [Action](https://www.playframework.com/documentation/2.3.x/ScalaActions).
+
+For clarity this partial function is aliased as [MockWS.Routes](src/main/scala/mockws/MockWS.scala)
+
+When calling MockWS.url(), if the http verb and the URL are found, the defined play action is evaluated.
+
+##### Controlling about the routes
+
+If you want more control about the route, for example to know whether a route was called or how many times, use the [Route](src/main/scala/mockws/Route.scala) class for this.
+
+Routes can be defined together with the standard function `orElse`.
+
+```scala
+val route1 = Route {
+  case (GET, "/route1") => Action { Ok("") }
+}
+val route2 = Route {
+  case (GET, "/route2") => Action { Ok("") }
+}
+
+val ws = MockWS(route1 orElse route2)
+
+await(ws.url("/route1").get())
+
+route1.called == true
+route2.called == false
+
+route1.timeCalled == 1
+route2.timeCalled == 0
+```
+
+An example how to structure an implementation to test it with MockWS can be found [here](src/test/scala/mockws/Example.scala).
+
+Other examples can be found in the [tests](src/test/scala/mockws/).
+
 ## Compatibility Matrix
 
 MockWS is actually only compatible with Play 2.3.x., with Scala 2.10 or 2.11.
 
+## Releasee Notes
+
+* 0.11: add [Route](src/main/scala/mockws/Route.scala)
 
 ## Developer info
 
