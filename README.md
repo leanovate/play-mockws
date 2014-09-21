@@ -48,15 +48,15 @@ val ws = MockWS {
   case (GET, "/users/24") => Action { NotFound("") }
 }
 ```
-The partial function binds 2 Strings: the http verb and the URL, to a Play [Action](https://www.playframework.com/documentation/2.3.x/ScalaActions).
+The partial function binds 2 Strings, an HTTP method and the URL, to a Play [Action](https://www.playframework.com/documentation/2.3.x/ScalaActions).
 
 For clarity this partial function is aliased as [MockWS.Routes](src/main/scala/mockws/MockWS.scala)
 
-When calling MockWS.url(), if the http verb and the URL are found, the defined play action is evaluated.
+When calling MockWS.url(), if the HTTP method and the URL are found, the defined play action is evaluated.
 
-##### Controlling about the routes
+##### Controlling the routes
 
-If you want more control about the route, for example to know whether a route was called or how many times, use the [Route](src/main/scala/mockws/Route.scala) class for this.
+If you want to control more the routes, for example to know whether a route was called or how many times, use the [Route](src/main/scala/mockws/Route.scala) class for this.
 
 Routes can be defined together with the standard function `orElse`.
 
