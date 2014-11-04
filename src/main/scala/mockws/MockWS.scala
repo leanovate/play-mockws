@@ -4,9 +4,9 @@ import java.io.ByteArrayInputStream
 
 import com.ning.http.client.providers.netty.NettyResponse
 import org.mockito.BDDMockito._
+import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.specs2.mock.Mockito
 import play.api.http.{ContentTypeOf, Writeable}
 import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.json.Json
@@ -20,6 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
+import scala.reflect.ClassTag
 import scala.util.Try
 
 /**
@@ -46,7 +47,7 @@ import scala.util.Try
  *
  * @param withRoutes routes defining the mock calls
  */
-case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
+case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
 
   require(withRoutes != null)
 
@@ -125,7 +126,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
         }
 
         futureResult map { result =>
-          val wsResponse = mock[WSResponse]
+          val wsResponse = mock(classOf[WSResponse])
           given (wsResponse.status) willReturn result.header.status
           given (wsResponse.header(any)) willAnswer mockHeaders(result.header.headers)
           val contentAsBytes: Array[Byte] = Await.result(result.body |>>> Iteratee.consume[Array[Byte]](), 5 seconds)
@@ -144,7 +145,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
           }
 
           // underlying netty response
-          val nettyResponse = mock[NettyResponse]
+          val nettyResponse = mock(classOf[NettyResponse])
           given (wsResponse.underlying) willReturn nettyResponse
           given (nettyResponse.getResponseBodyAsStream) willReturn new ByteArrayInputStream(body.getBytes)
 
@@ -153,7 +154,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
       }
     }
 
-    val ws = mock[WSRequestHolder]
+    val ws = mock(classOf[WSRequestHolder])
     given (ws.withAuth(any, any, any)) willReturn ws
     given (ws.withFollowRedirects(any)) willReturn ws
     given (ws.withHeaders(any)) will new Answer[WSRequestHolder] {
@@ -179,6 +180,8 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient with Mockito {
 
     ws
   }
+
+  private def any[T : ClassTag]: T = org.mockito.Matchers.any(implicitly[ClassTag[T]].runtimeClass).asInstanceOf[T]
 
   private[this] def extractBodyContent[T](args: Array[Object]): (Array[Byte], Option[String]) = {
     val bodyObject = args(0).asInstanceOf[T]

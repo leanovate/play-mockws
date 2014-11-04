@@ -15,7 +15,8 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play" % playVersion % "provided",
   "com.typesafe.play" %% "play-ws" % playVersion % "provided",
-  "com.typesafe.play" %% "play-test" % playVersion % "provided"
+  "com.typesafe.play" %% "play-test" % playVersion % "provided" excludeAll ExclusionRule(organization = "org.specs2"),
+  "org.mockito" % "mockito-core" % "1.10.10" % "provided"
 )
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.2" % "test"
