@@ -17,9 +17,7 @@ import play.api.test.Helpers._
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, Future}
-import scala.language.postfixOps
+import scala.concurrent.Future
 import scala.reflect.ClassTag
 import scala.util.Try
 
@@ -125,11 +123,13 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
           action(fakeRequest).run
         }
 
-        futureResult map { result =>
+        for {
+          result <- futureResult
+          contentAsBytes <- result.body |>>> Iteratee.consume[Array[Byte]]()
+        } yield {
           val wsResponse = mock(classOf[WSResponse])
           given (wsResponse.status) willReturn result.header.status
           given (wsResponse.header(any)) willAnswer mockHeaders(result.header.headers)
-          val contentAsBytes: Array[Byte] = Await.result(result.body |>>> Iteratee.consume[Array[Byte]](), 5 seconds)
           val body = new String(contentAsBytes, charset(result.header.headers).getOrElse("utf-8"))
           given (wsResponse.body) willReturn body
 
