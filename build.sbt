@@ -4,7 +4,7 @@ scalaVersion := "2.11.2"
 
 crossScalaVersions := Seq("2.10.4", "2.11.2")
 
-scalacOptions += "-deprecation"
+scalacOptions ++= Seq("-deprecation", "-feature")
 
 organization := "de.leanovate.play-mockws"
 
