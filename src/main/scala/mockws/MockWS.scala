@@ -68,9 +68,10 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
     def urlWithQueryParam(u: String) = if (queryParameters.isEmpty) {
       u
     } else {
+      val encode = (s: String) => URLEncoder.encode(s, "UTF-8")
+
       u + queryParameters
         .map { case (q: String, v: String) =>
-          val encode = (s: String) => URLEncoder.encode(s, "UTF-8")
           val encodedQ = encode(q)
           val encodedV = encode(v)
           s"$encodedQ=$encodedV"
