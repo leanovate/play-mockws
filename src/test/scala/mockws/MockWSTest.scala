@@ -218,4 +218,18 @@ class MockWSTest extends FunSuite with Matchers {
     wsResponse.status shouldEqual OK
     wsResponse.body shouldEqual "hello/world"
   }
+
+  test("mock WS supports query parameter") {
+    val ws = MockWS {
+      case (GET, "/uri") => Action { request =>
+        request.getQueryString("id").fold[Result](NotFound) {
+          id => Ok(id)
+        }
+      }
+    }
+
+    val wsResponse =  await( ws.url("/uri").withQueryString("id" -> "345").get)
+    wsResponse.status shouldEqual OK
+    wsResponse.body shouldEqual "345"
+  }
 }

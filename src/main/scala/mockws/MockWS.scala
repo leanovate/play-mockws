@@ -62,13 +62,23 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
   def url(url: String): WSRequestHolder = {
 
     val requestHeaders = mutable.Buffer[(String, String)]()
+    val queryParameters = mutable.Map[String, String]()
+
+    def urlWithQueryParam(u: String) = if (queryParameters.isEmpty) {
+      u
+    } else {
+      u + queryParameters
+        .map { case (q: String, v: String) => s"$q=$v" }
+        .mkString("?", "&", "")
+    }
 
     def answerStream(method: String) = new Answer[Future[(WSResponseHeaders, Enumerator[Array[Byte]])]] {
       def answer(invocation: InvocationOnMock): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] = {
 
-        val action: EssentialAction = routes.apply(method, url)
+        val _url = urlWithQueryParam(url)
+        val action: EssentialAction = routes.apply(method, _url)
         logger.info(s"calling $method $url")
-        val fakeRequest = FakeRequest(method, url).withHeaders(requestHeaders: _*)
+        val fakeRequest = FakeRequest(method, _url).withHeaders(requestHeaders: _*)
         val futureResult = action(fakeRequest).run
         futureResult map { result =>
           val wsResponseHeaders = new WSResponseHeaders {
@@ -85,9 +95,10 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
         val args = invocation.getArguments
 
         // request body
-        val action: EssentialAction = routes.apply(method, url)
+        val _url = urlWithQueryParam(url)
+        val action: EssentialAction = routes.apply(method, _url)
         logger.info(s"calling $method $url")
-        val fakeRequest = FakeRequest(method, url).withHeaders(requestHeaders: _*)
+        val fakeRequest = FakeRequest(method, _url).withHeaders(requestHeaders: _*)
         val futureResult = action(fakeRequest).run
         futureResult.flatMap { result =>
           val consumer = args(0).asInstanceOf[WSResponseHeaders => Iteratee[Array[Byte], _]]
@@ -106,6 +117,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
         // request body
         val action: EssentialAction = routes.apply(method, url)
 
+        val _url = urlWithQueryParam(url)
         val args = invocation.getArguments
         val futureResult = if (args.length == 3) {
           // ws was called with a body content. Extract this content and send it to the mock backend.
@@ -113,13 +125,13 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
           logger.info(s"calling $method $url with '${new String(bodyContent)}' (mimeType:'$mimeType')")
           val requestBody = Enumerator(bodyContent) andThen Enumerator.eof
           val fakeRequest = mimeType match {
-            case Some(m) => FakeRequest(method, url).withHeaders(CONTENT_TYPE -> m).withHeaders(requestHeaders: _*)
-            case None => FakeRequest(method, url).withHeaders(requestHeaders: _*)
+            case Some(m) => FakeRequest(method, _url).withHeaders(CONTENT_TYPE -> m).withHeaders(requestHeaders: _*)
+            case None => FakeRequest(method, _url).withHeaders(requestHeaders: _*)
           }
           requestBody |>>> action(fakeRequest)
         } else {
           logger.info(s"calling $method $url")
-          val fakeRequest = FakeRequest(method, url).withHeaders(requestHeaders: _*)
+          val fakeRequest = FakeRequest(method, _url).withHeaders(requestHeaders: _*)
           action(fakeRequest).run
         }
 
@@ -165,7 +177,14 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
         ws
       }
     }
-    given (ws.withQueryString(any)) willReturn ws
+    given (ws.withQueryString(any)) will new Answer[WSRequestHolder] {
+      override def answer(invocation: InvocationOnMock): WSRequestHolder = {
+        for (arg <- invocation.getArguments) {
+          queryParameters ++= arg.asInstanceOf[mutable.Seq[(String, String)]]
+        }
+        ws
+      }
+    }
     given (ws.withRequestTimeout(any)) willReturn ws
     given (ws.withVirtualHost(any)) willReturn ws
 
