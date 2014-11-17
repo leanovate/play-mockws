@@ -72,42 +72,35 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
         .mkString("?", "&", "")
     }
 
-    def answerStream(method: String) = new Answer[Future[(WSResponseHeaders, Enumerator[Array[Byte]])]] {
-      def answer(invocation: InvocationOnMock): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] = {
+    def buildResponse(method: String): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] = {
 
-        val _url = urlWithQueryParam(url)
-        val action: EssentialAction = routes.apply(method, _url)
-        logger.info(s"calling $method $url")
-        val fakeRequest = FakeRequest(method, _url).withHeaders(requestHeaders: _*)
-        val futureResult = action(fakeRequest).run
-        futureResult map { result =>
-          val wsResponseHeaders = new WSResponseHeaders {
-            override val status: Int = result.header.status
-            override val headers: Map[String, Seq[String]] = result.header.headers.mapValues(Seq(_))
-          }
-          (wsResponseHeaders, result.body)
+      val _url = urlWithQueryParam(url)
+      val action: EssentialAction = routes.apply(method, _url)
+      logger.info(s"calling $method $url")
+      val fakeRequest = FakeRequest(method, _url).withHeaders(requestHeaders: _*)
+      val futureResult = action(fakeRequest).run
+      futureResult map { result =>
+        val wsResponseHeaders = new WSResponseHeaders {
+          override val status: Int = result.header.status
+          override val headers: Map[String, Seq[String]] = result.header.headers.mapValues(Seq(_))
         }
+        (wsResponseHeaders, result.body)
       }
+    }
+
+    def answerStream(method: String) = new Answer[Future[(WSResponseHeaders, Enumerator[Array[Byte]])]] {
+      def answer(invocation: InvocationOnMock): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
+        buildResponse(method)
     }
 
     def answerIteratee(method: String) = new Answer[Future[Iteratee[Array[Byte], _]]] {
       def answer(invocation: InvocationOnMock): Future[Iteratee[Array[Byte], _]] = {
         val args = invocation.getArguments
 
-        // request body
-        val _url = urlWithQueryParam(url)
-        val action: EssentialAction = routes.apply(method, _url)
-        logger.info(s"calling $method $url")
-        val fakeRequest = FakeRequest(method, _url).withHeaders(requestHeaders: _*)
-        val futureResult = action(fakeRequest).run
-        futureResult.flatMap { result =>
+        buildResponse(method) flatMap { case (wsResponseHeaders, stream) =>
           val consumer = args(0).asInstanceOf[WSResponseHeaders => Iteratee[Array[Byte], _]]
-          val wsResponseHeaders = new WSResponseHeaders {
-            override val status: Int = result.header.status
-            override val headers: Map[String, Seq[String]] = result.header.headers.mapValues(Seq(_))
-          }
           val it = consumer.apply(wsResponseHeaders)
-          result.body.apply(it)
+          stream.apply(it)
         }
       }
     }
