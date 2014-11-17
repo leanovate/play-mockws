@@ -1,6 +1,7 @@
 package mockws
 
 import java.io.ByteArrayInputStream
+import java.net.URLEncoder
 
 import com.ning.http.client.providers.netty.NettyResponse
 import org.mockito.BDDMockito._
@@ -68,7 +69,12 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
       u
     } else {
       u + queryParameters
-        .map { case (q: String, v: String) => s"$q=$v" }
+        .map { case (q: String, v: String) =>
+          val encode = (s: String) => URLEncoder.encode(s, "UTF-8")
+          val encodedQ = encode(q)
+          val encodedV = encode(v)
+          s"$encodedQ=$encodedV"
+        }
         .mkString("?", "&", "")
     }
 

@@ -1,5 +1,6 @@
 package mockws
 
+import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.Concurrent._
@@ -17,7 +18,7 @@ import scala.concurrent.Promise
 /**
  * Tests that [[MockWS]] simulates a WS client
  */
-class MockWSTest extends FunSuite with Matchers {
+class MockWSTest extends FunSuite with Matchers with PropertyChecks {
 
   test("mock WS simulates all HTTP methods") {
     val ws = MockWS {
@@ -220,16 +221,21 @@ class MockWSTest extends FunSuite with Matchers {
   }
 
   test("mock WS supports query parameter") {
-    val ws = MockWS {
-      case (GET, "/uri") => Action { request =>
-        request.getQueryString("id").fold[Result](NotFound) {
-          id => Ok(id)
+    forAll { (q: String, v: String) =>
+      whenever(q.nonEmpty) {
+
+        val ws = MockWS {
+          case (GET, "/uri") => Action { request =>
+            request.getQueryString(q).fold[Result](NotFound) {
+              id => Ok(id)
+            }
+          }
         }
+
+        val wsResponse =  await( ws.url("/uri").withQueryString(q -> v).get)
+        wsResponse.status shouldEqual OK
+        wsResponse.body shouldEqual v
       }
     }
-
-    val wsResponse =  await( ws.url("/uri").withQueryString("id" -> "345").get)
-    wsResponse.status shouldEqual OK
-    wsResponse.body shouldEqual "345"
   }
 }
