@@ -62,6 +62,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
 
   def url(url: String): WSRequestHolder = {
 
+    var method = GET
     val requestHeaders = mutable.Buffer[(String, String)]()
     val queryParameters = mutable.Map[String, String]()
 
@@ -95,7 +96,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
       }
     }
 
-    def answerStream(method: String) = new Answer[Future[(WSResponseHeaders, Enumerator[Array[Byte]])]] {
+    def answerStream(method: => String) = new Answer[Future[(WSResponseHeaders, Enumerator[Array[Byte]])]] {
       def answer(invocation: InvocationOnMock): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
         buildResponse(method)
     }
@@ -112,7 +113,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
       }
     }
 
-    def wsRequestHolderAnswer(method: String) = new Answer[Future[WSResponse]] {
+    def wsRequestHolderAnswer(method: => String) = new Answer[Future[WSResponse]] {
       def answer(invocation: InvocationOnMock): Future[WSResponse] = {
         // request body
         val action: EssentialAction = routes.apply(method, url)
@@ -187,6 +188,17 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
     }
     given (ws.withRequestTimeout(any)) willReturn ws
     given (ws.withVirtualHost(any)) willReturn ws
+    
+    given (ws.withMethod(any[String])) will new Answer[WSRequestHolder] {
+      override def answer(invocation: InvocationOnMock): WSRequestHolder = {
+        invocation.getArguments match {
+          case Array(m: String) => method = m
+        }
+        ws
+      }
+    }
+    
+    given (ws.execute()) will wsRequestHolderAnswer(method)
 
     given (ws.get()) will wsRequestHolderAnswer(GET)
     given (ws.get(any)(any)) will answerIteratee(GET)
@@ -194,7 +206,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
     given (ws.put(any[AnyRef])(any, any)) will wsRequestHolderAnswer(PUT)
     given (ws.delete()) will wsRequestHolderAnswer(DELETE)
 
-    given (ws.stream()) will answerStream(GET)
+    given (ws.stream()) will answerStream(method)
     given (ws.getStream()) will answerStream(GET)
 
     ws
