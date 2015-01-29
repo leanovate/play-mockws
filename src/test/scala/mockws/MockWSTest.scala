@@ -26,12 +26,14 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
       case (POST, "/post")     => Action { Ok("post ok") }
       case (PUT, "/put")       => Action { Ok("put ok") }
       case (DELETE, "/delete") => Action { Ok("delete ok") }
+      case ("PATCH", "/patch") => Action { Ok("patch ok") }
     }
 
     await(ws.url("/get").get()).body       shouldEqual "get ok"
     await(ws.url("/post").post("")).body   shouldEqual "post ok"
     await(ws.url("/put").put("")).body     shouldEqual "put ok"
     await(ws.url("/delete").delete()).body shouldEqual "delete ok"
+    await(ws.url("/patch").patch("")).body     shouldEqual "patch ok"
   }
 
 
