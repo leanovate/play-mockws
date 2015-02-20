@@ -172,7 +172,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
     given (ws.withHeaders(any)) will new Answer[WSRequestHolder] {
       override def answer(invocation: InvocationOnMock): WSRequestHolder = {
         for (arg <- invocation.getArguments) {
-          requestHeaders ++= arg.asInstanceOf[mutable.Seq[(String, String)]]
+          requestHeaders ++= arg.asInstanceOf[Seq[(String, String)]]
         }
         ws
       }
@@ -180,7 +180,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
     given (ws.withQueryString(any)) will new Answer[WSRequestHolder] {
       override def answer(invocation: InvocationOnMock): WSRequestHolder = {
         for (arg <- invocation.getArguments) {
-          queryParameters ++= arg.asInstanceOf[mutable.Seq[(String, String)]]
+          queryParameters ++= arg.asInstanceOf[Seq[(String, String)]]
         }
         ws
       }
