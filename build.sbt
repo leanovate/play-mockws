@@ -16,7 +16,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play" % playVersion % "provided",
   "com.typesafe.play" %% "play-ws" % playVersion % "provided",
   "com.typesafe.play" %% "play-test" % playVersion % "provided" excludeAll ExclusionRule(organization = "org.specs2"),
-  "org.mockito" % "mockito-core" % "1.10.10" % "provided"
+  "org.mockito" % "mockito-core" % "1.10.19" % "provided"
 )
 
 libraryDependencies ++= Seq(
