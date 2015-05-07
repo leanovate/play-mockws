@@ -1,14 +1,14 @@
 name := "play-mockws"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.6"
 
-crossScalaVersions := Seq("2.10.4", "2.11.4")
+crossScalaVersions := Seq("2.10.5", "2.11.6")
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
 organization := "de.leanovate.play-mockws"
 
-val playVersion = "2.3.6"
+val playVersion = "2.3.7"
 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
@@ -20,12 +20,8 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "2.2.2",
-  "org.scalacheck" %% "scalacheck" % "1.11.6"
+  "org.scalatest" %% "scalatest" % "2.2.4",
+  "org.scalacheck" %% "scalacheck" % "1.12.2"
 ) map (_ % "test")
 
 Release.settings
-
-instrumentSettings
-
-ScoverageKeys.highlighting := true
