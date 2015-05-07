@@ -143,6 +143,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
           val wsResponse = mock(classOf[WSResponse])
           given (wsResponse.status) willReturn result.header.status
           given (wsResponse.header(any)) willAnswer mockHeaders(result.header.headers)
+          given (wsResponse.allHeaders) willReturn result.header.headers.map { case(k, v) => k -> Seq(v) }
           val body = new String(contentAsBytes, charset(result.header.headers).getOrElse("utf-8"))
           given (wsResponse.body) willReturn body
 
@@ -161,6 +162,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
           val nettyResponse = mock(classOf[NettyResponse])
           given (wsResponse.underlying) willReturn nettyResponse
           given (nettyResponse.getResponseBodyAsStream) willReturn new ByteArrayInputStream(body.getBytes)
+          given (nettyResponse.getResponseBodyAsBytes) willReturn body.getBytes
 
           wsResponse
         }
