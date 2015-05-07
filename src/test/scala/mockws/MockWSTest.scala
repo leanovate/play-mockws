@@ -238,4 +238,22 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
       }
     }
   }
+
+  test("mock WS supports varargs passed as immutable Seqs") {
+    forAll { (q: String, v: String) =>
+      whenever(q.nonEmpty) {
+
+        val ws = MockWS {
+          case (GET, "/uri") => Action { request =>
+            request.getQueryString(q).fold[Result](NotFound) {
+              id => Ok(id)
+            }
+          }
+        }
+
+        await( ws.url("/uri").withHeaders(Seq(q -> v): _*).get )
+        await( ws.url("/uri").withQueryString(Seq(q -> v): _*).get )
+      }
+    }
+  }
 }
