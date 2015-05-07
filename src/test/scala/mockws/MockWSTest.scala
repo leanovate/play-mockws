@@ -258,4 +258,43 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
       }
     }
   }
+
+  test("mock WS supports method in execute") {
+    val ws = MockWS {
+      case (GET, "/get")       => Action { Ok("get ok") }
+      case (POST, "/post")     => Action { Ok("post ok") }
+      case (PUT, "/put")       => Action { Ok("put ok") }
+      case (DELETE, "/delete") => Action { Ok("delete ok") }
+    }
+    
+    await(ws.url("/get").withMethod("GET").execute()).body       shouldEqual "get ok"
+    await(ws.url("/post").withMethod("POST").execute()).body     shouldEqual "post ok"
+    await(ws.url("/put").withMethod("PUT").execute()).body       shouldEqual "put ok"
+    await(ws.url("/delete").withMethod("DELETE").execute()).body shouldEqual "delete ok"
+  }
+  
+  test("mock WS supports method in stream") {
+    def testedController(ws: WSClient) = Action.async {
+      ws.url("/").withMethod("POST").stream().map { case (rh, content) =>
+        Result(
+          header = ResponseHeader(rh.status, rh.headers.mapValues(_.head)),
+          body = content
+        )
+      }
+    }
+
+    val ws = MockWS {
+      case (POST, "/") => Action {
+        Result(
+          header = ResponseHeader(201, Map("x-header" -> "x-value")),
+          body = Enumerator("first", "second", "third").map(_.getBytes)
+        )
+      }
+    }
+
+    val response = testedController(ws).apply(FakeRequest())
+    status(response) shouldEqual CREATED
+    contentAsString(response) shouldEqual "firstsecondthird"
+    header("x-header", response) shouldEqual Some("x-value")
+  }
 }
