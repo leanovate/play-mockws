@@ -192,7 +192,9 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
     given (ws.get(any)(any)) will answerIteratee(GET)
     given (ws.post(any[AnyRef])(any, any)) will wsRequestHolderAnswer(POST)
     given (ws.put(any[AnyRef])(any, any)) will wsRequestHolderAnswer(PUT)
+    given (ws.patch(any[AnyRef])(any, any)) will wsRequestHolderAnswer("PATCH")
     given (ws.delete()) will wsRequestHolderAnswer(DELETE)
+
 
     given (ws.stream()) will answerStream(GET)
     given (ws.getStream()) will answerStream(GET)
