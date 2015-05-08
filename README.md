@@ -90,10 +90,10 @@ MockWS is actually only compatible with Play 2.3.x., with Scala 2.10 or 2.11.
 ## Release Notes
 
 * 0.14:<br>
-  - contribution from @kwark: support for `allHeaders` + `getResponseBodyAsBytes` [#2](https://github.com/leanovate/play-mockws/pull/2)
-  - contribution from @sebdotv: support for `withMethod` in `execute` and `stream` [#3](https://github.com/leanovate/play-mockws/pull/3)
-  - contribution from @knshiro: support for `PATCH` method [#4](https://github.com/leanovate/play-mockws/pull/4)
-  - fix from @jdanbrown: Allow WS varargs to be passed as immutable Seqs [#5](https://github.com/leanovate/play-mockws/pull/5)
+  - contribution from [@kwark](https://github.com/kwark): support for `allHeaders` + `getResponseBodyAsBytes` [#2](https://github.com/leanovate/play-mockws/pull/2)
+  - contribution from [@sebdotv](https://github.com/sebdotv): support for `withMethod` in `execute` and `stream` [#3](https://github.com/leanovate/play-mockws/pull/3)
+  - contribution from [@knshiro](https://github.com/knshiro): support for `PATCH` method [#4](https://github.com/leanovate/play-mockws/pull/4)
+  - fix from [@jdanbrown](https://github.com/jdanbrown): Allow WS varargs to be passed as immutable Seqs [#5](https://github.com/leanovate/play-mockws/pull/5)
 * 0.13: handle URL query parameters
 * 0.12: remove dependency to specs2 - retain only mockito
 * 0.11: add [Route](src/main/scala/mockws/Route.scala)
