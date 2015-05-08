@@ -25,7 +25,7 @@ await(ws.url("http://dns/url").get()).body == "http response"
 
 Add MockWS as test dependency in the `build.sbt`:
 ```scala
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "0.13" % "test"
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "0.14" % "test"
 ```
 The last version can be found on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.leanovate.play-mockws%22)
 
@@ -87,8 +87,13 @@ Other examples can be found in the [tests](src/test/scala/mockws/).
 
 MockWS is actually only compatible with Play 2.3.x., with Scala 2.10 or 2.11.
 
-## Releasee Notes
+## Release Notes
 
+* 0.14:<br>
+  - contribution from @kwark: support for `allHeaders` + `getResponseBodyAsBytes` [#2](https://github.com/leanovate/play-mockws/pull/2)
+  - contribution from @sebdotv: support for `withMethod` in `execute` and `stream` [#3](https://github.com/leanovate/play-mockws/pull/3)
+  - contribution from @knshiro: support for `PATCH` method [#4](https://github.com/leanovate/play-mockws/pull/4)
+  - fix from @jdanbrown: Allow WS varargs to be passed as immutable Seqs [#5](https://github.com/leanovate/play-mockws/pull/5)
 * 0.13: handle URL query parameters
 * 0.12: remove dependency to specs2 - retain only mockito
 * 0.11: add [Route](src/main/scala/mockws/Route.scala)
