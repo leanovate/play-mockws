@@ -1,7 +1,7 @@
 play-mockws
 ===========
 
-Play MockWS is a mock WS client for Play Framework.
+Play MockWS is a [mock](http://mockito.org/) WS client for Play Framework.
 
 If:
 - you write an application in Scala with the [Play Framework](https://playframework.com/)
@@ -50,13 +50,13 @@ val ws = MockWS {
 ```
 The partial function binds 2 Strings, an HTTP method and the URL, to a Play [Action](https://www.playframework.com/documentation/2.3.x/ScalaActions).
 
-For clarity this partial function is aliased as [MockWS.Routes](src/main/scala/mockws/MockWS.scala)
+For clarity, this partial function is aliased as [MockWS.Routes](src/main/scala/mockws/MockWS.scala)
 
 When calling MockWS.url(), if the HTTP method and the URL are found, the defined play action is evaluated.
 
 ##### Controlling the routes
 
-If you want to control more the routes, for example to know whether a route was called or how many times, use the [Route](src/main/scala/mockws/Route.scala) class for this.
+If you want more control on the routes, for example to know whether a route was called or how many times, use the [Route](src/main/scala/mockws/Route.scala) class for this.
 
 Routes can be defined together with the standard function `orElse`.
 
