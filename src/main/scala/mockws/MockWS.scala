@@ -2,6 +2,7 @@ package mockws
 
 import java.io.ByteArrayInputStream
 import java.net.URLEncoder
+import java.nio.charset.{Charset, StandardCharsets}
 
 import com.ning.http.client.providers.netty.NettyResponse
 import org.mockito.BDDMockito._
@@ -144,7 +145,8 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
           given (wsResponse.status) willReturn result.header.status
           given (wsResponse.header(any)) willAnswer mockHeaders(result.header.headers)
           given (wsResponse.allHeaders) willReturn result.header.headers.map { case(k, v) => k -> Seq(v) }
-          val body = new String(contentAsBytes, charset(result.header.headers).getOrElse("utf-8"))
+          val bodyCharset = charset(result.header.headers).map(Charset.forName).getOrElse(StandardCharsets.UTF_8)
+          val body = new String(contentAsBytes, bodyCharset)
           given (wsResponse.body) willReturn body
 
           val returnedContentType = result.header.headers
@@ -161,8 +163,9 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
           // underlying netty response
           val nettyResponse = mock(classOf[NettyResponse])
           given (wsResponse.underlying) willReturn nettyResponse
-          given (nettyResponse.getResponseBodyAsStream) willReturn new ByteArrayInputStream(body.getBytes)
-          given (nettyResponse.getResponseBodyAsBytes) willReturn body.getBytes
+          given (nettyResponse.getResponseBody) willReturn body
+          given (nettyResponse.getResponseBodyAsStream) willReturn new ByteArrayInputStream(contentAsBytes)
+          given (nettyResponse.getResponseBodyAsBytes) willReturn contentAsBytes
 
           wsResponse
         }
