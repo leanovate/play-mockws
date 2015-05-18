@@ -2,6 +2,7 @@ Table of Contents
 =================
 
 * [Introduction](#play-mockws)
+* [Simple example](#example)
 * [Adding play-mockws to your project](#adding-play-mockws-to-your-project)
 * [Usage](#usage)
 * [Compatibility matrix](#compatibility-matrix)
