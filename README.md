@@ -1,3 +1,12 @@
+Table of Contents
+=================
+
+* [Introduction](#play-mockws)
+* [Adding play-mockws to your project](#adding-play-mockws-to-your-project)
+* [Usage](#usage)
+* [Compatibility matrix](#compatibility-matrix)
+* [Release notes](#release-notes)
+
 play-mockws
 ===========
 
