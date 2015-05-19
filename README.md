@@ -38,9 +38,16 @@ await(ws.url("http://dns/url").get()).body == "http response"
 ## Adding play-mockws to your project
 
 Add MockWS as test dependency in the `build.sbt`:
+
+* for Play 2.3.x:
 ```scala
 libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.3.0" % "test"
 ```
+* for Play 2.4.x:
+```scala
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.4.0" % "test"
+```
+
 
 And use it:
 ```scala
@@ -98,11 +105,13 @@ Other examples can be found in the [tests](src/test/scala/mockws/).
 
 ## Compatibility Matrix
 
-MockWS 2.3.x is actually only compatible with Play 2.3.x., with Scala 2.10 or 2.11.
+MockWS 2.3.x is actually only compatible with Play 2.3.y., with Scala 2.10 or 2.11.
+MockWS 2.4.x is actually only compatible with Play 2.4.y., with Scala 2.10 or 2.11.
 
 ## Release Notes
 
-* 2.3.0: same release as 0.15 - use the same version number as play (2.3.x compatible with 2.3.x)
+* 2.4.0: first version compatible with play 2.4.y
+* 2.3.0: same release as 0.15 - use the same version number as play (2.3.x compatible with play 2.3.y)
 * 0.15: fix https://github.com/leanovate/play-mockws/issues/6
 * 0.14:<br>
   - contribution from [@kwark](https://github.com/kwark): support for `allHeaders` + `getResponseBodyAsBytes` [#2](https://github.com/leanovate/play-mockws/pull/2)
