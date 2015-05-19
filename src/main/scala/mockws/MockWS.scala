@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream
 import java.net.URLEncoder
 import java.nio.charset.{Charset, StandardCharsets}
 
-import com.ning.http.client.providers.netty.NettyResponse
+import com.ning.http.client.providers.netty.response.NettyResponse
 import org.mockito.BDDMockito._
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
@@ -55,13 +55,15 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
 
   override def underlying[T]: T = this.asInstanceOf[T]
 
+  override def close(): Unit = {}
+
   private[this] val routes = (method: String, path: String) =>
     if (withRoutes.isDefinedAt(method, path))
       withRoutes.apply(method, path)
     else
       throw new Exception(s"no route defined for $method $path")
 
-  def url(url: String): WSRequestHolder = {
+  def url(url: String): WSRequest = {
 
     var method = GET
     val requestHeaders = mutable.Buffer[(String, String)]()
@@ -121,12 +123,12 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
 
         val _url = urlWithQueryParam(url)
         val args = invocation.getArguments
-        val futureResult = if (args.length == 3) {
+        val futureResult = if (args.length == 2) {
           // ws was called with a body content. Extract this content and send it to the mock backend.
-          val (bodyContent, mimeType) = extractBodyContent(args)
-          logger.info(s"calling $method $url with '${new String(bodyContent)}' (mimeType:'$mimeType')")
+          val (bodyContent, contentType) = extractBodyContent(args)
+          logger.info(s"calling $method $url with '${new String(bodyContent)}' (contentType:'$contentType')")
           val requestBody = Enumerator(bodyContent) andThen Enumerator.eof
-          val fakeRequest = mimeType match {
+          val fakeRequest = contentType match {
             case Some(m) => FakeRequest(method, _url).withHeaders(CONTENT_TYPE -> m).withHeaders(requestHeaders: _*)
             case None => FakeRequest(method, _url).withHeaders(requestHeaders: _*)
           }
@@ -172,19 +174,19 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
       }
     }
 
-    val ws = mock(classOf[WSRequestHolder])
+    val ws = mock(classOf[WSRequest])
     given (ws.withAuth(any, any, any)) willReturn ws
     given (ws.withFollowRedirects(any)) willReturn ws
-    given (ws.withHeaders(any)) will new Answer[WSRequestHolder] {
-      override def answer(invocation: InvocationOnMock): WSRequestHolder = {
+    given (ws.withHeaders(any)) will new Answer[WSRequest] {
+      override def answer(invocation: InvocationOnMock): WSRequest = {
         for (arg <- invocation.getArguments) {
           requestHeaders ++= arg.asInstanceOf[Seq[(String, String)]]
         }
         ws
       }
     }
-    given (ws.withQueryString(any)) will new Answer[WSRequestHolder] {
-      override def answer(invocation: InvocationOnMock): WSRequestHolder = {
+    given (ws.withQueryString(any)) will new Answer[WSRequest] {
+      override def answer(invocation: InvocationOnMock): WSRequest = {
         for (arg <- invocation.getArguments) {
           queryParameters ++= arg.asInstanceOf[Seq[(String, String)]]
         }
@@ -194,8 +196,8 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
     given (ws.withRequestTimeout(any)) willReturn ws
     given (ws.withVirtualHost(any)) willReturn ws
     
-    given (ws.withMethod(any[String])) will new Answer[WSRequestHolder] {
-      override def answer(invocation: InvocationOnMock): WSRequestHolder = {
+    given (ws.withMethod(any[String])) will new Answer[WSRequest] {
+      override def answer(invocation: InvocationOnMock): WSRequest = {
         invocation.getArguments match {
           case Array(m: String) => method = m
         }
@@ -207,9 +209,9 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
 
     given (ws.get()) will wsRequestHolderAnswer(GET)
     given (ws.get(any)(any)) will answerIteratee(GET)
-    given (ws.post(any[AnyRef])(any, any)) will wsRequestHolderAnswer(POST)
-    given (ws.put(any[AnyRef])(any, any)) will wsRequestHolderAnswer(PUT)
-    given (ws.patch(any[AnyRef])(any, any)) will wsRequestHolderAnswer("PATCH")
+    given (ws.post(any[AnyRef])(any)) will wsRequestHolderAnswer(POST)
+    given (ws.put(any[AnyRef])(any)) will wsRequestHolderAnswer(PUT)
+    given (ws.patch(any[AnyRef])(any)) will wsRequestHolderAnswer("PATCH")
     given (ws.delete()) will wsRequestHolderAnswer(DELETE)
 
     given (ws.stream()) will answerStream(method)
@@ -223,9 +225,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
   private[this] def extractBodyContent[T](args: Array[Object]): (Array[Byte], Option[String]) = {
     val bodyObject = args(0).asInstanceOf[T]
     val writeable = args(1).asInstanceOf[Writeable[T]]
-    val contentTypeOf = args(2).asInstanceOf[ContentTypeOf[T]]
-    val mimeType = contentTypeOf.mimeType
-    (writeable.transform(bodyObject), mimeType)
+    (writeable.transform(bodyObject), writeable.contentType)
   }
 
   private[this] def mockHeaders(headers: Map[String, String]) = new Answer[Option[String]] {
