@@ -195,7 +195,8 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
     }
     given (ws.withRequestTimeout(any)) willReturn ws
     given (ws.withVirtualHost(any)) willReturn ws
-    
+    given (ws.sign(any)) willReturn ws
+
     given (ws.withMethod(any[String])) will new Answer[WSRequest] {
       override def answer(invocation: InvocationOnMock): WSRequest = {
         invocation.getArguments match {
