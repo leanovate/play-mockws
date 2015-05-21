@@ -204,6 +204,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
     }
     
     given (ws.execute()) will wsRequestHolderAnswer(method)
+    given (ws.sign(any)) willReturn ws
 
     given (ws.get()) will wsRequestHolderAnswer(GET)
     given (ws.get(any)(any)) will answerIteratee(GET)
