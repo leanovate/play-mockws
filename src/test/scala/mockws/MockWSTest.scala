@@ -6,12 +6,13 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee.Concurrent._
 import play.api.libs.iteratee.{Enumerator, Iteratee}
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSClient, WSResponseHeaders}
+import play.api.libs.ws.{WSAuthScheme, WSSignatureCalculator, WSClient, WSResponseHeaders}
 import play.api.mvc.BodyParsers.parse
 import play.api.mvc.Results._
 import play.api.mvc.{Action, ResponseHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import org.mockito.Mockito._
 
 import scala.concurrent.Promise
 
@@ -296,5 +297,21 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
     status(response) shouldEqual CREATED
     contentAsString(response) shouldEqual "firstsecondthird"
     header("x-header", response) shouldEqual Some("x-value")
+  }
+
+
+  test("should not raise NullPointerExceptions on method chaining") {
+    val ws = MockWS {
+      case (GET, "/get") => Action { Ok("get ok") }
+    }
+
+    await(ws
+      .url("/get")
+      .sign(mock(classOf[WSSignatureCalculator]))
+      .withVirtualHost("bla")
+      .withFollowRedirects(follow = true)
+      .withAuth("user", "password", WSAuthScheme.BASIC)
+      .withRequestTimeout(10L)
+      .get()).body shouldEqual "get ok"
   }
 }
