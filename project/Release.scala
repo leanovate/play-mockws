@@ -1,19 +1,16 @@
-import com.typesafe.sbt.pgp.PgpKeys
+import sbt._
 import sbt.Keys._
-import sbtrelease.ReleasePlugin.ReleaseKeys._
+import sbtrelease.ReleasePlugin.autoImport._
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 import xerial.sbt.Sonatype.SonatypeKeys._
 
 object Release {
 
   val settings =
-    xerial.sbt.Sonatype.sonatypeSettings ++
-    com.typesafe.sbt.SbtPgp.settings ++
-    sbtrelease.ReleasePlugin.releaseSettings ++
     Seq(
+      releaseCrossBuild := true,
 
-      crossBuild := true,
-
-      profileName := "de.leanovate",
+      sonatypeProfileName := "de.leanovate",
       publishMavenStyle := true,
 
       pomExtra := {
@@ -38,6 +35,19 @@ object Release {
           </developers>
       },
 
-      publishArtifactsAction := PgpKeys.publishSigned.value
+      releaseProcess := Seq[ReleaseStep](
+        checkSnapshotDependencies,
+        inquireVersions,
+        runClean,
+        runTest,
+        setReleaseVersion,
+        commitReleaseVersion,
+        tagRelease,
+        ReleaseStep(action = Command.process("publishSigned", _), enableCrossBuild = true),
+        setNextVersion,
+        commitNextVersion,
+        ReleaseStep(action = Command.process("sonatypeReleaseAll", _), enableCrossBuild = true),
+        pushChanges
+      )
     )
 }
