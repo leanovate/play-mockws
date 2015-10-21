@@ -15,13 +15,13 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play" % playVersion % "provided",
   "com.typesafe.play" %% "play-ws" % playVersion % "provided",
-  "com.typesafe.play" %% "play-test" % playVersion % "provided",
-  "org.mockito" % "mockito-core" % "1.10.19" % "provided"
+  "com.typesafe.play" %% "play-test" % playVersion % "provided"
 )
 
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "2.2.5",
-  "org.scalacheck" %% "scalacheck" % "1.12.5"
+  "org.scalatest" %% "scalatest" % "2.2.4",
+  "org.scalacheck" %% "scalacheck" % "1.12.2",
+  "org.mockito" % "mockito-core" % "1.10.19"
 ) map (_ % "test")
 
 Release.settings
