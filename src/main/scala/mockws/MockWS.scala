@@ -150,6 +150,7 @@ case class MockWS(withRoutes: MockWS.Routes) extends WSClient {
           val bodyCharset = charset(result.header.headers).map(Charset.forName).getOrElse(StandardCharsets.UTF_8)
           val body = new String(contentAsBytes, bodyCharset)
           given (wsResponse.body) willReturn body
+          given (wsResponse.bodyAsBytes) willReturn contentAsBytes
 
           val returnedContentType = result.header.headers
             .get(CONTENT_TYPE)
