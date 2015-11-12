@@ -15,7 +15,7 @@ play-mockws
 [![codecov.io](http://codecov.io/github/leanovate/play-mockws/coverage.svg?branch=master)](http://codecov.io/github/leanovate/play-mockws?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws_2.11)
 
-Play MockWS is a [mock](http://mockito.org/) WS client for Play Framework.
+Play MockWS is a mock WS client for Play Framework.
 
 If:
 - you write an application in Scala with the [Play Framework](https://playframework.com/)
@@ -41,11 +41,11 @@ Add MockWS as test dependency in the `build.sbt`:
 
 * for Play 2.3.x:
 ```scala
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.3.1" % "test"
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.3.2" % "test"
 ```
 * for Play 2.4.x:
 ```scala
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.4.1" % "test"
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.4.2" % "test"
 ```
 
 
@@ -110,6 +110,7 @@ MockWS 2.4.x is actually only compatible with Play 2.4.y., with Scala 2.10 or 2.
 
 ## Release Notes
 
+* 2.4.2/2.3.2: major contribution from [@htmldoug](https://github.com/htmldoug): Replace mockito with a concrete implementation [#11](https://github.com/leanovate/play-mockws/pull/11)
 * 2.4.1/2.3.1: contribution from [@bomgar](https://github.com/bomgar): mock sign() method [#7](https://github.com/leanovate/play-mockws/pull/7)
 * 2.4.0: first version compatible with play 2.4.y
 * 2.3.0: same release as 0.15 - use the same version number as play (2.3.x compatible with play 2.3.y)
