@@ -39,13 +39,17 @@ await(ws.url("http://dns/url").get()).body == "http response"
 
 Add MockWS as test dependency in the `build.sbt`:
 
-* for Play 2.3.x:
+* for Play 2.5.x:
 ```scala
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.3.2" % "test"
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.5-RC1" % "test"
 ```
 * for Play 2.4.x:
 ```scala
 libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.4.2" % "test"
+```
+* for Play 2.3.x:
+```scala
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.3.2" % "test"
 ```
 
 
@@ -68,7 +72,7 @@ val ws = MockWS {
   case (GET, "/users/24") => Action { NotFound("") }
 }
 ```
-The partial function binds 2 Strings, an HTTP method and the URL, to a Play [Action](https://www.playframework.com/documentation/2.3.x/ScalaActions).
+The partial function binds 2 Strings, an HTTP method and the URL, to a Play [Action](https://www.playframework.com/documentation/latest/ScalaActions).
 
 For clarity, this partial function is aliased as [MockWS.Routes](src/main/scala/mockws/MockWS.scala)
 
@@ -105,11 +109,13 @@ Other examples can be found in the [tests](src/test/scala/mockws/).
 
 ## Compatibility Matrix
 
-MockWS 2.3.x is actually only compatible with Play 2.3.y., with Scala 2.10 or 2.11.
+MockWS 2.5.x is actually only compatible with Play 2.5.y., with Scala 2.11.
 MockWS 2.4.x is actually only compatible with Play 2.4.y., with Scala 2.10 or 2.11.
+MockWS 2.3.x is actually only compatible with Play 2.3.y., with Scala 2.10 or 2.11.
 
 ## Release Notes
 
+* 2.5-RC1: release compatible with play 2.5-RC1
 * 2.4.2/2.3.2: major contribution from [@htmldoug](https://github.com/htmldoug): Replace mockito with a concrete implementation [#11](https://github.com/leanovate/play-mockws/pull/11)
 * 2.4.1/2.3.1: contribution from [@bomgar](https://github.com/bomgar): mock sign() method [#7](https://github.com/leanovate/play-mockws/pull/7)
 * 2.4.0: first version compatible with play 2.4.y
