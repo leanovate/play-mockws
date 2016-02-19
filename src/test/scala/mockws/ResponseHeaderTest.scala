@@ -34,5 +34,6 @@ class ResponseHeaderTest extends FunSuite with Matchers {
     val headerValues = await(ws.url("/").get()).allHeaders("Cache-Control")
     headerValues should have size 1
     headerValues.head shouldBe "no-cache, no-store"
+    ws.close()
   }
 }

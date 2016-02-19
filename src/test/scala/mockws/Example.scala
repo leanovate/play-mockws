@@ -52,7 +52,8 @@ class Example extends FreeSpec with Matchers with OptionValues {
 
       // we inject the MockWS into GatewayToTest
       val testedGateway = new GatewayToTest(ws)
-      await(testedGateway.age(userId))
+      try await(testedGateway.age(userId))
+      finally ws.close()
     }
   }
 

@@ -3,7 +3,7 @@ package mockws
 import java.io._
 import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 
-import com.ning.http.client.Response
+import org.asynchttpclient.Response
 import org.scalatest.{FunSuite, Matchers}
 import play.api.mvc.Action
 import play.api.mvc.Results._
@@ -11,22 +11,23 @@ import play.api.test.Helpers._
 
 class GzippedResponsesTest extends FunSuite with Matchers {
 
-  val ws = MockWS {
-    case (_, _) ⇒ Action {
-      val os = new ByteArrayOutputStream()
-      val gzip = new GZIPOutputStream(os)
-      gzip.write("my response".getBytes())
-      gzip.close()
-
-      Ok(os.toByteArray)
-    }
-  }
-
   test("mock WS handle gzipped responses") {
+    val ws = MockWS {
+      case (_, _) ⇒ Action {
+        val os = new ByteArrayOutputStream()
+        val gzip = new GZIPOutputStream(os)
+        gzip.write("my response".getBytes())
+        gzip.close()
+
+        Ok(os.toByteArray)
+      }
+    }
+
     val result = await(ws.url("").get())
 
     val body = scala.io.Source.fromInputStream(new GZIPInputStream(result.underlying[Response].getResponseBodyAsStream)).mkString
     body shouldEqual "my response"
+    ws.close()
   }
 
 }

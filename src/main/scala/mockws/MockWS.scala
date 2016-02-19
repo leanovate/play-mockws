@@ -1,5 +1,9 @@
 package mockws
 
+import java.util.UUID
+
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 import play.api.libs.ws.{WSClient, WSRequest}
 import play.api.mvc.EssentialAction
 
@@ -30,9 +34,14 @@ import play.api.mvc.EssentialAction
 class MockWS(routes: MockWS.Routes) extends WSClient {
   require(routes != null)
 
+  implicit val system = ActorSystem("mock-ws-" + UUID.randomUUID().toString)
+  implicit val materializer = ActorMaterializer()
+
   override def underlying[T]: T = this.asInstanceOf[T]
 
-  override def close(): Unit = {}
+  override def close(): Unit = {
+    system.terminate()
+  }
 
   override def url(url: String): WSRequest = new FakeWSRequestHolder(routes, url)
 }
