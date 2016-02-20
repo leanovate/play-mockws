@@ -8,6 +8,7 @@ import akka.util.ByteString
 import mockws.MockWS.Routes
 import org.slf4j.LoggerFactory
 import play.api.libs.iteratee.Enumerator
+import play.api.libs.streams.Streams
 import play.api.libs.ws._
 import play.api.libs.ws.ahc.AhcWSResponse
 import play.api.mvc.Result
@@ -91,11 +92,14 @@ case class FakeWSRequestHolder(
     }
 
   @deprecated("2.5.0")
-  def streamWithEnumerator(): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] = ???
-  // TODO: convert a Source to an Enumerator
-//    executeResult().map { r ⇒
-//      r.header → r.body.dataStream.map(_.toArray)
-//    }
+  def streamWithEnumerator(): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
+    executeResult().map { r ⇒
+      val headers = FakeWSResponseHeaders(r.header.status, r.header.headers.mapValues(e ⇒ Seq(e)))
+      val source = r.body.dataStream.map(_.toArray)
+      val publisher = source.runWith(Sink.asPublisher(false))
+      val enum: Enumerator[Array[Byte]] = Streams.publisherToEnumerator(publisher)
+      headers → enum
+    }
 
   private def executeResult(): Future[Result] = {
     logger.debug(s"calling $method $url")

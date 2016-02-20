@@ -134,8 +134,7 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
   }
 
 
-  // streamWithEnumerator not implemented yet
-  ignore("mock WS simulates a GET with a consumer") {
+  test("mock WS simulates a GET with a consumer") {
 
     def testedController(ws: WSClient) = Action.async {
       val resultP = Promise[Result]()
@@ -161,6 +160,7 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
           body = HttpEntity.Streamed(body, None, None))
       }
     }
+    import ws.materializer
 
     val response = testedController(ws).apply(FakeRequest())
     status(response) shouldEqual CREATED
