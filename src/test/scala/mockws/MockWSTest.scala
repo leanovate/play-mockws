@@ -341,4 +341,22 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
       .get()).body shouldEqual "get ok"
     ws.close()
   }
+
+  test("should pass through all elements of a Source") {
+    val content = Source(Seq("hello, ", "world").map(ByteString(_)))
+
+    val ws = MockWS {
+      case (GET, "/get") ⇒ Action {
+        Result(
+          header = ResponseHeader(200),
+          body = HttpEntity.Streamed(content, None, None)
+        )
+      }
+    }
+
+    await(ws
+      .url("/get")
+      .get()).body shouldEqual "hello, world"
+    ws.close()
+  }
 }
