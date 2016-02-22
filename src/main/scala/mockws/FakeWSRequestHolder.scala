@@ -81,9 +81,8 @@ case class FakeWSRequestHolder(
   def execute(): Future[WSResponse] =
     for {
       result <- executeResult()
-      responseBodyBytes ←
-        result.body.dataStream.runWith(Sink.headOption).map(_.fold(Array.empty[Byte])(_.toArray))
-    } yield new AhcWSResponse(new FakeAhcResponse(result, responseBodyBytes))
+      responseBody ← result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
+    } yield new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
 
 
   def stream(): Future[StreamedResponse] =
