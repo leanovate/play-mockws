@@ -116,7 +116,7 @@ MockWS 2.3.x is actually only compatible with Play 2.3.y., with Scala 2.10 or 2.
 ## Release Notes
 
 * 2.5.0-RC2:
-  - contribution frrom [@avdv](https://github.com/avdv): Fix truncated response in FakeWSRequestHolder [#15](https://github.com/leanovate/play-mockws/pull/15)
+  - contribution from [@avdv](https://github.com/avdv): Fix truncated response in FakeWSRequestHolder [#15](https://github.com/leanovate/play-mockws/pull/15)
   - release compatible with play 2.5.0-RC2
 * 2.5-RC1: release compatible with play 2.5.0-RC1
 * 2.4.2/2.3.2: major contribution from [@htmldoug](https://github.com/htmldoug): Replace mockito with a concrete implementation [#11](https://github.com/leanovate/play-mockws/pull/11)
