@@ -101,7 +101,7 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
     val json = await(ws.url("/json").get())
 
     text.header(CONTENT_TYPE) shouldEqual Some("text/plain; charset=utf-8")
-    json.header(CONTENT_TYPE) shouldEqual Some("application/json; charset=utf-8")
+    json.header(CONTENT_TYPE) shouldEqual Some("application/json")
     ws.close()
   }
 

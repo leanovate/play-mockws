@@ -78,6 +78,8 @@ case class FakeWSRequestHolder(
         copy(requestTimeout = Some(millis.toInt))
     }
 
+  def withRequestFilter(filter: WSRequestFilter): WSRequest = this
+
   def execute(): Future[WSResponse] =
     for {
       result <- executeResult()
