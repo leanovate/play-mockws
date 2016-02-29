@@ -41,7 +41,7 @@ Add MockWS as test dependency in the `build.sbt`:
 
 * for Play 2.5.x:
 ```scala
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.5-RC1" % "test"
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.5.0-RC2" % "test"
 ```
 * for Play 2.4.x:
 ```scala
@@ -115,7 +115,10 @@ MockWS 2.3.x is actually only compatible with Play 2.3.y., with Scala 2.10 or 2.
 
 ## Release Notes
 
-* 2.5-RC1: release compatible with play 2.5-RC1
+* 2.5.0-RC2:
+  - contribution frrom [@avdv](https://github.com/avdv): Fix truncated response in FakeWSRequestHolder [#15](https://github.com/leanovate/play-mockws/pull/15)
+  - release compatible with play 2.5.0-RC2
+* 2.5-RC1: release compatible with play 2.5.0-RC1
 * 2.4.2/2.3.2: major contribution from [@htmldoug](https://github.com/htmldoug): Replace mockito with a concrete implementation [#11](https://github.com/leanovate/play-mockws/pull/11)
 * 2.4.1/2.3.1: contribution from [@bomgar](https://github.com/bomgar): mock sign() method [#7](https://github.com/leanovate/play-mockws/pull/7)
 * 2.4.0: first version compatible with play 2.4.y
