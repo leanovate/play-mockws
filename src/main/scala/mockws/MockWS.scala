@@ -31,16 +31,13 @@ import play.api.mvc.EssentialAction
  *
  * @param routes routes defining the mock calls
  */
-class MockWS(routes: MockWS.Routes) extends WSClient {
+class MockWS(routes: MockWS.Routes, shutdownHook: () ⇒ Unit)(implicit val materializer: ActorMaterializer) extends WSClient {
   require(routes != null)
-
-  implicit val system = ActorSystem("mock-ws-" + UUID.randomUUID().toString)
-  implicit val materializer = ActorMaterializer()
 
   override def underlying[T]: T = this.asInstanceOf[T]
 
   override def close(): Unit = {
-    system.terminate()
+    shutdownHook()
   }
 
   override def url(url: String): WSRequest = new FakeWSRequestHolder(routes, url)
@@ -49,5 +46,18 @@ class MockWS(routes: MockWS.Routes) extends WSClient {
 object MockWS {
   type Routes = PartialFunction[(String, String), EssentialAction]
 
-  def apply(routes: Routes) = new MockWS(routes)
+  /**
+    * @param routes simulation of the external web resource
+    */
+  def apply(routes: Routes) = {
+    implicit val system = ActorSystem("mock-ws-" + UUID.randomUUID().toString)
+    implicit val materializer = ActorMaterializer()
+    new MockWS(routes, () ⇒ system.terminate())
+  }
+
+  /**
+    * @param routes       simulation of the external web resource
+    * @param materializer user-defined materializer
+    */
+  def apply(routes: Routes, materializer: ActorMaterializer) = new MockWS(routes, () ⇒ Unit)(materializer)
 }
