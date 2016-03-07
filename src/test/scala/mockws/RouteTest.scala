@@ -31,6 +31,7 @@ class RouteTest extends FunSuite with Matchers {
 
     route1.called shouldEqual true
     route2.called shouldEqual true
+    ws.close()
   }
 
   test("a route knows how many times it was called") {
@@ -48,6 +49,8 @@ class RouteTest extends FunSuite with Matchers {
     await(ws.url("/route").get())
 
     route.timeCalled shouldEqual 2
+
+    ws.close()
   }
 
   test("a route knows how many times it was called with parallel calls") {
@@ -69,6 +72,8 @@ class RouteTest extends FunSuite with Matchers {
     executor.awaitTermination(1, TimeUnit.SECONDS)
 
     route.timeCalled shouldEqual numberOfTimes
+
+    ws.close()
   }
 
 }

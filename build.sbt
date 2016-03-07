@@ -2,13 +2,15 @@ name := "play-mockws"
 
 scalaVersion := "2.11.7"
 
-crossScalaVersions := Seq("2.10.5", "2.11.7")
+crossScalaVersions := Seq("2.11.7")
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
 organization := "de.leanovate.play-mockws"
 
-val playVersion = "2.4.6"
+val playVersion = "2.5.0"
+
+fork := true
 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 

@@ -34,5 +34,6 @@ class CookieTest extends FunSuite with Matchers {
       'domain ("https://www.example.com"),
       'secure (true)
     )
+    ws.close()
   }
 }

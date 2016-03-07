@@ -2,11 +2,15 @@ package mockws
 
 import java.net.URLEncoder
 
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{FileIO, Sink, Source}
+import akka.util.ByteString
 import mockws.MockWS.Routes
 import org.slf4j.LoggerFactory
-import play.api.libs.iteratee.{Enumerator, Iteratee}
+import play.api.libs.iteratee.Enumerator
+import play.api.libs.streams.Streams
 import play.api.libs.ws._
-import play.api.libs.ws.ning.NingWSResponse
+import play.api.libs.ws.ahc.AhcWSResponse
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 
@@ -22,8 +26,9 @@ case class FakeWSRequestHolder(
   headers: Map[String, Seq[String]] = Map.empty,
   queryString: Map[String, Seq[String]] = Map.empty,
   requestTimeout: Option[Int] = None,
-  timeoutProvider: TimeoutProvider = SchedulerExecutorServiceTimeoutProvider
-  ) extends WSRequest {
+  timeoutProvider: TimeoutProvider = SchedulerExecutorServiceTimeoutProvider)(
+  implicit val materializer: ActorMaterializer
+) extends WSRequest {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
@@ -63,16 +68,39 @@ case class FakeWSRequestHolder(
     }
   )
 
-  def withRequestTimeout(timeout: Long) = copy(requestTimeout = Some(timeout.toInt))
+  def withRequestTimeout(timeout: Duration): WSRequest =
+    timeout match {
+      case Duration.Inf =>
+        copy(requestTimeout = None)
+      case d =>
+        val millis = d.toMillis
+        require(millis >= 0 && millis <= Int.MaxValue, s"Request timeout must be between 0 and ${Int.MaxValue} milliseconds")
+        copy(requestTimeout = Some(millis.toInt))
+    }
 
-  def execute(): Future[WSResponse] = for {
-    result <- executeResult()
-    responseBodyBytes <- result.body |>>> Iteratee.consume[Array[Byte]]()
-  } yield new NingWSResponse(new FakeAhcResponse(result, responseBodyBytes))
+  def withRequestFilter(filter: WSRequestFilter): WSRequest = this
 
-  def stream(): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] = {
-    executeResult().map(result => (new FakeWSResponseHeaders(result), result.body))
-  }
+  def execute(): Future[WSResponse] =
+    for {
+      result <- executeResult()
+      responseBody ← result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
+    } yield new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
+
+
+  def stream(): Future[StreamedResponse] =
+    executeResult().map { result =>
+      StreamedResponse(new FakeWSResponseHeaders(result), result.body.dataStream)
+    }
+
+  @deprecated("2.5.0")
+  def streamWithEnumerator(): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
+    executeResult().map { r ⇒
+      val headers = FakeWSResponseHeaders(r.header.status, r.header.headers.mapValues(e ⇒ Seq(e)))
+      val source = r.body.dataStream.map(_.toArray)
+      val publisher = source.runWith(Sink.asPublisher(false))
+      val enum: Enumerator[Array[Byte]] = Streams.publisherToEnumerator(publisher)
+      headers → enum
+    }
 
   private def executeResult(): Future[Result] = {
     logger.debug(s"calling $method $url")
@@ -83,7 +111,7 @@ case class FakeWSRequestHolder(
     // Real WSClients will actually interrupt the response Enumerator while it's streaming.
     // I don't want to go down that rabbit hole. This is close enough for most cases.
     applyRequestTimeout(fakeRequest) {
-      requestBodyEnumerator |>>> action(fakeRequest)
+      action(fakeRequest).run(requestBodyEnumerator)
     }
   }
 
@@ -96,11 +124,11 @@ case class FakeWSRequestHolder(
     case None => future
   }
 
-  private def requestBodyEnumerator: Enumerator[Array[Byte]] = body match {
-    case EmptyBody => Enumerator.eof
-    case FileBody(file) => Enumerator.fromFile(file)
-    case InMemoryBody(bytes) => Enumerator(bytes)
-    case StreamedBody(enumerator) => enumerator
+  private def requestBodyEnumerator: Source[ByteString, _] = body match {
+    case EmptyBody => Source.empty
+    case FileBody(file) => FileIO.fromFile(file)
+    case InMemoryBody(bytes) => Source.single(bytes)
+    case StreamedBody(source) => source
   }
 
   private def headersSeq(): Seq[(String, String)] = for {

@@ -1,15 +1,16 @@
 package mockws
 
 import java.io.{ByteArrayInputStream, InputStream}
+import java.net.SocketAddress
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util
-import java.util.Collections
 
-import com.ning.http.client.cookie.{Cookie, CookieDecoder}
-import com.ning.http.client.uri.Uri
-import com.ning.http.client.{FluentCaseInsensitiveStringsMap, Response}
-import com.ning.http.util.AsyncHttpProviderUtils
+import io.netty.handler.codec.http.{DefaultHttpHeaders, HttpHeaders}
+import org.asynchttpclient.Response
+import org.asynchttpclient.cookie.{Cookie, CookieDecoder}
+import org.asynchttpclient.uri.Uri
+import org.asynchttpclient.util.HttpUtils
 import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import play.api.mvc.Result
 
@@ -18,9 +19,9 @@ import scala.collection.JavaConversions._
 /**
  * A simulated response from the async-http-client.
  *
- * The [[play.api.libs.ws.ning.NingWSResponse]] is intended to wrap this.
+ * The [[play.api.libs.ws.ahc.AhcWSResponse]] is intended to wrap this.
  *
- * Implementation is mostly based off of [[com.ning.http.client.providers.netty.response.NettyResponse]].
+ * Implementation is mostly based of [[org.asynchttpclient.netty.NettyResponse]].
  *
  * We're faking at this level as opposed to the [[play.api.libs.ws.WSResponse]] level
  * to preserve any behavior specific to the NingWSResponse which is likely to be used
@@ -30,11 +31,13 @@ class FakeAhcResponse(result: Result, body: Array[Byte]) extends Response {
 
   private val NettyDefaultCharset: Charset = Charset.forName("ISO-8859-1")
 
+  override def getLocalAddress: SocketAddress = ???
+
+  override def getRemoteAddress: SocketAddress = ???
+
+  override def getResponseBody(charset: Charset): String = new String(getResponseBodyAsBytes(), computeCharset(charset))
+
   override def getResponseBodyAsByteBuffer: ByteBuffer = ByteBuffer.wrap(body)
-
-  override def getResponseBodyExcerpt(maxLength: Int, charset: String): String = getResponseBody(charset).take(maxLength)
-
-  override def getResponseBodyExcerpt(maxLength: Int): String = getResponseBodyExcerpt(maxLength, null)
 
   override def getStatusCode: Int = result.header.status
 
@@ -50,20 +53,18 @@ class FakeAhcResponse(result: Result, body: Array[Byte]) extends Response {
 
   override def getStatusText: String = HttpResponseStatus.valueOf(getStatusCode).toString
 
-  override def getHeaders(name: String): util.List[String] = {
-    Option(getHeaders.get(name)).getOrElse(Collections.emptyList())
-  }
+  override def getHeaders(name: String): util.List[String] = getHeaders.getAll(name)
 
-  override def getHeaders: FluentCaseInsensitiveStringsMap = {
+  override def getHeaders: HttpHeaders = {
     val scalaHeaders = FakeWSResponseHeaders.toMultiMap(result.header)
-    val javaHeaders = mapAsJavaMap(scalaHeaders.mapValues(v => asJavaCollection(v)))
 
-    new FluentCaseInsensitiveStringsMap(javaHeaders)
+    val headers = new DefaultHttpHeaders()
+    scalaHeaders.foreach(e ⇒ headers.add(e._1, asJavaCollection(e._2)))
+    result.body.contentType foreach (ct ⇒ headers.add("Content-Type", ct))
+    headers
   }
 
   override def hasResponseHeaders: Boolean = true // really asking if the request has been completed.
-
-  override def getResponseBody(charset: String): String = new String(body, computeCharset(charset))
 
   override def getResponseBody: String = getResponseBody(null)
 
@@ -73,17 +74,15 @@ class FakeAhcResponse(result: Result, body: Array[Byte]) extends Response {
 
   override def getUri: Uri = throw new NotImplementedError("unavailable here and unused by NingWSResponse")
 
-  override def getHeader(name: String): String = getHeaders.getFirstValue(name)
+  override def getHeader(name: String): String = getHeaders.get(name)
 
-  private def computeCharset(charset: String): Charset = {
+  private def computeCharset(charset: Charset): Charset =
     Option(charset)
       .orElse(charsetFromContentType)
-      .map(Charset.forName)
       .getOrElse(NettyDefaultCharset)
-  }
 
-  private def charsetFromContentType: Option[String] = {
+  private def charsetFromContentType: Option[Charset] =
     Option(getContentType)
-      .flatMap(ct => Option(AsyncHttpProviderUtils.parseCharset(ct)))
-  }
+      .flatMap(ct => Option(HttpUtils.parseCharset(ct)))
+
 }

@@ -8,6 +8,7 @@ import org.scalatest.{FunSuite, Matchers}
 import play.api.mvc.{Action, Result}
 
 import scala.concurrent.Promise
+import scala.concurrent.duration._
 
 class TimeoutTest extends FunSuite with Matchers {
 
@@ -21,8 +22,10 @@ class TimeoutTest extends FunSuite with Matchers {
       case (_, "/hang/forever") => Action.async(Promise[Result]().future)
     }
 
-    val futureResponse = ws.url("/hang/forever").withRequestTimeout(1).get()
+    val futureResponse = ws.url("/hang/forever").withRequestTimeout(1.millis).get()
 
     whenReady(futureResponse.failed)(_ shouldBe a[TimeoutException])
+
+    ws.close()
   }
 }
