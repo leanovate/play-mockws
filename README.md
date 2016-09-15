@@ -109,9 +109,9 @@ Other examples can be found in the [tests](src/test/scala/mockws/).
 
 ## Compatibility Matrix
 
-MockWS 2.5.x is actually only compatible with Play 2.5.y., with Scala 2.11.
-MockWS 2.4.x is actually only compatible with Play 2.4.y., with Scala 2.10 or 2.11.
-MockWS 2.3.x is actually only compatible with Play 2.3.y., with Scala 2.10 or 2.11.
+- MockWS 2.5.x is actually only compatible with Play 2.5.y., with Scala 2.11.
+- MockWS 2.4.x is actually only compatible with Play 2.4.y., with Scala 2.10 or 2.11.
+- MockWS 2.3.x is actually only compatible with Play 2.3.y., with Scala 2.10 or 2.11.
 
 ## Release Notes
 
