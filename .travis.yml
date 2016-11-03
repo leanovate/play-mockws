@@ -4,7 +4,6 @@ script:
 jdk:
   - oraclejdk8
 scala:
-  - 2.10.5
-  - 2.11.6
+  - 2.11.8
 after_success:
   - bash <(curl -s https://codecov.io/bash)
