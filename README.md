@@ -115,7 +115,8 @@ Other examples can be found in the [tests](src/test/scala/mockws/).
 
 ## Release Notes
 
-* 2.5.0 (2016-03-07): release compatible with play 2.5.0
+* 2.5.1 (2016/11/03): contribution from [@agebhar1](https://github.com/agebhar1): add support for HTTP Authentication: Basic [#17](https://github.com/leanovate/play-mockws/pull/17)
+* 2.5.0 (2016/03/07): release compatible with play 2.5.0
 * 2.5.0-RC2:
   - contribution from [@avdv](https://github.com/avdv): Fix truncated response in FakeWSRequestHolder [#15](https://github.com/leanovate/play-mockws/pull/15)
   - release compatible with play 2.5.0-RC2
