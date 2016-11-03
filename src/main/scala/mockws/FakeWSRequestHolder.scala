@@ -1,6 +1,7 @@
 package mockws
 
 import java.net.URLEncoder
+import java.util.Base64
 
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{FileIO, Sink, Source}
@@ -25,6 +26,7 @@ case class FakeWSRequestHolder(
   body: WSBody = EmptyBody,
   headers: Map[String, Seq[String]] = Map.empty,
   queryString: Map[String, Seq[String]] = Map.empty,
+  auth: Option[(String, String, WSAuthScheme)] = None,
   requestTimeout: Option[Int] = None,
   timeoutProvider: TimeoutProvider = SchedulerExecutorServiceTimeoutProvider)(
   implicit val materializer: ActorMaterializer
@@ -33,13 +35,13 @@ case class FakeWSRequestHolder(
   private val logger = LoggerFactory.getLogger(getClass)
 
   /* Not implemented. */
-  override val auth: Option[(String, String, WSAuthScheme)] = None
   override val calc: Option[WSSignatureCalculator] = None
   override val followRedirects: Option[Boolean] = None
   override val proxyServer: Option[WSProxyServer] = None
   override val virtualHost: Option[String] = None
 
-  def withAuth(username: String, password: String, scheme: WSAuthScheme) = this
+  def withAuth(username: String, password: String, scheme: WSAuthScheme) =
+    copy(auth = Some((username, password, scheme)))
 
   def sign(calc: WSSignatureCalculator): WSRequest = this
 
@@ -111,8 +113,21 @@ case class FakeWSRequestHolder(
     // Real WSClients will actually interrupt the response Enumerator while it's streaming.
     // I don't want to go down that rabbit hole. This is close enough for most cases.
     applyRequestTimeout(fakeRequest) {
-      action(fakeRequest).run(requestBodyEnumerator)
+      action(sign(fakeRequest)).run(requestBodyEnumerator)
     }
+  }
+
+  private def sign(req: FakeRequest[_]): FakeRequest[_] = auth match {
+    case None ⇒ req
+    case Some((username, password, WSAuthScheme.BASIC)) ⇒
+      val encoded = new String(
+        Base64.getMimeEncoder().encode(s"$username:$password".getBytes("UTF-8")), "UTF-8")
+      req.withHeaders("Authorization" → s"Basic: $encoded")
+    case Some((_, _, unsupported)) ⇒ throw new UnsupportedOperationException(
+      s"""do not support auth method $unsupported.
+        |Help us to provide support for this.
+        |Send us a test at https://github.com/leanovate/play-mockws/issues
+      """.stripMargin)
   }
 
   private def applyRequestTimeout[T](req: FakeRequest[_])(future: Future[T]) = requestTimeout match {
