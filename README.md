@@ -12,7 +12,7 @@ play-mockws
 ===========
 
 [![Build Status](https://travis-ci.org/leanovate/play-mockws.svg?branch=master)](https://travis-ci.org/leanovate/play-mockws)
-[![codecov.io](http://codecov.io/github/leanovate/play-mockws/coverage.svg?branch=master)](http://codecov.io/github/leanovate/play-mockws?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/a7f45a8cbd2a4085ac03ff8c163e3394)](https://www.codacy.com/app/yann-simon-fr/play-mockws?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=leanovate/play-mockws&amp;utm_campaign=Badge_Coverage)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws_2.11)
 
 Play MockWS is a mock WS client for Play Framework.
