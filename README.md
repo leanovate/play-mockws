@@ -42,7 +42,7 @@ Add MockWS as test dependency in the `build.sbt`:
 
 * for Play 2.5.x:
 ```scala
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.5.0" % "test"
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.5.1" % "test"
 ```
 * for Play 2.4.x:
 ```scala
