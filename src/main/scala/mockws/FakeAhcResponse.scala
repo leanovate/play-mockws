@@ -6,12 +6,12 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util
 
-import io.netty.handler.codec.http.{DefaultHttpHeaders, HttpHeaders}
-import org.asynchttpclient.Response
-import org.asynchttpclient.cookie.{Cookie, CookieDecoder}
-import org.asynchttpclient.uri.Uri
-import org.asynchttpclient.util.HttpUtils
-import org.jboss.netty.handler.codec.http.HttpResponseStatus
+import play.shaded.ahc.io.netty.handler.codec.http.{DefaultHttpHeaders, HttpHeaders}
+import play.shaded.ahc.org.asynchttpclient.Response
+import play.shaded.ahc.org.asynchttpclient.cookie.{Cookie, CookieDecoder}
+import play.shaded.ahc.org.asynchttpclient.uri.Uri
+import play.shaded.ahc.org.asynchttpclient.util.HttpUtils
+import play.shaded.ahc.io.netty.handler.codec.http.HttpResponseStatus
 import play.api.mvc.Result
 
 import scala.collection.JavaConversions._

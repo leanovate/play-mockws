@@ -3,7 +3,7 @@ package mockws
 import java.io._
 import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 
-import org.asynchttpclient.Response
+import play.shaded.ahc.org.asynchttpclient.Response
 import org.scalatest.{FunSuite, Matchers}
 import play.api.mvc.Action
 import play.api.mvc.Results._

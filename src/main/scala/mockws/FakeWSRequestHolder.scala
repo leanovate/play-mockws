@@ -9,9 +9,11 @@ import akka.util.ByteString
 import mockws.MockWS.Routes
 import org.slf4j.LoggerFactory
 import play.api.libs.iteratee.Enumerator
-import play.api.libs.streams.Streams
-import play.api.libs.ws._
+import play.api.libs.iteratee.streams.IterateeStreams
+import play.api.libs.ws
+import play.api.libs.ws.{StandaloneWSRequest, StandaloneWSResponse, _}
 import play.api.libs.ws.ahc.AhcWSResponse
+import play.api.mvc.MultipartFormData.Part
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 
@@ -19,6 +21,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
+// TODO some scala pro needs to take a look at this self type stuff and casting..
 case class FakeWSRequestHolder(
   routes: Routes,
   url: String,
@@ -32,30 +35,34 @@ case class FakeWSRequestHolder(
   implicit val materializer: ActorMaterializer
 ) extends WSRequest {
 
+//  override type Self <: FakeWSRequestHolder { type Self <: FakeWSRequestHolder.this.Self }
+  override type Self = WSRequest
+  override type Response <: AhcWSResponse
+
   private val logger = LoggerFactory.getLogger(getClass)
 
   /* Not implemented. */
-  override val calc: Option[WSSignatureCalculator] = None
-  override val followRedirects: Option[Boolean] = None
-  override val proxyServer: Option[WSProxyServer] = None
-  override val virtualHost: Option[String] = None
+  val calc: Option[WSSignatureCalculator] = None
+  val followRedirects: Option[Boolean] = None
+  val proxyServer: Option[WSProxyServer] = None
+  val virtualHost: Option[String] = None
 
-  def withAuth(username: String, password: String, scheme: WSAuthScheme) =
+  def withAuth(username: String, password: String, scheme: WSAuthScheme) : Self =
     copy(auth = Some((username, password, scheme)))
 
-  def sign(calc: WSSignatureCalculator): WSRequest = this
+  def sign(calc: WSSignatureCalculator): Self = this
 
-  def withFollowRedirects(follow: Boolean) = this
+  def withFollowRedirects(follow: Boolean) : Self = this
 
-  def withProxyServer(proxyServer: WSProxyServer) = this
+  def withProxyServer(proxyServer: WSProxyServer) : Self = this
 
-  def withVirtualHost(vh: String) = this
+  def withVirtualHost(vh: String) : Self = this
 
-  def withBody(body: WSBody) = copy(body = body)
+  def withBody(body: WSBody) : Self = copy(body = body)
 
-  def withMethod(method: String) = copy(method = method)
+  def withMethod(method: String) : Self = copy(method = method)
 
-  def withHeaders(hdrs: (String, String)*) = {
+  def withHeaders(hdrs: (String, String)*) : Self = {
     val headers = hdrs.foldLeft(this.headers)(
       (m, hdr) =>
         if (m.contains(hdr._1)) m.updated(hdr._1, m(hdr._1) :+ hdr._2)
@@ -64,13 +71,13 @@ case class FakeWSRequestHolder(
     copy(headers = headers)
   }
 
-  def withQueryString(parameters: (String, String)*) = copy(
+  def withQueryString(parameters: (String, String)*) : Self = copy(
     queryString = parameters.foldLeft(queryString) {
       case (m, (k, v)) => m + (k -> (v +: m.getOrElse(k, Nil)))
     }
   )
 
-  def withRequestTimeout(timeout: Duration): WSRequest =
+  def withRequestTimeout(timeout: Duration): Self =
     timeout match {
       case Duration.Inf =>
         copy(requestTimeout = None)
@@ -80,13 +87,13 @@ case class FakeWSRequestHolder(
         copy(requestTimeout = Some(millis.toInt))
     }
 
-  def withRequestFilter(filter: WSRequestFilter): WSRequest = this
+  def withRequestFilter(filter: WSRequestFilter): Self = this
 
-  def execute(): Future[WSResponse] =
+  def execute(): Future[Response] =
     for {
       result <- executeResult()
       responseBody ← result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
-    } yield new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
+    } yield (new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))).asInstanceOf[Response]
 
 
   def stream(): Future[StreamedResponse] =
@@ -94,13 +101,13 @@ case class FakeWSRequestHolder(
       StreamedResponse(new FakeWSResponseHeaders(result), result.body.dataStream)
     }
 
-  @deprecated("2.5.0")
+  @deprecated("will be removed", "2.5.0")
   def streamWithEnumerator(): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
     executeResult().map { r ⇒
       val headers = FakeWSResponseHeaders(r.header.status, r.header.headers.mapValues(e ⇒ Seq(e)))
       val source = r.body.dataStream.map(_.toArray)
       val publisher = source.runWith(Sink.asPublisher(false))
-      val enum: Enumerator[Array[Byte]] = Streams.publisherToEnumerator(publisher)
+      val enum: Enumerator[Array[Byte]] = IterateeStreams.publisherToEnumerator(publisher)
       headers → enum
     }
 
@@ -164,4 +171,32 @@ case class FakeWSRequestHolder(
       }
     }.mkString("?", "&", "")
   }
+
+  // not yet implemented - TODO
+  override def withBody(body: Source[Part[Source[ByteString, _]], _]): Self = ???
+
+  override def patch(body: Source[Part[Source[ByteString, _]], _]): Future[Response] = withBody(body).execute("patch").map(_.asInstanceOf[this.Response])
+
+
+  override def post(body: Source[Part[Source[ByteString, _]], _]): Future[Response] = withBody(body).execute("post").map(_.asInstanceOf[this.Response])
+
+  override def put(body: Source[Part[Source[ByteString, _]], _]): Future[Response] = withBody(body).execute("put").map(_.asInstanceOf[this.Response])
+
+
+  override def get(): Future[Response] = execute("get").map(_.asInstanceOf[this.Response])
+
+  override def contentType: Option[String] = ???
+  override def delete(): scala.concurrent.Future[Response] = ???
+  override def execute(method: String): scala.concurrent.Future[Response] = ???
+  override def head(): scala.concurrent.Future[Response] = ???
+  override def options(): scala.concurrent.Future[Response] = ???
+  override def patch(body: java.io.File): scala.concurrent.Future[Response] = ???
+  override def patch[T](body: T)(implicit evidence$2: play.api.libs.ws.BodyWritable[T]): scala.concurrent.Future[Response] = ???
+  override def post(body: java.io.File): scala.concurrent.Future[Response] = ???
+  override def post[T](body: T)(implicit evidence$3: play.api.libs.ws.BodyWritable[T]): scala.concurrent.Future[Response] = ???
+  override def put(body: java.io.File): scala.concurrent.Future[Response] = ???
+  override def put[T](body: T)(implicit evidence$4: play.api.libs.ws.BodyWritable[T]): scala.concurrent.Future[Response] = ???
+  override def uri: java.net.URI = ???
+  override def withBody[T](body: T)(implicit evidence$1: play.api.libs.ws.BodyWritable[T]): Self = ???
+  override def withBody(file: java.io.File): Self = ???
 }
