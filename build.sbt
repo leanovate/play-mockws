@@ -2,13 +2,13 @@ name := "play-mockws"
 
 scalaVersion := "2.11.8"
 
-crossScalaVersions := Seq("2.11.8")
+crossScalaVersions := Seq("2.12.1")
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
 organization := "de.leanovate.play-mockws"
 
-val playVersion = "2.5.0"
+val playVersion = "2.6.0-M1"
 
 fork := true
 
@@ -16,8 +16,10 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play" % playVersion % "provided",
-  "com.typesafe.play" %% "play-ws" % playVersion % "provided",
-  "com.typesafe.play" %% "play-test" % playVersion % "provided"
+  "com.typesafe.play" %% "play-ahc-ws" % playVersion % "provided",
+  "com.typesafe.play" %% "play-test" % playVersion % "provided",
+  "com.typesafe.play" %% "play-iteratees" % "2.6.1",
+  "com.typesafe.play" %% "play-iteratees-reactive-streams" % "2.6.1"
 )
 
 libraryDependencies ++= Seq(
