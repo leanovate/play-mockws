@@ -1,6 +1,7 @@
 package mockws
 
-import java.net.URLEncoder
+import java.io.File
+import java.net.{URI, URLEncoder}
 import java.util.Base64
 
 import akka.stream.ActorMaterializer
@@ -10,18 +11,18 @@ import mockws.MockWS.Routes
 import org.slf4j.LoggerFactory
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.iteratee.streams.IterateeStreams
-import play.api.libs.ws
-import play.api.libs.ws.{StandaloneWSRequest, StandaloneWSResponse, _}
+import play.api.libs.ws._
 import play.api.libs.ws.ahc.AhcWSResponse
 import play.api.mvc.MultipartFormData.Part
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.core.formatters.Multipart
+import play.shaded.ahc.io.netty.handler.codec.http.HttpHeaders
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-// TODO some scala pro needs to take a look at this self type stuff and casting..
 case class FakeWSRequestHolder(
   routes: Routes,
   url: String,
@@ -35,9 +36,8 @@ case class FakeWSRequestHolder(
   implicit val materializer: ActorMaterializer
 ) extends WSRequest {
 
-//  override type Self <: FakeWSRequestHolder { type Self <: FakeWSRequestHolder.this.Self }
   override type Self = WSRequest
-  override type Response <: AhcWSResponse
+  override type Response = WSResponse
 
   private val logger = LoggerFactory.getLogger(getClass)
 
@@ -58,7 +58,7 @@ case class FakeWSRequestHolder(
 
   def withVirtualHost(vh: String) : Self = this
 
-  def withBody(body: WSBody) : Self = copy(body = body)
+  def withBody(body: WSBody): Self = copy(body = body)
 
   def withMethod(method: String) : Self = copy(method = method)
 
@@ -93,7 +93,7 @@ case class FakeWSRequestHolder(
     for {
       result <- executeResult()
       responseBody ← result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
-    } yield (new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))).asInstanceOf[Response]
+    } yield new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
 
 
   def stream(): Future[StreamedResponse] =
@@ -115,7 +115,7 @@ case class FakeWSRequestHolder(
     logger.debug(s"calling $method $url")
 
     val action = routes.lift((method, url)).getOrElse(throw new Exception(s"no route defined for $method $url"))
-    def fakeRequest = FakeRequest(method, urlWithQueryParams()).withHeaders(headersSeq(): _*)
+    def fakeRequest = FakeRequest(method, urlWithQueryParams()).withHeaders(headersSeq(): _*).withBody(body)
 
     // Real WSClients will actually interrupt the response Enumerator while it's streaming.
     // I don't want to go down that rabbit hole. This is close enough for most cases.
@@ -172,31 +172,78 @@ case class FakeWSRequestHolder(
     }.mkString("?", "&", "")
   }
 
-  // not yet implemented - TODO
-  override def withBody(body: Source[Part[Source[ByteString, _]], _]): Self = ???
+  override def withBody(body: Source[Part[Source[ByteString, _]], _]): Self = {
+    val boundary = Multipart.randomBoundary()
+    val contentType = s"multipart/form-data; boundary=$boundary"
+    withBody(StreamedBody(Multipart.transform(body, boundary))).withHeaders("Content-Type" -> contentType)
+  }
 
-  override def patch(body: Source[Part[Source[ByteString, _]], _]): Future[Response] = withBody(body).execute("patch").map(_.asInstanceOf[this.Response])
+  override def patch(body: Source[Part[Source[ByteString, _]], _]): Future[Response] =
+    withBody(body).execute("PATCH")
 
+  override def post(body: Source[Part[Source[ByteString, _]], _]): Future[Response] =
+    withBody(body).execute("POST")
 
-  override def post(body: Source[Part[Source[ByteString, _]], _]): Future[Response] = withBody(body).execute("post").map(_.asInstanceOf[this.Response])
+  override def put(body: Source[Part[Source[ByteString, _]], _]): Future[Response] =
+    withBody(body).execute("PUT")
 
-  override def put(body: Source[Part[Source[ByteString, _]], _]): Future[Response] = withBody(body).execute("put").map(_.asInstanceOf[this.Response])
+  override def get(): Future[Response] = execute("GET")
 
+  override def contentType: Option[String] = headers.get(HttpHeaders.Names.CONTENT_TYPE).map(_.head)
 
-  override def get(): Future[Response] = execute("get").map(_.asInstanceOf[this.Response])
+  override def delete(): Future[Response] = execute("DELETE")
 
-  override def contentType: Option[String] = ???
-  override def delete(): scala.concurrent.Future[Response] = ???
-  override def execute(method: String): scala.concurrent.Future[Response] = ???
-  override def head(): scala.concurrent.Future[Response] = ???
-  override def options(): scala.concurrent.Future[Response] = ???
-  override def patch(body: java.io.File): scala.concurrent.Future[Response] = ???
-  override def patch[T](body: T)(implicit evidence$2: play.api.libs.ws.BodyWritable[T]): scala.concurrent.Future[Response] = ???
-  override def post(body: java.io.File): scala.concurrent.Future[Response] = ???
-  override def post[T](body: T)(implicit evidence$3: play.api.libs.ws.BodyWritable[T]): scala.concurrent.Future[Response] = ???
-  override def put(body: java.io.File): scala.concurrent.Future[Response] = ???
-  override def put[T](body: T)(implicit evidence$4: play.api.libs.ws.BodyWritable[T]): scala.concurrent.Future[Response] = ???
-  override def uri: java.net.URI = ???
-  override def withBody[T](body: T)(implicit evidence$1: play.api.libs.ws.BodyWritable[T]): Self = ???
-  override def withBody(file: java.io.File): Self = ???
+  override def execute(method: String): Future[Response] = withMethod(method).execute()
+
+  override def head(): Future[Response] = execute("HEAD")
+
+  override def options(): Future[Response] = execute("OPTIONS")
+
+  override def patch(body: File): Future[Response] =
+    withBody(body).execute("PATCH")
+
+  override def patch[T](body: T)(implicit ev: BodyWritable[T]): Future[Response] =
+    withBody(body).execute("PATCH")
+
+  override def post(body: File): Future[Response] =
+    withBody(body).execute("POST")
+
+  override def post[T](body: T)(implicit ev: BodyWritable[T]): Future[Response] =
+    withBody(body).execute("POST")
+
+  override def put(body: File): Future[Response] =
+    withBody(body).execute("PUT")
+
+  override def put[T](body: T)(implicit ev: BodyWritable[T]): Future[Response] =
+    withBody(body).execute("PUT")
+
+  override def withBody[T](body: T)(implicit ev: BodyWritable[T]): Self =
+    withBodyAndContentType(InMemoryBody(ev.transform(body)), ev.contentType)
+
+  override def withBody(file: java.io.File): Self = copy(body = FileBody(file))
+
+  // copied from 2.5 WsRequest
+  //  override def uri: java.net.URI = ???
+  /**
+    * The URI for this request
+    */
+  lazy val uri: URI = {
+    val enc = (p: String) => java.net.URLEncoder.encode(p, "utf-8")
+    new java.net.URI(if (queryString.isEmpty) url else {
+      val qs = (for {
+        (n, vs) <- queryString
+        v <- vs
+      } yield s"${enc(n)}=${enc(v)}").mkString("&")
+      s"$url?$qs"
+    })
+  }
+
+  // copied from StandaloneAhcWSRequest
+  private def withBodyAndContentType(wsBody: WSBody, contentType: String): Self = {
+    if (headers.contains("Content-Type")) {
+      withBody(wsBody)
+    } else {
+      withBody(wsBody).withHeaders("Content-Type" -> contentType)
+    }
+  }
 }

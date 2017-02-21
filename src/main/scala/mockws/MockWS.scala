@@ -40,7 +40,7 @@ class MockWS(routes: MockWS.Routes, shutdownHook: () ⇒ Unit)(implicit val mate
     shutdownHook()
   }
 
-  override def url(url: String): WSRequest = new FakeWSRequestHolder(routes, url)
+  override def url(url: String): WSRequest = FakeWSRequestHolder(routes, url)
 }
 
 object MockWS {
