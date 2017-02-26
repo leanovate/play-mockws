@@ -7,7 +7,7 @@ import play.api.test.Helpers._
 
 class CookieTest extends FunSuite with Matchers {
 
-  test("A cookie can be returned from an action") {
+  ignore("A cookie can be returned from an action") {
     val ws = MockWS {
       case (_, _) => Action(
         NoContent.withCookies(
