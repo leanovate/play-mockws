@@ -5,12 +5,10 @@ import java.net.{URI, URLEncoder}
 import java.util.Base64
 
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{FileIO, Sink, Source}
+import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import mockws.MockWS.Routes
 import org.slf4j.LoggerFactory
-import play.api.libs.iteratee.Enumerator
-import play.api.libs.iteratee.streams.IterateeStreams
 import play.api.libs.ws._
 import play.api.libs.ws.ahc.AhcWSResponse
 import play.api.mvc.MultipartFormData.Part
@@ -47,22 +45,22 @@ case class FakeWSRequestHolder(
   val proxyServer: Option[WSProxyServer] = None
   val virtualHost: Option[String] = None
 
-  def withAuth(username: String, password: String, scheme: WSAuthScheme) : Self =
+  def withAuth(username: String, password: String, scheme: WSAuthScheme): Self =
     copy(auth = Some((username, password, scheme)))
 
   def sign(calc: WSSignatureCalculator): Self = this
 
-  def withFollowRedirects(follow: Boolean) : Self = this
+  def withFollowRedirects(follow: Boolean): Self = this
 
-  def withProxyServer(proxyServer: WSProxyServer) : Self = this
+  def withProxyServer(proxyServer: WSProxyServer): Self = this
 
-  def withVirtualHost(vh: String) : Self = this
+  def withVirtualHost(vh: String): Self = this
 
   def withBody(body: WSBody): Self = copy(body = body)
 
-  def withMethod(method: String) : Self = copy(method = method)
+  def withMethod(method: String): Self = copy(method = method)
 
-  def withHeaders(hdrs: (String, String)*) : Self = {
+  def withHeaders(hdrs: (String, String)*): Self = {
     val headers = hdrs.foldLeft(this.headers)(
       (m, hdr) =>
         if (m.contains(hdr._1)) m.updated(hdr._1, m(hdr._1) :+ hdr._2)
@@ -71,7 +69,7 @@ case class FakeWSRequestHolder(
     copy(headers = headers)
   }
 
-  def withQueryString(parameters: (String, String)*) : Self = copy(
+  def withQueryString(parameters: (String, String)*): Self = copy(
     queryString = parameters.foldLeft(queryString) {
       case (m, (k, v)) => m + (k -> (v +: m.getOrElse(k, Nil)))
     }
@@ -101,16 +99,6 @@ case class FakeWSRequestHolder(
       StreamedResponse(new FakeWSResponseHeaders(result), result.body.dataStream)
     }
 
-  @deprecated("will be removed", "2.5.0")
-  def streamWithEnumerator(): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
-    executeResult().map { r ⇒
-      val headers = FakeWSResponseHeaders(r.header.status, r.header.headers.mapValues(e ⇒ Seq(e)))
-      val source = r.body.dataStream.map(_.toArray)
-      val publisher = source.runWith(Sink.asPublisher(false))
-      val enum: Enumerator[Array[Byte]] = IterateeStreams.publisherToEnumerator(publisher)
-      headers → enum
-    }
-
   private def executeResult(): Future[Result] = {
     logger.debug(s"calling $method $url")
 
@@ -120,7 +108,7 @@ case class FakeWSRequestHolder(
     // Real WSClients will actually interrupt the response Enumerator while it's streaming.
     // I don't want to go down that rabbit hole. This is close enough for most cases.
     applyRequestTimeout(fakeRequest) {
-      action(sign(fakeRequest)).run(requestBodyEnumerator)
+      action(sign(fakeRequest)).run(requestBodySource)
     }
   }
 
@@ -146,9 +134,9 @@ case class FakeWSRequestHolder(
     case None => future
   }
 
-  private def requestBodyEnumerator: Source[ByteString, _] = body match {
+  private def requestBodySource: Source[ByteString, _] = body match {
     case EmptyBody => Source.empty
-    case FileBody(file) => FileIO.fromFile(file)
+    case FileBody(file) => FileIO.fromPath(file.toPath)
     case InMemoryBody(bytes) => Source.single(bytes)
     case StreamedBody(source) => source
   }
@@ -189,7 +177,8 @@ case class FakeWSRequestHolder(
 
   override def get(): Future[Response] = execute("GET")
 
-  override def contentType: Option[String] = headers.get(HttpHeaders.Names.CONTENT_TYPE).map(_.head)
+  override def contentType: Option[String] =
+    headers.get(HttpHeaders.Names.CONTENT_TYPE).flatMap(_.headOption)
 
   override def delete(): Future[Response] = execute("DELETE")
 
@@ -222,11 +211,6 @@ case class FakeWSRequestHolder(
 
   override def withBody(file: java.io.File): Self = copy(body = FileBody(file))
 
-  // copied from 2.5 WsRequest
-  //  override def uri: java.net.URI = ???
-  /**
-    * The URI for this request
-    */
   lazy val uri: URI = {
     val enc = (p: String) => java.net.URLEncoder.encode(p, "utf-8")
     new java.net.URI(if (queryString.isEmpty) url else {
@@ -238,7 +222,6 @@ case class FakeWSRequestHolder(
     })
   }
 
-  // copied from StandaloneAhcWSRequest
   private def withBodyAndContentType(wsBody: WSBody, contentType: String): Self = {
     if (headers.contains("Content-Type")) {
       withBody(wsBody)
