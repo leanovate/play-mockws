@@ -20,7 +20,7 @@ import scala.collection.JavaConversions._
  *
  * The [[play.api.libs.ws.ahc.AhcWSResponse]] is intended to wrap this.
  *
- * Implementation is mostly based of [[org.asynchttpclient.netty.NettyResponse]].
+ * Implementation is mostly based upon [[org.asynchttpclient.netty.NettyResponse]].
  *
  * We're faking at this level as opposed to the [[play.api.libs.ws.WSResponse]] level
  * to preserve any behavior specific to the NingWSResponse which is likely to be used
@@ -47,13 +47,17 @@ class FakeAhcResponse(result: Result, body: Array[Byte]) extends Response {
   override def isRedirected: Boolean = Set(301, 302, 303, 307, 308).contains(getStatusCode)
 
   override def getCookies: util.List[Cookie] = {
+    val shouldCookieBeWrappedInQuotes = false
     result.newCookies.map(playCookie => new Cookie(
       playCookie.name,
       playCookie.value,
-      false, // wrap = should the value be wrapped in quotes
+      shouldCookieBeWrappedInQuotes,
       playCookie.domain.getOrElse(""),
       playCookie.path,
-      playCookie.maxAge.map(_.toLong).getOrElse(0L), playCookie.secure, playCookie.httpOnly ))
+      playCookie.maxAge.map(_.toLong).getOrElse(0L),
+      playCookie.secure,
+      playCookie.httpOnly )
+    )
   }
 
   override def hasResponseBody: Boolean = body.nonEmpty

@@ -35,7 +35,7 @@ class CookieTest extends FunSuite with Matchers {
       'secure (true)
     )
 
-    response.header("test").get should be ("yo")
+    response.header("test") shouldBe Some("yo")
 
     ws.close()
   }
