@@ -1,5 +1,7 @@
 package mockws
 
+import java.net.InetSocketAddress
+
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import org.mockito.Mockito._
@@ -8,14 +10,17 @@ import org.scalatest.{FunSuite, Matchers}
 import play.api.http.HttpEntity
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSAuthScheme, WSClient, WSSignatureCalculator}
+import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse, WSSignatureCalculator}
 import play.api.mvc.BodyParsers.parse
 import play.api.mvc.Results._
 import play.api.mvc.{Action, ResponseHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.libs.ws.WSRequest
+import play.shaded.ahc.org.asynchttpclient.Response
 
 import scala.collection.immutable.Seq
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 /**
@@ -244,5 +249,30 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
       .get()).body shouldEqual "get ok"
     ws.close()
   }
+
+  test("should not raise Exceptions when asking for the used sockets") {
+    val ws = MockWS {
+      case (GET, "/get") => Action { Ok("get ok") }
+    }
+
+    val request : Future[WSResponse] = ws
+      .url("/get")
+      .sign(mock(classOf[WSSignatureCalculator]))
+      .withVirtualHost("bla")
+      .withFollowRedirects(follow = true)
+      .withRequestTimeout(10.millis)
+      .get()
+
+
+    val response : WSResponse = await(request)
+
+    response.body shouldEqual "get ok"
+
+    response.underlying[play.shaded.ahc.org.asynchttpclient.Response].getLocalAddress shouldBe InetSocketAddress.createUnresolved("127.0.0.1", 8383)
+    response.underlying[play.shaded.ahc.org.asynchttpclient.Response].getRemoteAddress shouldBe InetSocketAddress.createUnresolved("127.0.0.1", 8384)
+
+    ws.close()
+  }
+
 
 }
