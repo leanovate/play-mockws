@@ -30,11 +30,9 @@ class FakeAhcResponse(result: Result, body: Array[Byte]) extends Response {
 
   private val NettyDefaultCharset: Charset = Charset.forName("ISO-8859-1")
 
-  // 2130706433 equals to 127.0.0.1
-  // port numbers are artificially, just so they don't throw exceptions if accessed by client code
-  override def getLocalAddress: SocketAddress = new InetSocketAddress(new Inet4Address("localhost", 2130706433), 8383)
+  override def getLocalAddress: SocketAddress = InetSocketAddress.createUnresolved("127.0.0.1", 8383)
 
-  override def getRemoteAddress: SocketAddress = new InetSocketAddress(new Inet4Address("localhost", 2130706433), 8384)
+  override def getRemoteAddress: SocketAddress = InetSocketAddress.createUnresolved("127.0.0.1", 8384)
 
   override def getResponseBody(charset: Charset): String = new String(getResponseBodyAsBytes(), computeCharset(charset))
 
@@ -48,7 +46,15 @@ class FakeAhcResponse(result: Result, body: Array[Byte]) extends Response {
 
   override def isRedirected: Boolean = Set(301, 302, 303, 307, 308).contains(getStatusCode)
 
-  override def getCookies: util.List[Cookie] = getHeaders("Set-Cookie").map(CookieDecoder.decode)
+  override def getCookies: util.List[Cookie] = {
+    result.newCookies.map(playCookie => new Cookie(
+      playCookie.name,
+      playCookie.value,
+      false, // wrap = should the value be wrapped in quotes
+      playCookie.domain.getOrElse(""),
+      playCookie.path,
+      playCookie.maxAge.map(_.toLong).getOrElse(0L), playCookie.secure, playCookie.httpOnly ))
+  }
 
   override def hasResponseBody: Boolean = body.nonEmpty
 

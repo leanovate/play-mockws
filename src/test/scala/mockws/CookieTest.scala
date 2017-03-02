@@ -7,7 +7,7 @@ import play.api.test.Helpers._
 
 class CookieTest extends FunSuite with Matchers {
 
-  ignore("A cookie can be returned from an action") {
+  test("A cookie can be returned from an action") {
     val ws = MockWS {
       case (_, _) => Action(
         NoContent.withCookies(
@@ -19,7 +19,7 @@ class CookieTest extends FunSuite with Matchers {
             domain = Some("https://www.example.com"),
             secure = true
           )
-        )
+        ).withHeaders("test" -> "yo")
       )
     }
 
@@ -34,6 +34,9 @@ class CookieTest extends FunSuite with Matchers {
       'domain ("https://www.example.com"),
       'secure (true)
     )
+
+    response.header("test").get should be ("yo")
+
     ws.close()
   }
 }
