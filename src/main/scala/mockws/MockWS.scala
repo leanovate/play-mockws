@@ -8,7 +8,7 @@ import play.api.libs.ws.{WSClient, WSRequest}
 import play.api.mvc.EssentialAction
 
 /**
- * Mock implementation for the [[play.api.libs.ws.WS]] client.
+ * Mock implementation for the [[play.api.libs.ws.WSClient]].
  * Usage:
  * {{{
  *   val ws = MockWS {

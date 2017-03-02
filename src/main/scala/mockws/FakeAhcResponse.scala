@@ -1,18 +1,17 @@
 package mockws
 
 import java.io.{ByteArrayInputStream, InputStream}
-import java.net.SocketAddress
+import java.net.{Inet4Address, InetSocketAddress, SocketAddress}
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util
 
-import play.shaded.ahc.io.netty.handler.codec.http.{DefaultHttpHeaders, HttpHeaders}
+import play.api.mvc.Result
+import play.shaded.ahc.io.netty.handler.codec.http.{DefaultHttpHeaders, HttpHeaders, HttpResponseStatus}
 import play.shaded.ahc.org.asynchttpclient.Response
 import play.shaded.ahc.org.asynchttpclient.cookie.{Cookie, CookieDecoder}
 import play.shaded.ahc.org.asynchttpclient.uri.Uri
 import play.shaded.ahc.org.asynchttpclient.util.HttpUtils
-import play.shaded.ahc.io.netty.handler.codec.http.HttpResponseStatus
-import play.api.mvc.Result
 
 import scala.collection.JavaConversions._
 
@@ -31,9 +30,11 @@ class FakeAhcResponse(result: Result, body: Array[Byte]) extends Response {
 
   private val NettyDefaultCharset: Charset = Charset.forName("ISO-8859-1")
 
-  override def getLocalAddress: SocketAddress = ???
+  // 2130706433 equals to 127.0.0.1
+  // port numbers are artificially, just so they don't throw exceptions if accessed by client code
+  override def getLocalAddress: SocketAddress = new InetSocketAddress(new Inet4Address("localhost", 2130706433), 8383)
 
-  override def getRemoteAddress: SocketAddress = ???
+  override def getRemoteAddress: SocketAddress = new InetSocketAddress(new Inet4Address("localhost", 2130706433), 8384)
 
   override def getResponseBody(charset: Charset): String = new String(getResponseBodyAsBytes(), computeCharset(charset))
 
