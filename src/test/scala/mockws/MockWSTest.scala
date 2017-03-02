@@ -274,5 +274,19 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
     ws.close()
   }
 
+  test("multiple headers with same name should be retained & merged correctly") {
+    val ws = MockWS {
+      case (GET, "/get") => Action {
+        req =>
+        Ok(req.headers.getAll("v1").zipWithIndex.toString) }
+    }
+    val request = ws.url("/get")
+      .withHeaders(("v1", "first"),("v1", "second"))
+    .get()
 
+    val response = await(request)
+    response.body shouldEqual "List((first,0), (second,1))"
+
+    ws.close()
+  }
 }
