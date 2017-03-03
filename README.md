@@ -43,6 +43,10 @@ await(ws.url("http://dns/url").get()).body == "http response"
 
 Add MockWS as test dependency in the `build.sbt`:
 
+* for Play 2.6.x:
+```scala
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.6.0-M1" % "test"
+```
 * for Play 2.5.x:
 ```scala
 libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.5.1" % "test"
@@ -113,6 +117,7 @@ Other examples can be found in the [tests](src/test/scala/mockws/).
 
 ## Compatibility Matrix
 
+- MockWS 2.6.x is actually only compatible with Play 2.6.y., with Scala 2.12 or 2.11.
 - MockWS 2.5.x is actually only compatible with Play 2.5.y., with Scala 2.11.
 - MockWS 2.4.x is actually only compatible with Play 2.4.y., with Scala 2.10 or 2.11.
 - MockWS 2.3.x is actually only compatible with Play 2.3.y., with Scala 2.10 or 2.11.
