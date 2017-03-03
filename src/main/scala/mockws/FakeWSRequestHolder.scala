@@ -1,7 +1,8 @@
 package mockws
 
 import java.io.File
-import java.net.{URI, URLEncoder}
+import java.net.{URI, URLConnection, URLEncoder}
+import java.nio.file.Files
 import java.util.Base64
 
 import akka.stream.ActorMaterializer
@@ -58,12 +59,19 @@ case class FakeWSRequestHolder(
 
   def withBody(body: WSBody): Self = copy(body = body)
 
-  def withMethod(method: String): Self = copy(method = method)
+  def withMethod(method: String): Self = copy(method = method.toUpperCase)
 
   def withHeaders(hdrs: (String, String)*): Self = {
     val headers = hdrs.foldLeft(this.headers)(
       (m, hdr) =>
-        if (m.contains(hdr._1)) m.updated(hdr._1, m(hdr._1) :+ hdr._2)
+        if (m.contains(hdr._1)) {
+          if(hdr._1.toLowerCase.equals("content-type")) {
+            // content type is a header thats only allowed once. if it already exists, we replace it. 
+            m.updated(hdr._1, Seq(hdr._2))
+          } else {
+            m.updated(hdr._1, m(hdr._1) :+ hdr._2)
+          }
+        }
         else m + (hdr._1 -> Seq(hdr._2))
     )
     copy(headers = headers)
@@ -188,8 +196,9 @@ case class FakeWSRequestHolder(
 
   override def options(): Future[Response] = execute("OPTIONS")
 
-  override def patch(body: File): Future[Response] =
+  override def patch(body: File): Future[Response] = {
     withBody(body).execute("PATCH")
+  }
 
   override def patch[T](body: T)(implicit ev: BodyWritable[T]): Future[Response] =
     withBody(body).execute("PATCH")
@@ -209,7 +218,24 @@ case class FakeWSRequestHolder(
   override def withBody[T](body: T)(implicit ev: BodyWritable[T]): Self =
     withBodyAndContentType(InMemoryBody(ev.transform(body)), ev.contentType)
 
-  override def withBody(file: java.io.File): Self = copy(body = FileBody(file))
+  override def withBody(file: java.io.File): Self = {
+    if (headers.contains("Content-Type")) {
+      copy(body = FileBody(file))
+    } else {
+      var contentTypeString = URLConnection.guessContentTypeFromName(file.getName)
+      if(contentTypeString == null) {
+        // unfortunately, content type detection doesn't work for some common file extensions. 
+        // we'll fix it for a few (for the moment just json), 
+        if(file.getName.endsWith(".json")) {
+          contentTypeString = "application/json"
+        } 
+      }
+      if(contentTypeString != null)
+        withBodyAndContentType(FileBody(file), contentTypeString)
+      else 
+        copy(body = FileBody(file))
+    }
+  }
 
   lazy val uri: URI = {
     val enc = (p: String) => java.net.URLEncoder.encode(p, "utf-8")
