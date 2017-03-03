@@ -13,7 +13,7 @@ import play.shaded.ahc.org.asynchttpclient.cookie.{Cookie, CookieDecoder}
 import play.shaded.ahc.org.asynchttpclient.uri.Uri
 import play.shaded.ahc.org.asynchttpclient.util.HttpUtils
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * A simulated response from the async-http-client.
@@ -57,7 +57,7 @@ class FakeAhcResponse(result: Result, body: Array[Byte]) extends Response {
       playCookie.maxAge.map(_.toLong).getOrElse(0L),
       playCookie.secure,
       playCookie.httpOnly )
-    )
+    ).asJava
   }
 
   override def hasResponseBody: Boolean = body.nonEmpty
