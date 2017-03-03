@@ -70,7 +70,7 @@ class FakeAhcResponse(result: Result, body: Array[Byte]) extends Response {
     val scalaHeaders = FakeWSResponseHeaders.toMultiMap(result.header)
 
     val headers = new DefaultHttpHeaders()
-    scalaHeaders.foreach(e ⇒ headers.add(e._1, asJavaCollection(e._2)))
+    scalaHeaders.foreach(e ⇒ headers.add(e._1, e._2.asJava))
     result.body.contentType foreach (ct ⇒ headers.add("Content-Type", ct))
     headers
   }
