@@ -95,7 +95,7 @@ class StreamingTest extends FunSuite with Matchers with PropertyChecks {
   val streamBackAction = Action {
     req =>
 
-      val inputWords: Seq[String] = Seq() ++ req.body.asMultipartFormData.get.dataParts("k1").toSeq
+      val inputWords: Seq[String] = Seq() ++ req.body.asMultipartFormData.toSeq.flatMap(_.dataParts("k1"))
       val returnWords = Seq(req.method + ": ") ++ inputWords
       val outputStream: Source[ByteString, _] = Source(returnWords.map(v => ByteString(v)))
 
