@@ -1,6 +1,6 @@
 # Release notes
 
-## 2.6.0-SNAPSHOT
+## 2.6.0-M1 - 2017/03/03
 
 - compatibility with play 2.6.0-M1 [#22](https://github.com/leanovate/play-mockws/pull/22)  
   contribution from [@domdorn](https://github.com/domdorn), with support from [@matsluni](https://github.com/matsluni)
