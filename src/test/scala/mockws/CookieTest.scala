@@ -19,7 +19,7 @@ class CookieTest extends FunSuite with Matchers {
             domain = Some("https://www.example.com"),
             secure = true
           )
-        )
+        ).withHeaders("test" -> "yo")
       )
     }
 
@@ -34,6 +34,9 @@ class CookieTest extends FunSuite with Matchers {
       'domain ("https://www.example.com"),
       'secure (true)
     )
+
+    response.header("test") shouldBe Some("yo")
+
     ws.close()
   }
 }

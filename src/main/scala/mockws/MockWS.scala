@@ -8,7 +8,7 @@ import play.api.libs.ws.{WSClient, WSRequest}
 import play.api.mvc.EssentialAction
 
 /**
- * Mock implementation for the [[play.api.libs.ws.WS]] client.
+ * Mock implementation for the [[play.api.libs.ws.WSClient]].
  * Usage:
  * {{{
  *   val ws = MockWS {
@@ -40,7 +40,7 @@ class MockWS(routes: MockWS.Routes, shutdownHook: () ⇒ Unit)(implicit val mate
     shutdownHook()
   }
 
-  override def url(url: String): WSRequest = new FakeWSRequestHolder(routes, url)
+  override def url(url: String): WSRequest = FakeWSRequestHolder(routes, url)
 }
 
 object MockWS {

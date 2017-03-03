@@ -1,5 +1,7 @@
 package mockws
 
+import java.net.InetSocketAddress
+
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import org.mockito.Mockito._
@@ -7,19 +9,18 @@ import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
 import play.api.http.HttpEntity
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.iteratee.Concurrent._
-import play.api.libs.iteratee.Iteratee
 import play.api.libs.json.Json
-import play.api.libs.streams.Streams
-import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponseHeaders, WSSignatureCalculator}
+import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse, WSSignatureCalculator}
 import play.api.mvc.BodyParsers.parse
 import play.api.mvc.Results._
 import play.api.mvc.{Action, ResponseHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.libs.ws.WSRequest
+import play.shaded.ahc.org.asynchttpclient.Response
 
 import scala.collection.immutable.Seq
-import scala.concurrent.Promise
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 /**
@@ -102,70 +103,6 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
 
     text.header(CONTENT_TYPE) shouldEqual Some("text/plain; charset=utf-8")
     json.header(CONTENT_TYPE) shouldEqual Some("application/json")
-    ws.close()
-  }
-
-
-  test("mock WS simulates a streaming") {
-
-    def testedController(ws: WSClient) = Action.async {
-      ws.url("/").stream().map { resp =>
-        Result(
-          header = ResponseHeader(resp.headers.status, resp.headers.headers.mapValues(_.head)),
-          body = HttpEntity.Streamed(resp.body, None, None))
-      }
-    }
-
-    val ws = MockWS {
-      case (GET, "/") => Action {
-        val body: Source[ByteString, _] = Source(Seq("first", "second", "third").map(ByteString.apply))
-        Result(
-          header = ResponseHeader(201, Map("x-header" -> "x-value")),
-          body = HttpEntity.Streamed(body, None, None))
-      }
-    }
-    import ws.materializer
-
-    val response = testedController(ws).apply(FakeRequest())
-    status(response) shouldEqual CREATED
-    contentAsString(response) shouldEqual "firstsecondthird"
-    header("x-header", response) shouldEqual Some("x-value")
-    ws.close()
-  }
-
-
-  test("mock WS simulates a GET with a consumer") {
-
-    def testedController(ws: WSClient) = Action.async {
-      val resultP = Promise[Result]()
-      def consumer(rh: WSResponseHeaders): Iteratee[Array[Byte], Unit] = {
-        val (wsConsumer, content) = joined[Array[Byte]]
-        val body = Source.fromPublisher(Streams.enumeratorToPublisher(content.map(ByteString.apply)))
-        resultP.success(Result(
-          header = ResponseHeader(rh.status, rh.headers.mapValues(_.head)),
-          body = HttpEntity.Streamed(body, None, None)
-        ))
-        wsConsumer
-      }
-
-      ws.url("/").get(consumer).map(_.run)
-      resultP.future
-    }
-
-    val ws = MockWS {
-      case (GET, "/") => Action {
-        val body: Source[ByteString, _] = Source(Seq("first", "second", "third").map(s ⇒ ByteString.apply(s)))
-        Result(
-          header = ResponseHeader(201, Map("x-header" -> "x-value")),
-          body = HttpEntity.Streamed(body, None, None))
-      }
-    }
-    import ws.materializer
-
-    val response = testedController(ws).apply(FakeRequest())
-    status(response) shouldEqual CREATED
-    contentAsString(response) shouldEqual "firstsecondthird"
-    header("x-header", response) shouldEqual Some("x-value")
     ws.close()
   }
 
@@ -297,71 +234,6 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
     ws.close()
   }
   
-  test("mock WS supports method in stream") {
-    def testedController(ws: WSClient) = Action.async {
-      ws.url("/").withMethod("POST").stream().map { resp =>
-        Result(
-          header = ResponseHeader(resp.headers.status, resp.headers.headers.mapValues(_.head)),
-          body = HttpEntity.Streamed(resp.body, None, None)
-        )
-      }
-    }
-
-    val ws = MockWS {
-      case (POST, "/") => Action {
-        val body: Source[ByteString, _] = Source(Seq("first", "second", "third").map(ByteString.apply))
-        Result(
-          header = ResponseHeader(201, Map("x-header" -> "x-value")),
-          body = HttpEntity.Streamed(body, None, None)
-        )
-      }
-    }
-    import ws.materializer
-
-    val response = testedController(ws).apply(FakeRequest())
-    status(response) shouldEqual CREATED
-    contentAsString(response) shouldEqual "firstsecondthird"
-    header("x-header", response) shouldEqual Some("x-value")
-    ws.close()
-  }
-
-
-  test("mock WS supports authentication with Basic Auth") {
-
-    val BasicAuth = "Basic: ((?:[A-Za-z0-9+/]{4})+(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)".r
-
-    val ws = MockWS {
-      case (_, _) => Action { request =>
-        request.headers.get(AUTHORIZATION) match {
-          case Some(BasicAuth("dXNlcjpzM2NyM3Q=")) => Ok
-          case _ => Unauthorized
-        }
-      }
-    }
-
-    val wsResponseOk = await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.BASIC).get)
-    wsResponseOk.status shouldEqual OK
-
-    val wsResponseUnauthorized = await(ws.url("/").withAuth("user", "secret", WSAuthScheme.BASIC).get)
-    wsResponseUnauthorized.status shouldEqual UNAUTHORIZED
-
-    ws.close()
-
-  }
-
-
-  test("mock WS does not support authentication with `WSAuthScheme.{NTLM, DIGEST, KERBEROS, SPNEGO}`") {
-
-    val ws = MockWS { case (_, _) => Action { request => Ok } }
-
-    a [UnsupportedOperationException] shouldBe thrownBy (await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.NTLM).get))
-    a [UnsupportedOperationException] shouldBe thrownBy (await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.DIGEST).get))
-    a [UnsupportedOperationException] shouldBe thrownBy (await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.KERBEROS).get))
-    a [UnsupportedOperationException] shouldBe thrownBy (await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.SPNEGO).get))
-
-  }
-
-
   test("should not raise NullPointerExceptions on method chaining") {
     val ws = MockWS {
       case (GET, "/get") => Action { Ok("get ok") }
@@ -378,21 +250,43 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
     ws.close()
   }
 
-  test("should pass through all elements of a Source") {
-    val content = Source(Seq("hello, ", "world").map(ByteString(_)))
-
+  test("should not raise Exceptions when asking for the used sockets") {
     val ws = MockWS {
-      case (GET, "/get") ⇒ Action {
-        Result(
-          header = ResponseHeader(200),
-          body = HttpEntity.Streamed(content, None, None)
-        )
-      }
+      case (GET, "/get") => Action { Ok("get ok") }
     }
 
-    await(ws
+    val request : Future[WSResponse] = ws
       .url("/get")
-      .get()).body shouldEqual "hello, world"
+      .sign(mock(classOf[WSSignatureCalculator]))
+      .withVirtualHost("bla")
+      .withFollowRedirects(follow = true)
+      .withRequestTimeout(10.millis)
+      .get()
+
+
+    val response : WSResponse = await(request)
+
+    response.body shouldEqual "get ok"
+
+    response.underlying[play.shaded.ahc.org.asynchttpclient.Response].getLocalAddress shouldBe InetSocketAddress.createUnresolved("127.0.0.1", 8383)
+    response.underlying[play.shaded.ahc.org.asynchttpclient.Response].getRemoteAddress shouldBe InetSocketAddress.createUnresolved("127.0.0.1", 8384)
+
+    ws.close()
+  }
+
+  test("multiple headers with same name should be retained & merged correctly") {
+    val ws = MockWS {
+      case (GET, "/get") => Action {
+        req =>
+        Ok(req.headers.getAll("v1").zipWithIndex.toString) }
+    }
+    val request = ws.url("/get")
+      .withHeaders(("v1", "first"),("v1", "second"))
+    .get()
+
+    val response = await(request)
+    response.body shouldEqual "List((first,0), (second,1))"
+
     ws.close()
   }
 }

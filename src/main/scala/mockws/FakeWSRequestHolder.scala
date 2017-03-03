@@ -1,19 +1,21 @@
 package mockws
 
-import java.net.URLEncoder
+import java.io.File
+import java.net.{URI, URLEncoder}
 import java.util.Base64
 
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{FileIO, Sink, Source}
+import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import mockws.MockWS.Routes
 import org.slf4j.LoggerFactory
-import play.api.libs.iteratee.Enumerator
-import play.api.libs.streams.Streams
 import play.api.libs.ws._
 import play.api.libs.ws.ahc.AhcWSResponse
+import play.api.mvc.MultipartFormData.Part
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.core.formatters.Multipart
+import play.shaded.ahc.io.netty.handler.codec.http.HttpHeaders
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -32,30 +34,33 @@ case class FakeWSRequestHolder(
   implicit val materializer: ActorMaterializer
 ) extends WSRequest {
 
+  override type Self = WSRequest
+  override type Response = WSResponse
+
   private val logger = LoggerFactory.getLogger(getClass)
 
   /* Not implemented. */
-  override val calc: Option[WSSignatureCalculator] = None
-  override val followRedirects: Option[Boolean] = None
-  override val proxyServer: Option[WSProxyServer] = None
-  override val virtualHost: Option[String] = None
+  val calc: Option[WSSignatureCalculator] = None
+  val followRedirects: Option[Boolean] = None
+  val proxyServer: Option[WSProxyServer] = None
+  val virtualHost: Option[String] = None
 
-  def withAuth(username: String, password: String, scheme: WSAuthScheme) =
+  def withAuth(username: String, password: String, scheme: WSAuthScheme): Self =
     copy(auth = Some((username, password, scheme)))
 
-  def sign(calc: WSSignatureCalculator): WSRequest = this
+  def sign(calc: WSSignatureCalculator): Self = this
 
-  def withFollowRedirects(follow: Boolean) = this
+  def withFollowRedirects(follow: Boolean): Self = this
 
-  def withProxyServer(proxyServer: WSProxyServer) = this
+  def withProxyServer(proxyServer: WSProxyServer): Self = this
 
-  def withVirtualHost(vh: String) = this
+  def withVirtualHost(vh: String): Self = this
 
-  def withBody(body: WSBody) = copy(body = body)
+  def withBody(body: WSBody): Self = copy(body = body)
 
-  def withMethod(method: String) = copy(method = method)
+  def withMethod(method: String): Self = copy(method = method)
 
-  def withHeaders(hdrs: (String, String)*) = {
+  def withHeaders(hdrs: (String, String)*): Self = {
     val headers = hdrs.foldLeft(this.headers)(
       (m, hdr) =>
         if (m.contains(hdr._1)) m.updated(hdr._1, m(hdr._1) :+ hdr._2)
@@ -64,13 +69,13 @@ case class FakeWSRequestHolder(
     copy(headers = headers)
   }
 
-  def withQueryString(parameters: (String, String)*) = copy(
+  def withQueryString(parameters: (String, String)*): Self = copy(
     queryString = parameters.foldLeft(queryString) {
       case (m, (k, v)) => m + (k -> (v +: m.getOrElse(k, Nil)))
     }
   )
 
-  def withRequestTimeout(timeout: Duration): WSRequest =
+  def withRequestTimeout(timeout: Duration): Self =
     timeout match {
       case Duration.Inf =>
         copy(requestTimeout = None)
@@ -80,9 +85,9 @@ case class FakeWSRequestHolder(
         copy(requestTimeout = Some(millis.toInt))
     }
 
-  def withRequestFilter(filter: WSRequestFilter): WSRequest = this
+  def withRequestFilter(filter: WSRequestFilter): Self = this
 
-  def execute(): Future[WSResponse] =
+  def execute(): Future[Response] =
     for {
       result <- executeResult()
       responseBody ← result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
@@ -94,26 +99,16 @@ case class FakeWSRequestHolder(
       StreamedResponse(new FakeWSResponseHeaders(result), result.body.dataStream)
     }
 
-  @deprecated("2.5.0")
-  def streamWithEnumerator(): Future[(WSResponseHeaders, Enumerator[Array[Byte]])] =
-    executeResult().map { r ⇒
-      val headers = FakeWSResponseHeaders(r.header.status, r.header.headers.mapValues(e ⇒ Seq(e)))
-      val source = r.body.dataStream.map(_.toArray)
-      val publisher = source.runWith(Sink.asPublisher(false))
-      val enum: Enumerator[Array[Byte]] = Streams.publisherToEnumerator(publisher)
-      headers → enum
-    }
-
   private def executeResult(): Future[Result] = {
     logger.debug(s"calling $method $url")
 
     val action = routes.lift((method, url)).getOrElse(throw new Exception(s"no route defined for $method $url"))
-    def fakeRequest = FakeRequest(method, urlWithQueryParams()).withHeaders(headersSeq(): _*)
+    def fakeRequest = FakeRequest(method, urlWithQueryParams()).withHeaders(headersSeq(): _*).withBody(body)
 
     // Real WSClients will actually interrupt the response Enumerator while it's streaming.
     // I don't want to go down that rabbit hole. This is close enough for most cases.
     applyRequestTimeout(fakeRequest) {
-      action(sign(fakeRequest)).run(requestBodyEnumerator)
+      action(sign(fakeRequest)).run(requestBodySource)
     }
   }
 
@@ -139,9 +134,9 @@ case class FakeWSRequestHolder(
     case None => future
   }
 
-  private def requestBodyEnumerator: Source[ByteString, _] = body match {
+  private def requestBodySource: Source[ByteString, _] = body match {
     case EmptyBody => Source.empty
-    case FileBody(file) => FileIO.fromFile(file)
+    case FileBody(file) => FileIO.fromPath(file.toPath)
     case InMemoryBody(bytes) => Source.single(bytes)
     case StreamedBody(source) => source
   }
@@ -163,5 +158,75 @@ case class FakeWSRequestHolder(
         s"$encodedKey=$encodedValue"
       }
     }.mkString("?", "&", "")
+  }
+
+  override def withBody(body: Source[Part[Source[ByteString, _]], _]): Self = {
+    val boundary = Multipart.randomBoundary()
+    val contentType = s"multipart/form-data; boundary=$boundary"
+    withBody(StreamedBody(Multipart.transform(body, boundary))).withHeaders("Content-Type" -> contentType)
+  }
+
+  override def patch(body: Source[Part[Source[ByteString, _]], _]): Future[Response] =
+    withBody(body).execute("PATCH")
+
+  override def post(body: Source[Part[Source[ByteString, _]], _]): Future[Response] =
+    withBody(body).execute("POST")
+
+  override def put(body: Source[Part[Source[ByteString, _]], _]): Future[Response] =
+    withBody(body).execute("PUT")
+
+  override def get(): Future[Response] = execute("GET")
+
+  override def contentType: Option[String] =
+    headers.get(HttpHeaders.Names.CONTENT_TYPE).flatMap(_.headOption)
+
+  override def delete(): Future[Response] = execute("DELETE")
+
+  override def execute(method: String): Future[Response] = withMethod(method).execute()
+
+  override def head(): Future[Response] = execute("HEAD")
+
+  override def options(): Future[Response] = execute("OPTIONS")
+
+  override def patch(body: File): Future[Response] =
+    withBody(body).execute("PATCH")
+
+  override def patch[T](body: T)(implicit ev: BodyWritable[T]): Future[Response] =
+    withBody(body).execute("PATCH")
+
+  override def post(body: File): Future[Response] =
+    withBody(body).execute("POST")
+
+  override def post[T](body: T)(implicit ev: BodyWritable[T]): Future[Response] =
+    withBody(body).execute("POST")
+
+  override def put(body: File): Future[Response] =
+    withBody(body).execute("PUT")
+
+  override def put[T](body: T)(implicit ev: BodyWritable[T]): Future[Response] =
+    withBody(body).execute("PUT")
+
+  override def withBody[T](body: T)(implicit ev: BodyWritable[T]): Self =
+    withBodyAndContentType(InMemoryBody(ev.transform(body)), ev.contentType)
+
+  override def withBody(file: java.io.File): Self = copy(body = FileBody(file))
+
+  lazy val uri: URI = {
+    val enc = (p: String) => java.net.URLEncoder.encode(p, "utf-8")
+    new java.net.URI(if (queryString.isEmpty) url else {
+      val qs = (for {
+        (n, vs) <- queryString
+        v <- vs
+      } yield s"${enc(n)}=${enc(v)}").mkString("&")
+      s"$url?$qs"
+    })
+  }
+
+  private def withBodyAndContentType(wsBody: WSBody, contentType: String): Self = {
+    if (headers.contains("Content-Type")) {
+      withBody(wsBody)
+    } else {
+      withBody(wsBody).withHeaders("Content-Type" -> contentType)
+    }
   }
 }
