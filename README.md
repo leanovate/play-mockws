@@ -2,14 +2,13 @@ Table of Contents
 =================
 
 * [Introduction](#play-mockws)
+* [Release notes](#release-notes)
 * [Simple example](#example)
 * [Adding play-mockws to your project](#adding-play-mockws-to-your-project)
 * [Usage](#usage)
 * [Compatibility matrix](#compatibility-matrix)
-* [Release notes](#release-notes)
 
-play-mockws
-===========
+## play-mockws
 
 [![Build Status](https://travis-ci.org/leanovate/play-mockws.svg?branch=master)](https://travis-ci.org/leanovate/play-mockws)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/a7f45a8cbd2a4085ac03ff8c163e3394)](https://www.codacy.com/app/yann-simon-fr/play-mockws?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=leanovate/play-mockws&amp;utm_campaign=Badge_Coverage)
@@ -24,6 +23,10 @@ If:
 - you want to test your implementation
 
 then you can use `play-mockws` to simulate HTTP requests to external web services in your tests.
+
+## Release Notes
+
+see [RELEASE-NOTES.md](RELEASE-NOTES.md)
 
 ## Example
 
@@ -113,25 +116,3 @@ Other examples can be found in the [tests](src/test/scala/mockws/).
 - MockWS 2.5.x is actually only compatible with Play 2.5.y., with Scala 2.11.
 - MockWS 2.4.x is actually only compatible with Play 2.4.y., with Scala 2.10 or 2.11.
 - MockWS 2.3.x is actually only compatible with Play 2.3.y., with Scala 2.10 or 2.11.
-
-## Release Notes
-
-* 2.5.1 (2016/11/03): contribution from [@agebhar1](https://github.com/agebhar1): add support for HTTP Authentication: Basic [#17](https://github.com/leanovate/play-mockws/pull/17)
-* 2.5.0 (2016/03/07): release compatible with play 2.5.0
-* 2.5.0-RC2:
-  - contribution from [@avdv](https://github.com/avdv): Fix truncated response in FakeWSRequestHolder [#15](https://github.com/leanovate/play-mockws/pull/15)
-  - release compatible with play 2.5.0-RC2
-* 2.5-RC1: release compatible with play 2.5.0-RC1
-* 2.4.2/2.3.2: major contribution from [@htmldoug](https://github.com/htmldoug): Replace mockito with a concrete implementation [#11](https://github.com/leanovate/play-mockws/pull/11)
-* 2.4.1/2.3.1: contribution from [@bomgar](https://github.com/bomgar): mock sign() method [#7](https://github.com/leanovate/play-mockws/pull/7)
-* 2.4.0: first version compatible with play 2.4.y
-* 2.3.0: same release as 0.15 - use the same version number as play (2.3.x compatible with play 2.3.y)
-* 0.15: fix https://github.com/leanovate/play-mockws/issues/6
-* 0.14:<br>
-  - contribution from [@kwark](https://github.com/kwark): support for `allHeaders` + `getResponseBodyAsBytes` [#2](https://github.com/leanovate/play-mockws/pull/2)
-  - contribution from [@sebdotv](https://github.com/sebdotv): support for `withMethod` in `execute` and `stream` [#3](https://github.com/leanovate/play-mockws/pull/3)
-  - contribution from [@knshiro](https://github.com/knshiro): support for `PATCH` method [#4](https://github.com/leanovate/play-mockws/pull/4)
-  - fix from [@jdanbrown](https://github.com/jdanbrown): Allow WS varargs to be passed as immutable Seqs [#5](https://github.com/leanovate/play-mockws/pull/5)
-* 0.13: handle URL query parameters
-* 0.12: remove dependency to specs2 - retain only mockito
-* 0.11: add [Route](src/main/scala/mockws/Route.scala)
