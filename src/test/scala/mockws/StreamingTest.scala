@@ -24,8 +24,8 @@ class StreamingTest extends FunSuite with Matchers with PropertyChecks {
     def testedController(ws: WSClient) = Action.async {
       ws.url("/").stream().map { resp =>
         Result(
-          header = ResponseHeader(resp.headers.status, resp.headers.headers.mapValues(_.head)),
-          body = HttpEntity.Streamed(resp.body, None, None))
+          header = ResponseHeader(resp.status, resp.headers.mapValues(_.head)),
+          body = HttpEntity.Streamed(resp.bodyAsSource, None, None))
       }
     }
 
@@ -50,8 +50,8 @@ class StreamingTest extends FunSuite with Matchers with PropertyChecks {
     def testedController(ws: WSClient) = Action.async {
       ws.url("/").withMethod("POST").stream().map { resp =>
         Result(
-          header = ResponseHeader(resp.headers.status, resp.headers.headers.mapValues(_.head)),
-          body = HttpEntity.Streamed(resp.body, None, None)
+          header = ResponseHeader(resp.status, resp.headers.mapValues(_.head)),
+          body = HttpEntity.Streamed(resp.bodyAsSource, None, None)
         )
       }
     }

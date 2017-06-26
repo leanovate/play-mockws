@@ -26,6 +26,7 @@ case class FakeWSRequestHolder(
   url: String,
   method: String = "GET",
   body: WSBody = EmptyBody,
+  cookies: Seq[WSCookie] = Seq.empty,
   headers: Map[String, Seq[String]] = Map.empty,
   queryString: Map[String, Seq[String]] = Map.empty,
   auth: Option[(String, String, WSAuthScheme)] = None,
@@ -60,7 +61,11 @@ case class FakeWSRequestHolder(
 
   def withMethod(method: String): Self = copy(method = method)
 
-  def withHeaders(hdrs: (String, String)*): Self = {
+  def withCookies(cookie: WSCookie*): Self = copy(cookies = this.cookies ++ cookie.toSeq)
+
+  def withHeaders(hdrs: (String, String)*): Self = withHttpHeaders(hdrs: _*)
+
+  def withHttpHeaders(hdrs: (String, String)*): Self = {
     val headers = hdrs.foldLeft(this.headers)(
       (m, hdr) =>
         if (m.contains(hdr._1)) m.updated(hdr._1, m(hdr._1) :+ hdr._2)
@@ -69,7 +74,9 @@ case class FakeWSRequestHolder(
     copy(headers = headers)
   }
 
-  def withQueryString(parameters: (String, String)*): Self = copy(
+  def withQueryString(parameters: (String, String)*): Self = withQueryStringParameters(parameters: _*)
+
+  def withQueryStringParameters(parameters: (String, String)*): Self = copy(
     queryString = parameters.foldLeft(queryString) {
       case (m, (k, v)) => m + (k -> (v +: m.getOrElse(k, Nil)))
     }
@@ -94,10 +101,7 @@ case class FakeWSRequestHolder(
     } yield new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
 
 
-  def stream(): Future[StreamedResponse] =
-    executeResult().map { result =>
-      StreamedResponse(new FakeWSResponseHeaders(result), result.body.dataStream)
-    }
+  def stream(): Future[Response] = execute()
 
   private def executeResult(): Future[Result] = {
     logger.debug(s"calling $method $url")
@@ -136,9 +140,8 @@ case class FakeWSRequestHolder(
 
   private def requestBodySource: Source[ByteString, _] = body match {
     case EmptyBody => Source.empty
-    case FileBody(file) => FileIO.fromPath(file.toPath)
     case InMemoryBody(bytes) => Source.single(bytes)
-    case StreamedBody(source) => source
+    case SourceBody(source) => source
   }
 
   private def headersSeq(): Seq[(String, String)] = for {
@@ -158,12 +161,6 @@ case class FakeWSRequestHolder(
         s"$encodedKey=$encodedValue"
       }
     }.mkString("?", "&", "")
-  }
-
-  override def withBody(body: Source[Part[Source[ByteString, _]], _]): Self = {
-    val boundary = Multipart.randomBoundary()
-    val contentType = s"multipart/form-data; boundary=$boundary"
-    withBody(StreamedBody(Multipart.transform(body, boundary))).withHeaders("Content-Type" -> contentType)
   }
 
   override def patch(body: Source[Part[Source[ByteString, _]], _]): Future[Response] =
@@ -207,9 +204,7 @@ case class FakeWSRequestHolder(
     withBody(body).execute("PUT")
 
   override def withBody[T](body: T)(implicit ev: BodyWritable[T]): Self =
-    withBodyAndContentType(InMemoryBody(ev.transform(body)), ev.contentType)
-
-  override def withBody(file: java.io.File): Self = copy(body = FileBody(file))
+    withBodyAndContentType(ev.transform(body), ev.contentType)
 
   lazy val uri: URI = {
     val enc = (p: String) => java.net.URLEncoder.encode(p, "utf-8")
@@ -226,7 +221,7 @@ case class FakeWSRequestHolder(
     if (headers.contains("Content-Type")) {
       withBody(wsBody)
     } else {
-      withBody(wsBody).withHeaders("Content-Type" -> contentType)
+      withBody(wsBody).withHttpHeaders("Content-Type" -> contentType)
     }
   }
 }

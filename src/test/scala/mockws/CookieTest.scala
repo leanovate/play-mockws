@@ -28,10 +28,10 @@ class CookieTest extends FunSuite with Matchers {
     response.cookies should have size 1
 
     response.cookie("session_id").get should have(
-      'value (Some("1")),
+      'value ("1"),
       'maxAge (Some(3600)),
-      'path ("/account"),
-      'domain ("https://www.example.com"),
+      'path (Some("/account")),
+      'domain (Some("https://www.example.com")),
       'secure (true)
     )
 

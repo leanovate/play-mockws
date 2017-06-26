@@ -1,9 +1,8 @@
 package mockws
 
-import play.api.libs.ws.WSResponseHeaders
 import play.api.mvc.{ResponseHeader, Result}
 
-case class FakeWSResponseHeaders(status: Int, headers: Map[String, Seq[String]]) extends WSResponseHeaders {
+case class FakeWSResponseHeaders(status: Int, headers: Map[String, Seq[String]]) {
 
   def this(result: Result) = this(result.header.status, FakeWSResponseHeaders.toMultiMap(result.header))
 }
