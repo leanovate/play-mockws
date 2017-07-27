@@ -5,15 +5,15 @@ import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 
 import play.shaded.ahc.org.asynchttpclient.Response
 import org.scalatest.{FunSuite, Matchers}
-import play.api.mvc.Action
 import play.api.mvc.Results._
 import play.api.test.Helpers._
+import Helpers._
 
 class GzippedResponsesTest extends FunSuite with Matchers {
 
   test("mock WS handle gzipped responses") {
     val ws = MockWS {
-      case (_, _) ⇒ Action {
+      case (_, _) ⇒ action {
         val os = new ByteArrayOutputStream()
         val gzip = new GZIPOutputStream(os)
         gzip.write("my response".getBytes())

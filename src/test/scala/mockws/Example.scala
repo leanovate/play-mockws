@@ -1,11 +1,11 @@
 package mockws
 
-import org.scalatest.{OptionValues, FreeSpec, Matchers}
-import play.api.libs.concurrent.Execution.Implicits._
+import org.scalatest.{FreeSpec, Matchers, OptionValues}
+import scala.concurrent.ExecutionContext.Implicits._
 import play.api.libs.ws.WSClient
-import play.api.mvc.Action
 import play.api.mvc.Results._
 import play.api.test.Helpers._
+import Helpers._
 
 import scala.concurrent.Future
 import scala.util.Try
@@ -64,7 +64,7 @@ class Example extends FreeSpec with Matchers with OptionValues {
     "return None" - {
       "when the user service does not know the user" in new TestScope {
         override val userRoute = Route {
-          case (GET, u) if u == s"$userServiceUrl/users/23/age" => Action {
+          case (GET, u) if u == s"$userServiceUrl/users/23/age" => action {
             NotFound("user 23 not known")
           }
         }
@@ -73,7 +73,7 @@ class Example extends FreeSpec with Matchers with OptionValues {
 
       "when the user service response is not an Integer" in new TestScope {
         override val userRoute = Route {
-          case (GET, u) if u == s"$userServiceUrl/users/27/age" => Action {
+          case (GET, u) if u == s"$userServiceUrl/users/27/age" => action {
             Ok("crap")
           }
         }
@@ -83,7 +83,7 @@ class Example extends FreeSpec with Matchers with OptionValues {
 
     "return the age of the user" in new TestScope {
       override val userRoute = Route {
-        case (GET, u) if u == s"$userServiceUrl/users/5/age" => Action {
+        case (GET, u) if u == s"$userServiceUrl/users/5/age" => action {
           Ok("67")
         }
       }

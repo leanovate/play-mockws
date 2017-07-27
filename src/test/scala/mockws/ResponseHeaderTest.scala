@@ -1,9 +1,9 @@
 package mockws
 
 import org.scalatest.{FunSuite, Matchers}
-import play.api.mvc.Action
 import play.api.mvc.Results._
 import play.api.test.Helpers._
+import Helpers._
 
 /**
  * Tests RFC-2616 4.2:
@@ -28,10 +28,10 @@ class ResponseHeaderTest extends FunSuite with Matchers {
 
   test("Multiple response headers with comma separated values should be returned unmodified") {
     val ws = MockWS {
-      case (_, _) => Action(NoContent.withHeaders("Cache-Control" -> "no-cache, no-store"))
+      case (_, _) => action(NoContent.withHeaders("Cache-Control" -> "no-cache, no-store"))
     }
 
-    val headerValues = await(ws.url("/").get()).allHeaders("Cache-Control")
+    val headerValues = await(ws.url("/").get()).headers("Cache-Control")
     headerValues should have size 1
     headerValues.head shouldBe "no-cache, no-store"
     ws.close()
