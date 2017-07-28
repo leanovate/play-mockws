@@ -8,14 +8,12 @@ import org.mockito.Mockito._
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
 import play.api.http.HttpEntity
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse, WSSignatureCalculator}
-import play.api.mvc.BodyParsers.parse
 import play.api.mvc.Results._
-import play.api.mvc.{Action, ResponseHeader, Result}
-import play.api.test.FakeRequest
+import play.api.mvc.Result
 import play.api.test.Helpers._
+import Helpers._
 import play.libs.ws.WSRequest
 import play.shaded.ahc.org.asynchttpclient.Response
 
@@ -78,14 +76,14 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
 
   test("mock WS simulates a POST with a JSON payload with a custom content type") {
     val ws = MockWS {
-      case (POST, "/") => Action(parse.tolerantJson) { request =>
+      case (POST, "/") => Action(BodyParser.tolerantJson) { request =>
         Ok((request.body \ "result").as[String])
       }
     }
 
     val json = Json.parse("""{"result": "OK"}""")
 
-    val response = await(ws.url("/").withHeaders(CONTENT_TYPE -> "application/my-json").post(json))
+    val response = await(ws.url("/").addHttpHeaders(CONTENT_TYPE -> "application/my-json").post(json))
     response.status shouldEqual OK
     response.body shouldEqual "OK"
     ws.close()
@@ -174,7 +172,7 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
       }
     }
 
-    val wsResponse = await( ws.url("/").withHeaders(CONTENT_TYPE -> "hello/world").get)
+    val wsResponse = await( ws.url("/").addHttpHeaders(CONTENT_TYPE -> "hello/world").get)
     wsResponse.status shouldEqual OK
     wsResponse.body shouldEqual "hello/world"
     ws.close()
@@ -192,7 +190,7 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
           }
         }
 
-        val wsResponse =  await( ws.url("/uri").withQueryString(q -> v).get)
+        val wsResponse =  await( ws.url("/uri").addQueryStringParameters(q -> v).get)
         wsResponse.status shouldEqual OK
         wsResponse.body shouldEqual v
         ws.close()
@@ -212,8 +210,8 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
           }
         }
 
-        await( ws.url("/uri").withHeaders(Seq(q -> v): _*).get )
-        await( ws.url("/uri").withQueryString(Seq(q -> v): _*).get )
+        await( ws.url("/uri").addHttpHeaders(Seq(q -> v): _*).get )
+        await( ws.url("/uri").addQueryStringParameters(Seq(q -> v): _*).get )
         ws.close()
       }
     }
@@ -281,7 +279,7 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
         Ok(req.headers.getAll("v1").zipWithIndex.toString) }
     }
     val request = ws.url("/get")
-      .withHeaders(("v1", "first"),("v1", "second"))
+      .addHttpHeaders(("v1", "first"),("v1", "second"))
     .get()
 
     val response = await(request)

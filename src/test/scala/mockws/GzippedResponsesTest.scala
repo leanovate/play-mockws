@@ -5,9 +5,9 @@ import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 
 import play.shaded.ahc.org.asynchttpclient.Response
 import org.scalatest.{FunSuite, Matchers}
-import play.api.mvc.Action
 import play.api.mvc.Results._
 import play.api.test.Helpers._
+import Helpers._
 
 class GzippedResponsesTest extends FunSuite with Matchers {
 

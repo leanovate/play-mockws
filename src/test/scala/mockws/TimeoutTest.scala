@@ -5,7 +5,8 @@ import java.util.concurrent.TimeoutException
 import org.scalatest.concurrent.ScalaFutures._
 import org.scalatest.time.{Milliseconds, Span}
 import org.scalatest.{FunSuite, Matchers}
-import play.api.mvc.{Action, Result}
+import play.api.mvc.Result
+import Helpers._
 
 import scala.concurrent.Promise
 import scala.concurrent.duration._

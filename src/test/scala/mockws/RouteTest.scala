@@ -3,9 +3,9 @@ package mockws
 import java.util.concurrent.{Executors, TimeUnit}
 
 import org.scalatest.{FunSuite, Matchers}
-import play.api.mvc.Action
 import play.api.mvc.Results._
 import play.api.test.Helpers._
+import Helpers._
 
 /**
  * Tests [[Route]]

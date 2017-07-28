@@ -1,9 +1,10 @@
 package mockws
 
 import org.scalatest.{FunSuite, Matchers}
-import play.api.mvc.{Cookie, Action}
+import play.api.mvc.Cookie
 import play.api.mvc.Results._
 import play.api.test.Helpers._
+import Helpers._
 
 class CookieTest extends FunSuite with Matchers {
 

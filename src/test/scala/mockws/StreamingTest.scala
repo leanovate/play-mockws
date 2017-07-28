@@ -5,12 +5,13 @@ import akka.util.ByteString
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
 import play.api.http.HttpEntity
-import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.ExecutionContext.Implicits._
 import play.api.libs.ws.WSClient
 import play.api.mvc.MultipartFormData.DataPart
-import play.api.mvc.{Action, ResponseHeader, Result}
+import play.api.mvc.{ResponseHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import Helpers._
 
 import scala.collection.immutable.Seq
 
@@ -37,7 +38,6 @@ class StreamingTest extends FunSuite with Matchers with PropertyChecks {
           body = HttpEntity.Streamed(body, None, None))
       }
     }
-    import ws.materializer
 
     val response = testedController(ws).apply(FakeRequest())
     status(response) shouldEqual CREATED
@@ -65,7 +65,6 @@ class StreamingTest extends FunSuite with Matchers with PropertyChecks {
         )
       }
     }
-    import ws.materializer
 
     val response = testedController(ws).apply(FakeRequest())
     status(response) shouldEqual CREATED

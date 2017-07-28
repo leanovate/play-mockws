@@ -3,9 +3,9 @@ package mockws
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
 import play.api.libs.ws.WSAuthScheme
-import play.api.mvc.Action
 import play.api.mvc.Results._
 import play.api.test.Helpers._
+import Helpers._
 
 /**
  * Tests that [[MockWS]] simulates a WS client, in particular the methods involving authentication

@@ -1,11 +1,11 @@
 package mockws
 
-import org.scalatest.{OptionValues, FreeSpec, Matchers}
-import play.api.libs.concurrent.Execution.Implicits._
+import org.scalatest.{FreeSpec, Matchers, OptionValues}
+import scala.concurrent.ExecutionContext.Implicits._
 import play.api.libs.ws.WSClient
-import play.api.mvc.Action
 import play.api.mvc.Results._
 import play.api.test.Helpers._
+import Helpers._
 
 import scala.concurrent.Future
 import scala.util.Try
