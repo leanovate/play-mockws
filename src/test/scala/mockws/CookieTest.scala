@@ -10,7 +10,7 @@ class CookieTest extends FunSuite with Matchers {
 
   test("A cookie can be returned from an action") {
     val ws = MockWS {
-      case (_, _) => action(
+      case (_, _) => Action(
         NoContent.withCookies(
           Cookie(
             name = "session_id",

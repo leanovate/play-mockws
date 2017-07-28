@@ -13,7 +13,7 @@ class GzippedResponsesTest extends FunSuite with Matchers {
 
   test("mock WS handle gzipped responses") {
     val ws = MockWS {
-      case (_, _) ⇒ action {
+      case (_, _) ⇒ Action {
         val os = new ByteArrayOutputStream()
         val gzip = new GZIPOutputStream(os)
         gzip.write("my response".getBytes())

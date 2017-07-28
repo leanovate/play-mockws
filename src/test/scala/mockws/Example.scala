@@ -64,7 +64,7 @@ class Example extends FreeSpec with Matchers with OptionValues {
     "return None" - {
       "when the user service does not know the user" in new TestScope {
         override val userRoute = Route {
-          case (GET, u) if u == s"$userServiceUrl/users/23/age" => action {
+          case (GET, u) if u == s"$userServiceUrl/users/23/age" => Action {
             NotFound("user 23 not known")
           }
         }
@@ -73,7 +73,7 @@ class Example extends FreeSpec with Matchers with OptionValues {
 
       "when the user service response is not an Integer" in new TestScope {
         override val userRoute = Route {
-          case (GET, u) if u == s"$userServiceUrl/users/27/age" => action {
+          case (GET, u) if u == s"$userServiceUrl/users/27/age" => Action {
             Ok("crap")
           }
         }
@@ -83,7 +83,7 @@ class Example extends FreeSpec with Matchers with OptionValues {
 
     "return the age of the user" in new TestScope {
       override val userRoute = Route {
-        case (GET, u) if u == s"$userServiceUrl/users/5/age" => action {
+        case (GET, u) if u == s"$userServiceUrl/users/5/age" => Action {
           Ok("67")
         }
       }

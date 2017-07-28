@@ -14,10 +14,10 @@ class RouteTest extends FunSuite with Matchers {
 
   test("a route knows if it was called") {
     val route1 = Route {
-      case (GET, "/route1") => action { Ok("") }
+      case (GET, "/route1") => Action { Ok("") }
     }
     val route2 = Route {
-      case (GET, "/route2") => action { Ok("") }
+      case (GET, "/route2") => Action { Ok("") }
     }
 
     val ws = MockWS(route1 orElse route2)
@@ -36,7 +36,7 @@ class RouteTest extends FunSuite with Matchers {
 
   test("a route knows how many times it was called") {
     val route = Route {
-      case (GET, "/route") => action { Ok("") }
+      case (GET, "/route") => Action { Ok("") }
     }
     val ws = MockWS(route)
 
@@ -55,7 +55,7 @@ class RouteTest extends FunSuite with Matchers {
 
   test("a route knows how many times it was called with parallel calls") {
     val route = Route {
-      case (GET, "/route") => action { Ok("") }
+      case (GET, "/route") => Action { Ok("") }
     }
     val ws = MockWS(route)
 

@@ -20,7 +20,7 @@ class TimeoutTest extends FunSuite with Matchers {
     implicit val patienceConfig = PatienceConfig(timeout = Span(500, Milliseconds))
 
     val ws = MockWS {
-      case (_, "/hang/forever") => action.async(Promise[Result]().future)
+      case (_, "/hang/forever") => Action.async(Promise[Result]().future)
     }
 
     val futureResponse = ws.url("/hang/forever").withRequestTimeout(1.millis).get()
