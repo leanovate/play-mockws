@@ -72,6 +72,20 @@ val ws = MockWS { ... }
 
 ##### General usage
 
+It is recommended that your tests either extend trait MockWSHelpers or import MockWSHelpers. MockWSHelpers
+provides an implicit Materializer you need when working with Play's Actions.
+
+```scala
+class MySpec extends FreeSpec with Matchers with MockWSHelpers {
+  ...
+}
+```
+
+or
+```scala
+import mockws.MockWSHelpers._
+```
+
 A `MockWS` instance can be directly constructed with a partial function like this:
 ```scala
 val ws = MockWS {

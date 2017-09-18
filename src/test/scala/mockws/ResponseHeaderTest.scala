@@ -3,7 +3,6 @@ package mockws
 import org.scalatest.{FunSuite, Matchers}
 import play.api.mvc.Results._
 import play.api.test.Helpers._
-import Helpers._
 
 /**
  * Tests RFC-2616 4.2:
@@ -24,7 +23,7 @@ import Helpers._
  *
  * Due to a bug in play, we can't fully support this. https://github.com/playframework/playframework/issues/3544
  */
-class ResponseHeaderTest extends FunSuite with Matchers {
+class ResponseHeaderTest extends FunSuite with Matchers with MockWSHelpers {
 
   test("Multiple response headers with comma separated values should be returned unmodified") {
     val ws = MockWS {

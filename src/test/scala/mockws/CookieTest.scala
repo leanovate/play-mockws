@@ -4,9 +4,8 @@ import org.scalatest.{FunSuite, Matchers}
 import play.api.mvc.Cookie
 import play.api.mvc.Results._
 import play.api.test.Helpers._
-import Helpers._
 
-class CookieTest extends FunSuite with Matchers {
+class CookieTest extends FunSuite with Matchers with MockWSHelpers {
 
   test("A cookie can be returned from an action") {
     val ws = MockWS {

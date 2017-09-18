@@ -5,12 +5,11 @@ import java.util.concurrent.{Executors, TimeUnit}
 import org.scalatest.{FunSuite, Matchers}
 import play.api.mvc.Results._
 import play.api.test.Helpers._
-import Helpers._
 
 /**
  * Tests [[Route]]
  */
-class RouteTest extends FunSuite with Matchers {
+class RouteTest extends FunSuite with Matchers with MockWSHelpers {
 
   test("a route knows if it was called") {
     val route1 = Route {
