@@ -1,6 +1,10 @@
 # Release notes
 
-## 2.6.2-SNAPSHOT
+## 2.6.3-SNAPSHOT
+
+## 2.6.2 - 2017/09/21
+
+- Do not use a shutdown hook with helpers trait [31](https://github.com/leanovate/play-mockws/pull/31)
 
 ## 2.6.1 - 2017/09/21
 
