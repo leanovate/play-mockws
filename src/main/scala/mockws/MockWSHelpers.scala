@@ -14,6 +14,7 @@ import scala.concurrent.duration._
   * use MockWS and its Action { ... } definitions inside your testclasses.
   *
   * Mix this trait into the tests where you use MockWS.
+  * WARNING: you have to call `shutdownHelpers()` after usage to avoid memory leaks.
   *
   * You can also use the object if you dislike traits and like to instead import the functionality.
   *
