@@ -2,19 +2,15 @@ package mockws
 
 import java.net.InetSocketAddress
 
-import akka.stream.scaladsl.Source
-import akka.util.ByteString
+import mockws.MockWSHelpers._
 import org.mockito.Mockito._
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
-import play.api.http.HttpEntity
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse, WSSignatureCalculator}
-import play.api.mvc.Results._
+import play.api.libs.ws.{WSAuthScheme, WSResponse, WSSignatureCalculator}
 import play.api.mvc.Result
+import play.api.mvc.Results._
 import play.api.test.Helpers._
-import play.libs.ws.WSRequest
-import play.shaded.ahc.org.asynchttpclient.Response
 
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
@@ -23,7 +19,7 @@ import scala.concurrent.duration._
 /**
  * Tests that [[MockWS]] simulates a WS client
  */
-class MockWSTest extends FunSuite with Matchers with PropertyChecks with MockWSHelpers {
+class MockWSTest extends FunSuite with Matchers with PropertyChecks {
 
   test("mock WS simulates all HTTP methods") {
     val ws = MockWS {

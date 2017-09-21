@@ -1,5 +1,6 @@
 package mockws
 
+import mockws.MockWSHelpers._
 import org.scalatest.{FunSuite, Matchers}
 import play.api.mvc.Results._
 import play.api.test.Helpers._
@@ -23,7 +24,7 @@ import play.api.test.Helpers._
  *
  * Due to a bug in play, we can't fully support this. https://github.com/playframework/playframework/issues/3544
  */
-class ResponseHeaderTest extends FunSuite with Matchers with MockWSHelpers {
+class ResponseHeaderTest extends FunSuite with Matchers {
 
   test("Multiple response headers with comma separated values should be returned unmodified") {
     val ws = MockWS {

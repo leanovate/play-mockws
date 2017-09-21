@@ -1,5 +1,6 @@
 package mockws
 
+import mockws.MockWSHelpers._
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
 import play.api.libs.ws.WSAuthScheme
@@ -9,7 +10,7 @@ import play.api.test.Helpers._
 /**
  * Tests that [[MockWS]] simulates a WS client, in particular the methods involving authentication
  */
-class AuthenticationTest extends FunSuite with Matchers with PropertyChecks with MockWSHelpers {
+class AuthenticationTest extends FunSuite with Matchers with PropertyChecks {
 
   test("mock WS supports authentication with Basic Auth") {
 
