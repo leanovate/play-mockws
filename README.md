@@ -72,7 +72,7 @@ val ws = MockWS { ... }
 
 ##### General usage
 
-It is recommended that your tests either extend trait MockWSHelpers or import MockWSHelpers. MockWSHelpers
+From the 2.6 version, it is recommended that your tests either extend trait MockWSHelpers or import MockWSHelpers. MockWSHelpers
 provides an implicit Materializer you need when working with Play's Actions.
 
 ```scala
