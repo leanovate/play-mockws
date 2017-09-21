@@ -6,12 +6,11 @@ import org.scalatest.concurrent.ScalaFutures._
 import org.scalatest.time.{Milliseconds, Span}
 import org.scalatest.{FunSuite, Matchers}
 import play.api.mvc.Result
-import Helpers._
 
 import scala.concurrent.Promise
 import scala.concurrent.duration._
 
-class TimeoutTest extends FunSuite with Matchers {
+class TimeoutTest extends FunSuite with Matchers with MockWSHelpers {
 
   /**
    * Given a route that hangs forever, a request timeout of 1 ms should fail the future within 500 ms.

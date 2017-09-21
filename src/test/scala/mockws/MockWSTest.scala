@@ -13,7 +13,6 @@ import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse, WSSignatureCalculat
 import play.api.mvc.Results._
 import play.api.mvc.Result
 import play.api.test.Helpers._
-import Helpers._
 import play.libs.ws.WSRequest
 import play.shaded.ahc.org.asynchttpclient.Response
 
@@ -24,7 +23,7 @@ import scala.concurrent.duration._
 /**
  * Tests that [[MockWS]] simulates a WS client
  */
-class MockWSTest extends FunSuite with Matchers with PropertyChecks {
+class MockWSTest extends FunSuite with Matchers with PropertyChecks with MockWSHelpers {
 
   test("mock WS simulates all HTTP methods") {
     val ws = MockWS {

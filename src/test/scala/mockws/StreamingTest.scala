@@ -11,14 +11,13 @@ import play.api.mvc.MultipartFormData.DataPart
 import play.api.mvc.{ResponseHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import Helpers._
 
 import scala.collection.immutable.Seq
 
 /**
   * Tests that [[MockWS]] simulates a WS client, in particular the methods involving authentication
   */
-class StreamingTest extends FunSuite with Matchers with PropertyChecks {
+class StreamingTest extends FunSuite with Matchers with PropertyChecks with MockWSHelpers {
 
   test("mock WS simulates a streaming") {
 
