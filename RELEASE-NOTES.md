@@ -3,7 +3,9 @@
 ## 2.6.1-SNAPSHOT
 
 - Stop using deprecated actions [27](https://github.com/leanovate/play-mockws/issues/27)  
-  [contribution](https://github.com/leanovate/play-mockws/pull/28) from [1gnition](https://github.com/1gnition)
+  [contribution](https://github.com/leanovate/play-mockws/pull/28) from [@1gnition](https://github.com/1gnition)
+- Add helpers for users to avoid using deprecated `Action` [29](https://github.com/leanovate/play-mockws/issues/29)  
+  [contribution](https://github.com/leanovate/play-mockws/pull/30) from [@raphaelbauer](https://github.com/raphaelbauer)
 
 ## 2.6.0 - 2017/05/26
 
