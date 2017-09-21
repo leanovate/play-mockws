@@ -76,8 +76,12 @@ From the 2.6 version, it is recommended that your tests either extend trait Mock
 provides an implicit Materializer you need when working with Play's Actions.
 
 ```scala
-class MySpec extends FreeSpec with Matchers with MockWSHelpers {
+class MySpec extends FreeSpec with Matchers with MockWSHelpers with BeforeAndAfterAll {
   ...
+
+  override def afterAll(): Unit = {
+    shutdownHelpers()
+  }
 }
 ```
 

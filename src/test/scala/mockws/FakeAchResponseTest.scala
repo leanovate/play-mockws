@@ -8,7 +8,7 @@ import org.scalatest.{FunSpec, Matchers}
 import play.api.http.HttpEntity.Strict
 import play.api.mvc.{ResponseHeader, Result}
 
-class FakeAchResponseTest extends FunSpec with Matchers with MockWSHelpers {
+class FakeAchResponseTest extends FunSpec with Matchers {
 
   describe("typical 200 response") {
     val bodyString = "response body"

@@ -1,11 +1,12 @@
 package mockws
 
+import mockws.MockWSHelpers._
 import org.scalatest.{FreeSpec, Matchers, OptionValues}
-import scala.concurrent.ExecutionContext.Implicits._
 import play.api.libs.ws.WSClient
 import play.api.mvc.Results._
 import play.api.test.Helpers._
 
+import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 import scala.util.Try
 
@@ -54,7 +55,7 @@ trait TestScope {
 }
 
 
-class Example extends FreeSpec with Matchers with OptionValues with MockWSHelpers {
+class Example extends FreeSpec with Matchers with OptionValues {
 
   // and we can test the implementation of GatewayToTest
 

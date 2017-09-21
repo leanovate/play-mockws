@@ -2,10 +2,10 @@ package mockws
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
+import mockws.MockWSHelpers._
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
 import play.api.http.HttpEntity
-import scala.concurrent.ExecutionContext.Implicits._
 import play.api.libs.ws.WSClient
 import play.api.mvc.MultipartFormData.DataPart
 import play.api.mvc.{ResponseHeader, Result}
@@ -13,11 +13,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
 import scala.collection.immutable.Seq
+import scala.concurrent.ExecutionContext.Implicits._
 
 /**
   * Tests that [[MockWS]] simulates a WS client, in particular the methods involving authentication
   */
-class StreamingTest extends FunSuite with Matchers with PropertyChecks with MockWSHelpers {
+class StreamingTest extends FunSuite with Matchers with PropertyChecks {
 
   test("mock WS simulates a streaming") {
 

@@ -2,6 +2,7 @@ package mockws
 
 import java.util.concurrent.{Executors, TimeUnit}
 
+import mockws.MockWSHelpers._
 import org.scalatest.{FunSuite, Matchers}
 import play.api.mvc.Results._
 import play.api.test.Helpers._
@@ -9,7 +10,7 @@ import play.api.test.Helpers._
 /**
  * Tests [[Route]]
  */
-class RouteTest extends FunSuite with Matchers with MockWSHelpers {
+class RouteTest extends FunSuite with Matchers {
 
   test("a route knows if it was called") {
     val route1 = Route {
