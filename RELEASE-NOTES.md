@@ -1,6 +1,8 @@
 # Release notes
 
-## 2.6.1-SNAPSHOT
+## 2.6.2-SNAPSHOT
+
+## 2.6.1 - 2017/09/21
 
 - Stop using deprecated actions [27](https://github.com/leanovate/play-mockws/issues/27)  
   [contribution](https://github.com/leanovate/play-mockws/pull/28) from [@1gnition](https://github.com/1gnition)
