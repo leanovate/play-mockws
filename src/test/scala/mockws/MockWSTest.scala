@@ -282,4 +282,22 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
 
     ws.close()
   }
+
+  test("discard old headers when setting withHttpHeaders") {
+    var headers: Map[String, scala.Seq[String]] = Map.empty
+    val ws = MockWS {
+      case (GET, "/get") => Action {
+        req =>
+          headers = req.headers.toMap
+          Ok(req.headers.getAll("key1").zipWithIndex.toString) }
+    }
+    val request = ws.url("/get")
+      .withHttpHeaders("key1" -> "value1")
+      .withHttpHeaders("key2" -> "value2")
+      .get()
+
+    await(request)
+    headers.get("key1") shouldBe None
+    headers.get("key2") shouldBe Some(Seq("value2"))
+  }
 }
