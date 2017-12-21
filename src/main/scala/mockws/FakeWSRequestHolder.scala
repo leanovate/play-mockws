@@ -77,7 +77,7 @@ case class FakeWSRequestHolder(
   def withQueryString(parameters: (String, String)*): Self = withQueryStringParameters(parameters: _*)
 
   def withQueryStringParameters(parameters: (String, String)*): Self = copy(
-    queryString = parameters.foldLeft(queryString) {
+    queryString = parameters.foldLeft(Map.empty[String, Seq[String]]) {
       case (m, (k, v)) => m + (k -> (v +: m.getOrElse(k, Nil)))
     }
   )
