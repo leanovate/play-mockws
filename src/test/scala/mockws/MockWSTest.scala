@@ -1,7 +1,7 @@
 package mockws
 
 import java.net.InetSocketAddress
-
+import java.util.concurrent.atomic.AtomicReference
 import mockws.MockWSHelpers._
 import org.mockito.Mockito._
 import org.scalatest.prop.PropertyChecks
@@ -11,7 +11,6 @@ import play.api.libs.ws.{WSAuthScheme, WSResponse, WSSignatureCalculator}
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import play.api.test.Helpers._
-
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -284,11 +283,11 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
   }
 
   test("discard old headers when setting withHttpHeaders") {
-    var headers: Map[String, scala.Seq[String]] = Map.empty
+    val headers = new AtomicReference[Map[String, scala.Seq[String]]](Map.empty)
     val ws = MockWS {
       case (GET, "/get") => Action {
         req =>
-          headers = req.headers.toMap
+          headers.set(req.headers.toMap)
           Ok(req.headers.getAll("key1").zipWithIndex.toString) }
     }
     val request = ws.url("/get")
@@ -297,7 +296,8 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
       .get()
 
     await(request)
-    headers.get("key1") shouldBe None
-    headers.get("key2") shouldBe Some(Seq("value2"))
+    val headersMap = headers.get()
+    headersMap.get("key1") shouldBe None
+    headersMap.get("key2") shouldBe Some(Seq("value2"))
   }
 }
