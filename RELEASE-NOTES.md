@@ -2,7 +2,7 @@
 
 ## 2.6.3-SNAPSHOT
 
-- Fix withHttpHeaders behavior for FakeWSRequestHolder [33](https://github.com/leanovate/play-mockws/pull/33)
+- Fix withHttpHeaders behavior for FakeWSRequestHolder [33](https://github.com/leanovate/play-mockws/pull/33)  
   contribution from [@a-shkarupin](https://github.com/a-shkarupin)
   
 ## 2.6.2 - 2017/09/21
