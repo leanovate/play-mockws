@@ -66,7 +66,7 @@ case class FakeWSRequestHolder(
   def withHeaders(hdrs: (String, String)*): Self = withHttpHeaders(hdrs: _*)
 
   def withHttpHeaders(hdrs: (String, String)*): Self = {
-    val headers = hdrs.foldLeft(this.headers)(
+    val headers = hdrs.foldLeft(Map.empty[String, Seq[String]])(
       (m, hdr) =>
         if (m.contains(hdr._1)) m.updated(hdr._1, m(hdr._1) :+ hdr._2)
         else m + (hdr._1 -> Seq(hdr._2))
