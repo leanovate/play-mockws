@@ -300,4 +300,23 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
     headersMap.get("key1") shouldBe None
     headersMap.get("key2") shouldBe Some(Seq("value2"))
   }
+
+  test("discard old query parameters when setting withQueryStringParameters") {
+    val queryString = new AtomicReference[Map[String, scala.Seq[String]]](Map.empty)
+    val ws = MockWS {
+      case (GET, "/get") => Action {
+        req =>
+          queryString.set(req.queryString)
+          Ok("") }
+    }
+    val request = ws.url("/get")
+      .withQueryStringParameters("bar" -> "baz")
+      .withQueryStringParameters("bar" -> "bah")
+      .get()
+
+    await(request)
+    val queryMap = queryString.get()
+    queryMap.get("bar") shouldBe Some(Seq("bah"))
+  }
+
 }
