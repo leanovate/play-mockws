@@ -3,7 +3,7 @@
 ## 2.6.4-SNAPSHOT
 
 
-## 2.6.3
+## 2.6.3 - 2017/12/22
 
 - Fix withHttpHeaders behavior for FakeWSRequestHolder [33](https://github.com/leanovate/play-mockws/pull/33)
 - Fix withQueryStringParameters behavior for FakeWSRequestHolder [34](https://github.com/leanovate/play-mockws/pull/34)  
