@@ -3,24 +3,20 @@ package mockws
 import java.io.File
 import java.net.{URI, URLEncoder}
 import java.util.Base64
-
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{FileIO, Source}
+import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import mockws.MockWS.Routes
 import org.slf4j.LoggerFactory
 import play.api.libs.ws._
 import play.api.libs.ws.ahc.AhcWSResponse
 import play.api.mvc.MultipartFormData.Part
-import play.api.mvc.Result
+import play.api.mvc.{Result, Results}
 import play.api.test.FakeRequest
-import play.core.formatters.Multipart
 import play.shaded.ahc.io.netty.handler.codec.http.HttpHeaders
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
-
 case class FakeWSRequestHolder(
   routes: Routes,
   url: String,
@@ -100,19 +96,28 @@ case class FakeWSRequestHolder(
       responseBody ← result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
     } yield new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
 
-
   def stream(): Future[Response] = execute()
 
   private def executeResult(): Future[Result] = {
     logger.debug(s"calling $method $url")
-
-    val action = routes.lift((method, url)).getOrElse(throw new Exception(s"no route defined for $method $url"))
-    def fakeRequest = FakeRequest(method, urlWithQueryParams()).withHeaders(headersSeq(): _*).withBody(body)
-
-    // Real WSClients will actually interrupt the response Enumerator while it's streaming.
-    // I don't want to go down that rabbit hole. This is close enough for most cases.
-    applyRequestTimeout(fakeRequest) {
-      action(sign(fakeRequest)).run(requestBodySource)
+    def fakeRequest =
+      FakeRequest(method, urlWithQueryParams())
+        .withHeaders(headersSeq(): _*)
+        .withBody(body)
+    routes
+      .lift((method, url)) match {
+      case Some(action) =>
+        // Real WSClients will actually interrupt the response Enumerator while it's streaming.
+        // I don't want to go down that rabbit hole. This is close enough for most cases.
+        applyRequestTimeout(fakeRequest) {
+          action(sign(fakeRequest)).run(requestBodySource)
+        }
+      case None =>
+        //If there is no route, that means the future is successful but the server returned 404
+        //If we think of it as exception with failed future then it will suppress the semantics of
+        //client failure vs HTTP failures. Caller should check for HTTP status rather than future state
+        logger.debug(s"no route defined for $method $url")
+        Future.successful(Results.NotFound)
     }
   }
 

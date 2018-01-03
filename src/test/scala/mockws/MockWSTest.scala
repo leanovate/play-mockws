@@ -13,6 +13,7 @@ import play.api.mvc.Results._
 import play.api.test.Helpers._
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
+import scala.util._
 import scala.concurrent.duration._
 
 /**
@@ -131,14 +132,16 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
     val ws = MockWS {
       case (GET, "/url") => Action { Ok("") }
     }
+    import scala.concurrent.ExecutionContext.Implicits.global
+    ws.url("/url2").get() onComplete {
+      case Success(x)=> x.status should be(404)
+      case Failure(x)=> fail("should not throw an exception for url not found")
+    }
 
-    the [Exception] thrownBy {
-      ws.url("/url2").get()
-    } should have message "no route defined for GET /url2"
-
-    the [Exception] thrownBy {
-      ws.url("/url").delete()
-    } should have message "no route defined for DELETE /url"
+    ws.url("/url").delete() onComplete {
+      case Success(x)=> x.status should be(404)
+      case Failure(x)=> fail("should not throw an exception for url not found")
+    }
     ws.close()
   }
 
