@@ -319,4 +319,21 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
     queryMap.get("bar") shouldBe Some(Seq("bah"))
   }
 
+  test("keep headers with content type from BodyWritable") {
+    val headers = new AtomicReference[Map[String, scala.Seq[String]]](Map.empty)
+    val ws = MockWS {
+      case (POST, "/") => Action {
+        req =>
+          headers.set(req.headers.toMap)
+          Ok }
+    }
+    val request = ws.url("/")
+      .withHttpHeaders("key1" -> "value1")
+      .post("test")
+
+    val response = await(request)
+    response.status shouldBe OK
+    val headersMap = headers.get()
+    headersMap.get("key1") shouldBe Some(Seq("value1"))
+  }
 }

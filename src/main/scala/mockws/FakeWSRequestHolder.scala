@@ -221,7 +221,7 @@ case class FakeWSRequestHolder(
     if (headers.contains("Content-Type")) {
       withBody(wsBody)
     } else {
-      withBody(wsBody).withHttpHeaders("Content-Type" -> contentType)
+      withBody(wsBody).addHttpHeaders("Content-Type" -> contentType)
     }
   }
 }
