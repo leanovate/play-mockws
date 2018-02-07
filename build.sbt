@@ -1,14 +1,14 @@
 name := "play-mockws"
 
-scalaVersion := "2.12.3"
+scalaVersion := "2.12.4"
 
-crossScalaVersions := Seq("2.11.11", "2.12.3")
+crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
 organization := "de.leanovate.play-mockws"
 
-val playVersion = "2.6.5"
+val playVersion = "2.6.11"
 
 fork := true
 
@@ -22,9 +22,9 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scalatest"  %% "scalatest"    % "3.0.4",
+  "org.scalatest"  %% "scalatest"    % "3.0.5",
   "org.scalacheck" %% "scalacheck"   % "1.13.5",
-  "org.mockito"    %  "mockito-core" % "2.10.0"
+  "org.mockito"    %  "mockito-core" % "2.13.0"
 ) map (_ % Test)
 
 Release.settings
