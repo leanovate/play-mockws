@@ -1,8 +1,8 @@
 # Release notes
 
-## 2.6.4-SNAPSHOT
+## 2.6.4 - 2018/02/07
 
-- Fix regression in `withBodyAndContentType` where old headers are discarded [36](https://github.com/leanovate/play-mockws/pull/36)
+- Fix regression in `withBodyAndContentType` where old headers are discarded [36](https://github.com/leanovate/play-mockws/pull/36)  
   contribution from [@avdv](https://github.com/avdv)
 
 ## 2.6.3 - 2017/12/22
