@@ -14,7 +14,7 @@ class AuthenticationTest extends FunSuite with Matchers with PropertyChecks {
 
   test("mock WS supports authentication with Basic Auth") {
 
-    val BasicAuth = "Basic: ((?:[A-Za-z0-9+/]{4})+(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)".r
+    val BasicAuth = "Basic ((?:[A-Za-z0-9+/]{4})+(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)".r
 
     val ws = MockWS {
       case (_, _) => Action { request =>
