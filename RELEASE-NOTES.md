@@ -1,5 +1,10 @@
 # Release notes
 
+## 2.6.5-SNAPHOST
+
+- Remove colon after 'Basic' in basic auth [37](https://github.com/leanovate/play-mockws/pull/37)  
+  contribution from [@mattrussell-sky](https://github.com/mattrussell-sky)
+
 ## 2.6.4 - 2018/02/07
 
 - Fix regression in `withBodyAndContentType` where old headers are discarded [36](https://github.com/leanovate/play-mockws/pull/36)  
