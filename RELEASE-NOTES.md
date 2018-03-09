@@ -1,6 +1,6 @@
 # Release notes
 
-## 2.6.5-SNAPHOST
+## 2.6.5 - 2018/03/09
 
 - Remove colon after 'Basic' in basic auth [37](https://github.com/leanovate/play-mockws/pull/37)  
   contribution from [@mattrussell-sky](https://github.com/mattrussell-sky)
