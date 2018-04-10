@@ -2,10 +2,12 @@ package mockws
 
 import java.util.UUID
 
+import scala.concurrent.Future
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import play.api.libs.ws.{WSClient, WSRequest}
-import play.api.mvc.EssentialAction
+import play.api.mvc.{EssentialAction, Result}
+import play.api.mvc.Results.NotFound
 
 /**
  * Mock implementation for the [[play.api.libs.ws.WSClient]].
@@ -31,7 +33,7 @@ import play.api.mvc.EssentialAction
  *
  * @param routes routes defining the mock calls
  */
-class MockWS(routes: MockWS.Routes, shutdownHook: () ⇒ Unit)(implicit val materializer: ActorMaterializer) extends WSClient {
+class MockWS(routes: MockWS.Routes, shutdownHook: () ⇒ Unit)(implicit val materializer: ActorMaterializer, action: RouteNotDefined) extends WSClient {
   require(routes != null)
 
   override def underlying[T]: T = this.asInstanceOf[T]
@@ -49,7 +51,7 @@ object MockWS {
   /**
     * @param routes simulation of the external web resource
     */
-  def apply(routes: Routes) = {
+  def apply(routes: Routes)(implicit fn: RouteNotDefined) = {
     implicit val system = ActorSystem("mock-ws-" + UUID.randomUUID().toString)
     implicit val materializer = ActorMaterializer()
     new MockWS(routes, () ⇒ system.terminate())
@@ -59,5 +61,19 @@ object MockWS {
     * @param routes       simulation of the external web resource
     * @param materializer user-defined materializer
     */
-  def apply(routes: Routes, materializer: ActorMaterializer) = new MockWS(routes, () ⇒ Unit)(materializer)
+  def apply(routes: Routes, materializer: ActorMaterializer)(implicit fn: RouteNotDefined) = {
+    implicit val mat= materializer
+    new MockWS(routes, () ⇒ Unit){}
+  }
+
+}
+
+trait RouteNotDefined extends (() => Future[Result])
+object RouteNotDefined {
+
+  implicit val defaultAction:RouteNotDefined = RouteNotDefined(NotFound)
+
+  def apply(result: Result): RouteNotDefined = new RouteNotDefined {
+    override def apply(): Future[Result] = Future.successful(result)
+  }
 }

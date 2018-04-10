@@ -16,6 +16,8 @@ import scala.concurrent.Future
 import scala.util._
 import scala.concurrent.duration._
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.http.Status
 /**
  * Tests that [[MockWS]] simulates a WS client
  */
@@ -128,20 +130,23 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
   }
 
 
-  test("a call to an unknown route causes an exception") {
+  test("a call to an unknown route produces default not found") {
     val ws = MockWS {
       case (GET, "/url") => Action { Ok("") }
     }
-    import scala.concurrent.ExecutionContext.Implicits.global
-    ws.url("/url2").get() onComplete {
-      case Success(x)=> x.status should be(404)
-      case Failure(x)=> fail("should not throw an exception for url not found")
-    }
+    await(ws.url("/url2").get()).status should be (Status.NOT_FOUND)
+    await(ws.url("/url").get()).status should be (Status.OK)
+    ws.close()
+  }
 
-    ws.url("/url").delete() onComplete {
-      case Success(x)=> x.status should be(404)
-      case Failure(x)=> fail("should not throw an exception for url not found")
+  test("a call to an unknown route produces implicit behaviour") {
+
+    implicit val notDefinedBehaviour = RouteNotDefined(BadGateway)
+    val ws = MockWS {
+      case (GET, "/url") => Action { Ok("") }
     }
+    await(ws.url("/url2").get()).status should be (Status.BAD_GATEWAY)
+    await(ws.url("/url").get()).status should be (Status.OK)
     ws.close()
   }
 

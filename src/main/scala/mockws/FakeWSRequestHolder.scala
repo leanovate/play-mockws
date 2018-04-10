@@ -28,7 +28,8 @@ case class FakeWSRequestHolder(
   auth: Option[(String, String, WSAuthScheme)] = None,
   requestTimeout: Option[Int] = None,
   timeoutProvider: TimeoutProvider = SchedulerExecutorServiceTimeoutProvider)(
-  implicit val materializer: ActorMaterializer
+  implicit val materializer: ActorMaterializer,
+  notFoundBehaviour: RouteNotDefined
 ) extends WSRequest {
 
   override type Self = WSRequest
@@ -90,9 +91,16 @@ case class FakeWSRequestHolder(
 
   def withRequestFilter(filter: WSRequestFilter): Self = this
 
+  /*
+   * The method will emulate the execution of a mock request and will return response accordingly if the route can be found
+   * For case where routes can't be found the default behaviour is to return successfull future with Result containing HTTP
+   * status 404.
+   * If you want to control the behaviour where you want to return something else in the cases where route can't be found then
+   * you can use the overloaded method
+   */
   def execute(): Future[Response] =
     for {
-      result <- executeResult()
+      result <- executeResult
       responseBody ← result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
     } yield new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
 
@@ -113,11 +121,7 @@ case class FakeWSRequestHolder(
           action(sign(fakeRequest)).run(requestBodySource)
         }
       case None =>
-        //If there is no route, that means the future is successful but the server returned 404
-        //If we think of it as exception with failed future then it will suppress the semantics of
-        //client failure vs HTTP failures. Caller should check for HTTP status rather than future state
-        logger.debug(s"no route defined for $method $url")
-        Future.successful(Results.NotFound)
+        notFoundBehaviour()
     }
   }
 
