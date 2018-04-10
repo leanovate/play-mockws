@@ -108,10 +108,7 @@ case class FakeWSRequestHolder(
 
   private def executeResult(): Future[Result] = {
     logger.debug(s"calling $method $url")
-    def fakeRequest =
-      FakeRequest(method, urlWithQueryParams())
-        .withHeaders(headersSeq(): _*)
-        .withBody(body)
+    def fakeRequest = FakeRequest(method, urlWithQueryParams()).withHeaders(headersSeq(): _*).withBody(body)
     routes
       .lift((method, url)) match {
       case Some(action) =>
