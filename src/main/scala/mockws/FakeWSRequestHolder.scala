@@ -3,24 +3,20 @@ package mockws
 import java.io.File
 import java.net.{URI, URLEncoder}
 import java.util.Base64
-
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{FileIO, Source}
+import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import mockws.MockWS.Routes
 import org.slf4j.LoggerFactory
 import play.api.libs.ws._
 import play.api.libs.ws.ahc.AhcWSResponse
 import play.api.mvc.MultipartFormData.Part
-import play.api.mvc.Result
+import play.api.mvc.{Result, Results}
 import play.api.test.FakeRequest
-import play.core.formatters.Multipart
 import play.shaded.ahc.io.netty.handler.codec.http.HttpHeaders
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
-
 case class FakeWSRequestHolder(
   routes: Routes,
   url: String,
@@ -32,7 +28,8 @@ case class FakeWSRequestHolder(
   auth: Option[(String, String, WSAuthScheme)] = None,
   requestTimeout: Option[Int] = None,
   timeoutProvider: TimeoutProvider = SchedulerExecutorServiceTimeoutProvider)(
-  implicit val materializer: ActorMaterializer
+  implicit val materializer: ActorMaterializer,
+  notFoundBehaviour: RouteNotDefined
 ) extends WSRequest {
 
   override type Self = WSRequest
@@ -94,25 +91,34 @@ case class FakeWSRequestHolder(
 
   def withRequestFilter(filter: WSRequestFilter): Self = this
 
+  /*
+   * The method will emulate the execution of a mock request and will return response accordingly if the route can be found
+   * For case where routes can't be found the default behaviour is to return successfull future with Result containing HTTP
+   * status 404.
+   * If you want to control the behaviour where you want to return something else in the cases where route can't be found then
+   * you can use the overloaded method
+   */
   def execute(): Future[Response] =
     for {
-      result <- executeResult()
+      result <- executeResult
       responseBody ← result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
     } yield new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
-
 
   def stream(): Future[Response] = execute()
 
   private def executeResult(): Future[Result] = {
     logger.debug(s"calling $method $url")
-
-    val action = routes.lift((method, url)).getOrElse(throw new Exception(s"no route defined for $method $url"))
     def fakeRequest = FakeRequest(method, urlWithQueryParams()).withHeaders(headersSeq(): _*).withBody(body)
-
-    // Real WSClients will actually interrupt the response Enumerator while it's streaming.
-    // I don't want to go down that rabbit hole. This is close enough for most cases.
-    applyRequestTimeout(fakeRequest) {
-      action(sign(fakeRequest)).run(requestBodySource)
+    routes
+      .lift((method, url)) match {
+      case Some(action) =>
+        // Real WSClients will actually interrupt the response Enumerator while it's streaming.
+        // I don't want to go down that rabbit hole. This is close enough for most cases.
+        applyRequestTimeout(fakeRequest) {
+          action(sign(fakeRequest)).run(requestBodySource)
+        }
+      case None =>
+        notFoundBehaviour()
     }
   }
 
