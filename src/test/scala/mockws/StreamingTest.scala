@@ -1,5 +1,6 @@
 package mockws
 
+import akka.NotUsed
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import mockws.MockWSHelpers._
@@ -7,8 +8,9 @@ import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
 import play.api.http.HttpEntity
 import play.api.libs.ws.WSClient
-import play.api.mvc.MultipartFormData.DataPart
+import play.api.mvc.MultipartFormData.{DataPart, FilePart, Part}
 import play.api.mvc.{ResponseHeader, Result}
+import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
@@ -43,6 +45,28 @@ class StreamingTest extends FunSuite with Matchers with PropertyChecks {
     status(response) shouldEqual CREATED
     contentAsString(response) shouldEqual "firstsecondthird"
     header("x-header", response) shouldEqual Some("x-value")
+    ws.close()
+  }
+
+  test("mock WS supports streaming of MultipartFormData") {
+    val ws = MockWS {
+      case (PUT, "/") =>
+        Action { request ⇒
+          request.body.asMultipartFormData match {
+            case None ⇒ InternalServerError("error")
+            case Some(data) ⇒ Ok(data.dataParts.mkString(", "))
+          }
+        }
+    }
+
+    val fileData: Source[Part[Source[ByteString, _]], NotUsed] = Source(
+      FilePart("file", "", Some(BINARY), Source.single(ByteString("test"))) ::
+        DataPart("key 1", "data 1") ::
+        DataPart("key 2", "data 2") ::
+        Nil)
+
+    val response = await(ws.url("/").put(fileData))
+    response.body shouldEqual "key 2 -> Vector(data 2), key 1 -> Vector(data 1)"
     ws.close()
   }
 
