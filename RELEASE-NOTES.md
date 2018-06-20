@@ -1,5 +1,12 @@
 # Release notes
 
+## 2.6.6-SNAPSHOT
+
+- can define behaviour when no route are found [35](https://github.com/leanovate/play-mockws/pull/35)  
+  Fix [issue #25](https://github.com/leanovate/play-mockws/issues/25)  
+  contribution from [@SahilLone](https://github.com/SahilLone)
+
+
 ## 2.6.5 - 2018/03/09
 
 - Remove colon after 'Basic' in basic auth [37](https://github.com/leanovate/play-mockws/pull/37)  
