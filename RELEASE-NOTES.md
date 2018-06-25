@@ -1,6 +1,8 @@
 # Release notes
 
-## 2.6.6-SNAPSHOT
+## 2.6.7-SNAPSHOT
+
+## 2.6.6 - 2018/06/25
 
 - can define behaviour when no route are found [35](https://github.com/leanovate/play-mockws/pull/35)  
   Fix [issue #25](https://github.com/leanovate/play-mockws/issues/25)  
