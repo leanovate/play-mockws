@@ -10,9 +10,8 @@ Table of Contents
 
 ## play-mockws
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a7f45a8cbd2a4085ac03ff8c163e3394)](https://app.codacy.com/app/yann-simon-fr/play-mockws?utm_source=github.com&utm_medium=referral&utm_content=leanovate/play-mockws&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/leanovate/play-mockws.svg?branch=master)](https://travis-ci.org/leanovate/play-mockws)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/a7f45a8cbd2a4085ac03ff8c163e3394)](https://www.codacy.com/app/yann-simon-fr/play-mockws?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=leanovate/play-mockws&amp;utm_campaign=Badge_Coverage)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a7f45a8cbd2a4085ac03ff8c163e3394)](https://app.codacy.com/app/yann-simon-fr/play-mockws?utm_source=github.com&utm_medium=referral&utm_content=leanovate/play-mockws&utm_campaign=Badge_Grade_Dashboard)
 [![Coverage Status](https://coveralls.io/repos/github/leanovate/play-mockws/badge.svg)](https://coveralls.io/github/leanovate/play-mockws)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws_2.11)
 
