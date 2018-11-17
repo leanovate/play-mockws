@@ -11,4 +11,4 @@ jdk:
 script:
   - sbt clean coverage test
 after_success:
-  - sbt coverageReport coveralls
+  - sbt coverageReport codacyCoverage coveralls
