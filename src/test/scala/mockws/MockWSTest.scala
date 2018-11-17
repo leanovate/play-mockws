@@ -56,7 +56,7 @@ class MockWSTest extends FunSuite with Matchers with PropertyChecks {
 
   test("mock WS works with explicit request") {
     val ws = MockWS {
-      case (GET, "blah") => Action { request => Ok(request.method)}
+      case (GET, "/blah") => Action { request => Ok(request.method)}
     }
     await(ws.url("/blah").get()).status shouldEqual OK
     ws.close()
