@@ -1,8 +1,11 @@
 // Comment to get more information during initialization
 logLevel := Level.Warn
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
+// https://github.com/scoverage/sbt-scoverage/releases
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 
-addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.1.0")
+// https://github.com/scoverage/sbt-coveralls/releases
+addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.2.7")
 
-addSbtPlugin("com.codacy" % "sbt-codacy-coverage" % "1.3.6")
+// https://github.com/codacy/sbt-codacy-coverage/releases
+addSbtPlugin("com.codacy" % "sbt-codacy-coverage" % "1.3.15")
