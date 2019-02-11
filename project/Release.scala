@@ -13,8 +13,10 @@ object Release {
       sonatypeProfileName := "de.leanovate",
       publishMavenStyle := true,
 
+      publishTo := sonatypePublishTo.value,
+
       pomExtra := {
-        <url>https://github.com/leanovate/doby</url>
+        <url>https://github.com/leanovate/play-mockws</url>
           <licenses>
             <license>
               <name>MIT</name>
