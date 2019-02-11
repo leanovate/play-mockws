@@ -17,6 +17,7 @@ import play.shaded.ahc.io.netty.handler.codec.http.HttpHeaders
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
+
 case class FakeWSRequestHolder(
   routes: Routes,
   url: String,
@@ -26,7 +27,7 @@ case class FakeWSRequestHolder(
   headers: Map[String, Seq[String]] = Map.empty,
   queryString: Map[String, Seq[String]] = Map.empty,
   auth: Option[(String, String, WSAuthScheme)] = None,
-  requestTimeout: Option[Int] = None,
+  requestTimeout: Option[Duration] = None,
   timeoutProvider: TimeoutProvider = SchedulerExecutorServiceTimeoutProvider)(
   implicit val materializer: ActorMaterializer,
   notFoundBehaviour: RouteNotDefined
@@ -86,10 +87,12 @@ case class FakeWSRequestHolder(
       case d =>
         val millis = d.toMillis
         require(millis >= 0 && millis <= Int.MaxValue, s"Request timeout must be between 0 and ${Int.MaxValue} milliseconds")
-        copy(requestTimeout = Some(millis.toInt))
+        copy(requestTimeout = Some(d))
     }
 
   def withRequestFilter(filter: WSRequestFilter): Self = this
+
+  override def withUrl(url: String): Self = this.copy(url = url)
 
   /*
    * The method will emulate the execution of a mock request and will return response accordingly if the route can be found
@@ -136,9 +139,9 @@ case class FakeWSRequestHolder(
   }
 
   private def applyRequestTimeout[T](req: FakeRequest[_])(future: Future[T]) = requestTimeout match {
-    case Some(delay) => timeoutProvider.timeout(
+    case Some(delay) if delay.isFinite => timeoutProvider.timeout(
       future = future,
-      delay = delay.millis,
+      delay = FiniteDuration(delay.length, delay.unit),
       timeoutMsg = s"Request ${req.method} ${req.uri} timed out after $delay ms."
     )
     case None => future
