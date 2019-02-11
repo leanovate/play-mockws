@@ -1,6 +1,11 @@
 # Release notes
 
-## 2.6.7-SNAPSHOT
+## 2.7.1-SNAPSHOT
+
+## 2.7.0 - 2019/02/11
+
+- Compatibility with Play 2.7 [52](https://github.com/leanovate/play-mockws/pull/52)  
+  contribution from [@avdv](https://github.com/avdv)
 
 ## 2.6.6 - 2018/06/25
 
