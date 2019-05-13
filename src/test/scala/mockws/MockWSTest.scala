@@ -2,26 +2,25 @@ package mockws
 
 import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicReference
+
 import mockws.MockWSHelpers._
 import org.mockito.Mockito._
-import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSAuthScheme, WSResponse, WSSignatureCalculator}
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import play.api.test.Helpers._
+
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
-import scala.util._
 import scala.concurrent.duration._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.http.Status
 /**
  * Tests that [[MockWS]] simulates a WS client
  */
-class MockWSTest extends FunSuite with Matchers with PropertyChecks {
+class MockWSTest extends FunSuite with Matchers with ScalaCheckPropertyChecks {
 
   test("mock WS simulates all HTTP methods") {
     val ws = MockWS {
