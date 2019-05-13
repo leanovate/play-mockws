@@ -27,7 +27,7 @@ class StreamingTest extends FunSuite with Matchers with ScalaCheckPropertyChecks
     def testedController(ws: WSClient) = Action.async {
       ws.url("/").stream().map { resp =>
         Result(
-          header = ResponseHeader(resp.status, resp.headers.mapValues(_.head)),
+          header = ResponseHeader(resp.status, resp.headers.map { case (k, v) => (k, v.head) }),
           body = HttpEntity.Streamed(resp.bodyAsSource, None, None))
       }
     }
@@ -54,7 +54,7 @@ class StreamingTest extends FunSuite with Matchers with ScalaCheckPropertyChecks
         Action { request ⇒
           request.body.asMultipartFormData match {
             case None ⇒ InternalServerError("error")
-            case Some(data) ⇒ Ok(data.dataParts.mkString(", "))
+            case Some(data) ⇒ Ok(data.dataParts.toList.sortBy(_._1).mkString(", "))
           }
         }
     }
@@ -66,7 +66,7 @@ class StreamingTest extends FunSuite with Matchers with ScalaCheckPropertyChecks
         Nil)
 
     val response = await(ws.url("/").put(fileData))
-    response.body shouldEqual "key 2 -> Vector(data 2), key 1 -> Vector(data 1)"
+    response.body shouldEqual "(key 1,Vector(data 1)), (key 2,Vector(data 2))"
     ws.close()
   }
 
@@ -74,7 +74,7 @@ class StreamingTest extends FunSuite with Matchers with ScalaCheckPropertyChecks
     def testedController(ws: WSClient) = Action.async {
       ws.url("/").withMethod("POST").stream().map { resp =>
         Result(
-          header = ResponseHeader(resp.status, resp.headers.mapValues(_.head)),
+          header = ResponseHeader(resp.status, resp.headers.map { case (k, v) => (k, v.head) }),
           body = HttpEntity.Streamed(resp.bodyAsSource, None, None)
         )
       }
