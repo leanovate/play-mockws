@@ -2,6 +2,10 @@
 
 ## 2.7.1-SNAPSHOT
 
+- update dependencies [54](https://github.com/leanovate/play-mockws/pull/54)
+- sbt 1.2.8 [55](https://github.com/leanovate/play-mockws/pull/55)
+- sbt-sonatype 2.5 [56](https://github.com/leanovate/play-mockws/pull/56)
+
 ## 2.7.0 - 2019/02/11
 
 - Compatibility with Play 2.7 [52](https://github.com/leanovate/play-mockws/pull/52)  
