@@ -53,7 +53,7 @@ libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.6.2" % T
 ```
 * for Play 2.5.x:
 ```scala
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.5.1" % Test
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.5.2" % Test
 ```
 * for Play 2.4.x:
 ```scala

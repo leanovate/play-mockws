@@ -54,6 +54,10 @@
 - compatibility with play 2.6.0-M1 [#22](https://github.com/leanovate/play-mockws/pull/22)  
   contribution from [@domdorn](https://github.com/domdorn), with support from [@matsluni](https://github.com/matsluni)
 
+## 2.5.2 - 2019/05/17
+
+- update dependencies: https://github.com/leanovate/play-mockws/compare/v2.5.1...v2.5.2
+
 ## 2.5.1 - 2016/11/03
 
 - add support for HTTP Authentication: Basic [#17](https://github.com/leanovate/play-mockws/pull/17)  
