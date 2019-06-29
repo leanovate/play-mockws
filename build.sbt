@@ -8,7 +8,7 @@ scalacOptions ++= Seq("-deprecation", "-feature")
 
 organization := "de.leanovate.play-mockws"
 
-val playVersion = "2.7.2"
+val playVersion = "2.7.3"
 
 fork := true
 
