@@ -37,7 +37,7 @@ object SchedulerExecutorServiceTimeoutProvider extends TimeoutProvider {
     val p = Promise[T]()
 
     // happy path
-    p tryCompleteWith future
+    p completeWith future
 
     // set the timeout
     val timeoutTask = scheduler.schedule(

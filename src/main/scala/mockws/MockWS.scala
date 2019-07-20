@@ -63,7 +63,7 @@ object MockWS {
     */
   def apply(routes: Routes, materializer: ActorMaterializer)(implicit notFoundBehaviour: RouteNotDefined) = {
     implicit val mat= materializer
-    new MockWS(routes, () ⇒ Unit){}
+    new MockWS(routes, () ⇒ ()){}
   }
 
 }
