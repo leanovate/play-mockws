@@ -1,10 +1,14 @@
 # Release notes
 
-## 2.7.1-SNAPSHOT
+## 2.7.2-SNAPSHOT
 
+## 2.7.1
+
+- scala 2.13 support [64](https://github.com/leanovate/play-mockws/pull/64) (from [@avdv](https://github.com/avdv))
 - update dependencies [54](https://github.com/leanovate/play-mockws/pull/54)
 - sbt 1.2.8 [55](https://github.com/leanovate/play-mockws/pull/55)
 - sbt-sonatype 2.5 [56](https://github.com/leanovate/play-mockws/pull/56)
+- play 2.7.3 [60](https://github.com/leanovate/play-mockws/pull/60)
 
 ## 2.7.0 - 2019/02/11
 
