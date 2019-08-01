@@ -1,9 +1,11 @@
 package mockws
 
-import java.util.concurrent.{Executors, TimeUnit}
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 import mockws.MockWSHelpers._
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.FunSuite
+import org.scalatest.Matchers
 import play.api.mvc.Results._
 import play.api.test.Helpers._
 
@@ -20,7 +22,7 @@ class RouteTest extends FunSuite with Matchers {
       case (GET, "/route2") => Action { Ok("") }
     }
 
-    val ws = MockWS(route1 orElse route2)
+    val ws = MockWS(route1.orElse(route2))
 
     await(ws.url("/route1").get())
 

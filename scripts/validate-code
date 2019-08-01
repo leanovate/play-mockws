@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+
+declare -r DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+declare -r BASEDIR=$DIR/..
+
+printMessage() {
+  echo "[info]"
+  echo "[info] ---- $1"
+  echo "[info]"
+}
+
+runSbt() {
+  sbt 'set concurrentRestrictions in Global += Tags.limitAll(1)' "$@" | grep --line-buffered -v 'Resolving \|Generating '
+}
+
+# Runs code formating validation in the current directory
+scalafmtValidation() {
+  printMessage "VALIDATE SCALA CODE FORMATTING"
+  runSbt scalafmtCheckAll scalafmtSbtCheck || (
+    echo "[error] ERROR: Scalafmt test failed for $1 source."
+    echo "[error] To fix, format your sources using 'sbt scalafmtAll scalafmtSbt' before submitting a pull request."
+    false
+  )
+}
+
+# Runs code formating in the current directory
+scalafmtReformat() {
+  printMessage "FORMATTING SCALA CODE"
+  runSbt scalafmtAll scalafmtSbt
+}
+
+if [ -z "$1" ]; then
+    echo -e "\nPlease call '$0 <check|format>' to run this command\n"
+    exit 1
+elif [ "$1" = "check" ]; then
+  scalafmtValidation
+elif [ "$1" = "format" ]; then
+  scalafmtReformat
+fi
+

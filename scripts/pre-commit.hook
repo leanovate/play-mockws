@@ -1,0 +1,10 @@
+#!/bin/sh
+# move this file to .git/hooks/pre-commit if you would
+# like to have code validations run prior to commit.
+
+$PWD/scripts/validate-code check
+
+if [ "$?" != "0" ]
+then
+  $PWD/scripts/validate-code format
+fi

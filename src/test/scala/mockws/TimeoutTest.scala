@@ -3,8 +3,11 @@ package mockws
 import java.util.concurrent.TimeoutException
 
 import org.scalatest.concurrent.ScalaFutures._
-import org.scalatest.time.{Milliseconds, Span}
-import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
+import org.scalatest.time.Milliseconds
+import org.scalatest.time.Span
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.FunSuite
+import org.scalatest.Matchers
 import play.api.mvc.Result
 
 import scala.concurrent.Promise

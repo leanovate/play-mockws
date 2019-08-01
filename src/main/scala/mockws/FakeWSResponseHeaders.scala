@@ -1,6 +1,7 @@
 package mockws
 
-import play.api.mvc.{ResponseHeader, Result}
+import play.api.mvc.ResponseHeader
+import play.api.mvc.Result
 
 case class FakeWSResponseHeaders(status: Int, headers: Map[String, Seq[String]]) {
 
@@ -27,5 +28,5 @@ object FakeWSResponseHeaders {
    *
    * See: https://github.com/playframework/playframework/issues/3544
    */
-  def toMultiMap(header: ResponseHeader): Map[String, Seq[String]] = header.headers.mapValues(Seq(_))
+  def toMultiMap(header: ResponseHeader): Map[String, Seq[String]] = header.headers.map { case (k, v) => (k, Seq(v)) }
 }
