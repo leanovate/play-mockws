@@ -4,16 +4,18 @@ import java.nio.charset.Charset
 
 import akka.util.ByteString
 import org.apache.commons.io.IOUtils
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.FunSpec
+import org.scalatest.Matchers
 import play.api.http.HttpEntity.Strict
-import play.api.mvc.{ResponseHeader, Result}
+import play.api.mvc.ResponseHeader
+import play.api.mvc.Result
 
 class FakeAchResponseTest extends FunSpec with Matchers {
 
   describe("typical 200 response") {
-    val bodyString = "response body"
-    val charset = Charset.forName("utf-8")
-    val bodyBytes = bodyString.getBytes(charset)
+    val bodyString  = "response body"
+    val charset     = Charset.forName("utf-8")
+    val bodyBytes   = bodyString.getBytes(charset)
     val contentType = s"text/plain; charset=$charset"
 
     val response = buildFakeAchResponse(
@@ -61,10 +63,10 @@ class FakeAchResponseTest extends FunSpec with Matchers {
   }
 
   private def buildFakeAchResponse(
-    status: Int = 200,
-    headers: Map[String, String] = Map.empty,
-    body: Array[Byte] = Array.empty
-    ) = {
+      status: Int = 200,
+      headers: Map[String, String] = Map.empty,
+      body: Array[Byte] = Array.empty
+  ) = {
     new FakeAhcResponse(
       result = new Result(new ResponseHeader(status, headers), Strict(ByteString(body), None)),
       body = body
