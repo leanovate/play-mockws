@@ -5,8 +5,10 @@ import java.util.UUID
 import scala.concurrent.Future
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import play.api.libs.ws.{WSClient, WSRequest}
-import play.api.mvc.{EssentialAction, Result}
+import play.api.libs.ws.WSClient
+import play.api.libs.ws.WSRequest
+import play.api.mvc.EssentialAction
+import play.api.mvc.Result
 import play.api.mvc.Results.NotFound
 
 /**
@@ -33,7 +35,10 @@ import play.api.mvc.Results.NotFound
  *
  * @param routes routes defining the mock calls
  */
-class MockWS(routes: MockWS.Routes, shutdownHook: () ⇒ Unit)(implicit val materializer: ActorMaterializer, notFoundBehaviour: RouteNotDefined) extends WSClient {
+class MockWS(routes: MockWS.Routes, shutdownHook: () => Unit)(
+    implicit val materializer: ActorMaterializer,
+    notFoundBehaviour: RouteNotDefined
+) extends WSClient {
   require(routes != null)
 
   override def underlying[T]: T = this.asInstanceOf[T]
@@ -49,21 +54,21 @@ object MockWS {
   type Routes = PartialFunction[(String, String), EssentialAction]
 
   /**
-    * @param routes simulation of the external web resource
-    */
+   * @param routes simulation of the external web resource
+   */
   def apply(routes: Routes)(implicit notFoundBehaviour: RouteNotDefined) = {
-    implicit val system = ActorSystem("mock-ws-" + UUID.randomUUID().toString)
+    implicit val system       = ActorSystem("mock-ws-" + UUID.randomUUID().toString)
     implicit val materializer = ActorMaterializer()
-    new MockWS(routes, () ⇒ system.terminate())
+    new MockWS(routes, () => system.terminate())
   }
 
   /**
-    * @param routes       simulation of the external web resource
-    * @param materializer user-defined materializer
-    */
+   * @param routes       simulation of the external web resource
+   * @param materializer user-defined materializer
+   */
   def apply(routes: Routes, materializer: ActorMaterializer)(implicit notFoundBehaviour: RouteNotDefined) = {
-    implicit val mat= materializer
-    new MockWS(routes, () ⇒ ()){}
+    implicit val mat = materializer
+    new MockWS(routes, () => ()) {}
   }
 
 }

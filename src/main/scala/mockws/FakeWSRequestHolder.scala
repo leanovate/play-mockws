@@ -1,7 +1,8 @@
 package mockws
 
 import java.io.File
-import java.net.{URI, URLEncoder}
+import java.net.URI
+import java.net.URLEncoder
 import java.util.Base64
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Source
@@ -11,7 +12,8 @@ import org.slf4j.LoggerFactory
 import play.api.libs.ws._
 import play.api.libs.ws.ahc.AhcWSResponse
 import play.api.mvc.MultipartFormData.Part
-import play.api.mvc.{Result, Results}
+import play.api.mvc.Result
+import play.api.mvc.Results
 import play.api.test.FakeRequest
 import play.shaded.ahc.io.netty.handler.codec.http.HttpHeaders
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -19,30 +21,31 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 case class FakeWSRequestHolder(
-  routes: Routes,
-  url: String,
-  method: String = "GET",
-  body: WSBody = EmptyBody,
-  cookies: Seq[WSCookie] = Seq.empty,
-  headers: Map[String, Seq[String]] = Map.empty,
-  queryString: Map[String, Seq[String]] = Map.empty,
-  auth: Option[(String, String, WSAuthScheme)] = None,
-  requestTimeout: Option[Duration] = None,
-  timeoutProvider: TimeoutProvider = SchedulerExecutorServiceTimeoutProvider)(
-  implicit val materializer: ActorMaterializer,
-  notFoundBehaviour: RouteNotDefined
+    routes: Routes,
+    url: String,
+    method: String = "GET",
+    body: WSBody = EmptyBody,
+    cookies: Seq[WSCookie] = Seq.empty,
+    headers: Map[String, Seq[String]] = Map.empty,
+    queryString: Map[String, Seq[String]] = Map.empty,
+    auth: Option[(String, String, WSAuthScheme)] = None,
+    requestTimeout: Option[Duration] = None,
+    timeoutProvider: TimeoutProvider = SchedulerExecutorServiceTimeoutProvider
+)(
+    implicit val materializer: ActorMaterializer,
+    notFoundBehaviour: RouteNotDefined
 ) extends WSRequest {
 
-  override type Self = WSRequest
+  override type Self     = WSRequest
   override type Response = WSResponse
 
   private val logger = LoggerFactory.getLogger(getClass)
 
   /* Not implemented. */
   val calc: Option[WSSignatureCalculator] = None
-  val followRedirects: Option[Boolean] = None
-  val proxyServer: Option[WSProxyServer] = None
-  val virtualHost: Option[String] = None
+  val followRedirects: Option[Boolean]    = None
+  val proxyServer: Option[WSProxyServer]  = None
+  val virtualHost: Option[String]         = None
 
   def withAuth(username: String, password: String, scheme: WSAuthScheme): Self =
     copy(auth = Some((username, password, scheme)))
@@ -86,7 +89,10 @@ case class FakeWSRequestHolder(
         copy(requestTimeout = None)
       case d =>
         val millis = d.toMillis
-        require(millis >= 0 && millis <= Int.MaxValue, s"Request timeout must be between 0 and ${Int.MaxValue} milliseconds")
+        require(
+          millis >= 0 && millis <= Int.MaxValue,
+          s"Request timeout must be between 0 and ${Int.MaxValue} milliseconds"
+        )
         copy(requestTimeout = Some(d))
     }
 
@@ -103,8 +109,8 @@ case class FakeWSRequestHolder(
    */
   def execute(): Future[Response] =
     for {
-      result <- executeResult
-      responseBody ← result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
+      result       <- executeResult
+      responseBody <- result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
     } yield new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
 
   def stream(): Future[Response] = execute()
@@ -126,51 +132,56 @@ case class FakeWSRequestHolder(
   }
 
   private def sign(req: FakeRequest[_]): FakeRequest[_] = auth match {
-    case None ⇒ req
-    case Some((username, password, WSAuthScheme.BASIC)) ⇒
-      val encoded = new String(
-        Base64.getMimeEncoder().encode(s"$username:$password".getBytes("UTF-8")), "UTF-8")
+    case None => req
+    case Some((username, password, WSAuthScheme.BASIC)) =>
+      val encoded = new String(Base64.getMimeEncoder().encode(s"$username:$password".getBytes("UTF-8")), "UTF-8")
       req.withHeaders("Authorization" → s"Basic $encoded")
-    case Some((_, _, unsupported)) ⇒ throw new UnsupportedOperationException(
-      s"""do not support auth method $unsupported.
-        |Help us to provide support for this.
-        |Send us a test at https://github.com/leanovate/play-mockws/issues
+    case Some((_, _, unsupported)) =>
+      throw new UnsupportedOperationException(s"""do not support auth method $unsupported.
+                                                 |Help us to provide support for this.
+                                                 |Send us a test at https://github.com/leanovate/play-mockws/issues
       """.stripMargin)
   }
 
   private def applyRequestTimeout[T](req: FakeRequest[_])(future: Future[T]) = requestTimeout match {
-    case Some(delay) if delay.isFinite => timeoutProvider.timeout(
-      future = future,
-      delay = FiniteDuration(delay.length, delay.unit),
-      timeoutMsg = s"Request ${req.method} ${req.uri} timed out after $delay ms."
-    )
+    case Some(delay) if delay.isFinite =>
+      timeoutProvider.timeout(
+        future = future,
+        delay = FiniteDuration(delay.length, delay.unit),
+        timeoutMsg = s"Request ${req.method} ${req.uri} timed out after $delay ms."
+      )
     case None => future
   }
 
   private def requestBodySource: Source[ByteString, _] = body match {
-    case EmptyBody => Source.empty
+    case EmptyBody           => Source.empty
     case InMemoryBody(bytes) => Source.single(bytes)
-    case SourceBody(source) => source
+    case SourceBody(source)  => source
   }
 
-  private def headersSeq(): Seq[(String, String)] = for {
-    (key, values) <- headers.toSeq
-    value <- values
-  } yield key -> value
+  private def headersSeq(): Seq[(String, String)] =
+    for {
+      (key, values) <- headers.toSeq
+      value         <- values
+    } yield key -> value
 
-  private def urlWithQueryParams() = if (queryString.isEmpty) {
-    url
-  } else {
-    def encode(s: String): String = URLEncoder.encode(s, "UTF-8")
+  private def urlWithQueryParams() =
+    if (queryString.isEmpty) {
+      url
+    } else {
+      def encode(s: String): String = URLEncoder.encode(s, "UTF-8")
 
-    url + queryString.flatMap { case (key: String, values: Seq[String]) =>
-      values.map { value =>
-        val encodedKey = encode(key)
-        val encodedValue = encode(value)
-        s"$encodedKey=$encodedValue"
-      }
-    }.mkString("?", "&", "")
-  }
+      url + queryString
+        .flatMap {
+          case (key: String, values: Seq[String]) =>
+            values.map { value =>
+              val encodedKey   = encode(key)
+              val encodedValue = encode(value)
+              s"$encodedKey=$encodedValue"
+            }
+        }
+        .mkString("?", "&", "")
+    }
 
   override def patch(body: Source[Part[Source[ByteString, _]], _]): Future[Response] =
     withBody(body).execute("PATCH")
@@ -217,13 +228,16 @@ case class FakeWSRequestHolder(
 
   lazy val uri: URI = {
     val enc = (p: String) => java.net.URLEncoder.encode(p, "utf-8")
-    new java.net.URI(if (queryString.isEmpty) url else {
-      val qs = (for {
-        (n, vs) <- queryString
-        v <- vs
-      } yield s"${enc(n)}=${enc(v)}").mkString("&")
-      s"$url?$qs"
-    })
+    new java.net.URI(
+      if (queryString.isEmpty) url
+      else {
+        val qs = (for {
+          (n, vs) <- queryString
+          v       <- vs
+        } yield s"${enc(n)}=${enc(v)}").mkString("&")
+        s"$url?$qs"
+      }
+    )
   }
 
   private def withBodyAndContentType(wsBody: WSBody, contentType: String): Self = {

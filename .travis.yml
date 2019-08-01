@@ -22,8 +22,18 @@ scala:
 jdk:
   - oraclejdk8
 
-script:
-  - sbt ++$TRAVIS_SCALA_VERSION clean coverage test
+stages:
+  - validations
+  - test
+
+jobs:
+  include:
+    - stage: validations
+      script: scripts/validate-code check
+      name: "Code validations for source formatting"
+    - stage: test
+      script: sbt ++$TRAVIS_SCALA_VERSION clean coverage test
+      name: "Run coverage tests"
 
 after_success:
   - sbt coverageReport codacyCoverage coveralls

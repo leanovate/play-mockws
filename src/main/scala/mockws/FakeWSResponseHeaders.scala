@@ -1,6 +1,7 @@
 package mockws
 
-import play.api.mvc.{ResponseHeader, Result}
+import play.api.mvc.ResponseHeader
+import play.api.mvc.Result
 
 case class FakeWSResponseHeaders(status: Int, headers: Map[String, Seq[String]]) {
 

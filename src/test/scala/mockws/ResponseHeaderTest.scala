@@ -1,7 +1,8 @@
 package mockws
 
 import mockws.MockWSHelpers._
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.FunSuite
+import org.scalatest.Matchers
 import play.api.mvc.Results._
 import play.api.test.Helpers._
 

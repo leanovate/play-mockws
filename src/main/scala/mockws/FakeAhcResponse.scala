@@ -1,15 +1,21 @@
 package mockws
 
-import java.io.{ByteArrayInputStream, InputStream}
-import java.net.{Inet4Address, InetSocketAddress, SocketAddress}
+import java.io.ByteArrayInputStream
+import java.io.InputStream
+import java.net.Inet4Address
+import java.net.InetSocketAddress
+import java.net.SocketAddress
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util
 
 import play.api.mvc.Result
-import play.shaded.ahc.io.netty.handler.codec.http.{DefaultHttpHeaders, HttpHeaders, HttpResponseStatus}
+import play.shaded.ahc.io.netty.handler.codec.http.DefaultHttpHeaders
+import play.shaded.ahc.io.netty.handler.codec.http.HttpHeaders
+import play.shaded.ahc.io.netty.handler.codec.http.HttpResponseStatus
 import play.shaded.ahc.org.asynchttpclient.Response
-import play.shaded.ahc.io.netty.handler.codec.http.cookie.{ Cookie, DefaultCookie }
+import play.shaded.ahc.io.netty.handler.codec.http.cookie.Cookie
+import play.shaded.ahc.io.netty.handler.codec.http.cookie.DefaultCookie
 import play.shaded.ahc.org.asynchttpclient.uri.Uri
 import play.shaded.ahc.org.asynchttpclient.util.HttpUtils
 
@@ -61,7 +67,7 @@ class FakeAhcResponse(result: Result, body: Array[Byte]) extends Response {
     }.asJava
   }
 
-  override def getHeader(name: CharSequence): String = getHeaders.get(name)
+  override def getHeader(name: CharSequence): String             = getHeaders.get(name)
   override def getHeaders(name: CharSequence): util.List[String] = getHeaders.getAll(name)
 
   override def hasResponseBody: Boolean = body.nonEmpty
@@ -72,8 +78,8 @@ class FakeAhcResponse(result: Result, body: Array[Byte]) extends Response {
     val scalaHeaders = FakeWSResponseHeaders.toMultiMap(result.header)
 
     val headers = new DefaultHttpHeaders()
-    scalaHeaders.foreach(e ⇒ headers.add(e._1, e._2.asJava))
-    result.body.contentType foreach (ct ⇒ headers.add("Content-Type", ct))
+    scalaHeaders.foreach(e => headers.add(e._1, e._2.asJava))
+    result.body.contentType.foreach(ct => headers.add("Content-Type", ct))
     headers
   }
 
