@@ -32,7 +32,7 @@ jobs:
       script: scripts/validate-code check
       name: "Code validations for source formatting"
     - stage: test
-      script: sbt ++$TRAVIS_SCALA_VERSION clean coverage test
+      script: sbt clean coverage test
       name: "Run coverage tests"
 
 after_success:
