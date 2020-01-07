@@ -134,7 +134,7 @@ case class FakeWSRequestHolder(
     case None => req
     case Some((username, password, WSAuthScheme.BASIC)) =>
       val encoded = new String(Base64.getMimeEncoder().encode(s"$username:$password".getBytes("UTF-8")), "UTF-8")
-      req.withHeaders("Authorization" → s"Basic $encoded")
+      req.withHeaders("Authorization" -> s"Basic $encoded")
     case Some((_, _, unsupported)) =>
       throw new UnsupportedOperationException(s"""do not support auth method $unsupported.
                                                  |Help us to provide support for this.
