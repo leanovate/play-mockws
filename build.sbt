@@ -8,7 +8,7 @@ val playVersion = "2.7.3"
 
 fork := true
 
-resolvers += "Typesafe repository".at("http://repo.typesafe.com/typesafe/releases/")
+resolvers += "Typesafe repository".at("https://repo.typesafe.com/typesafe/releases/")
 
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play"        % playVersion % "provided",
