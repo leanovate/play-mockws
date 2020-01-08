@@ -2,7 +2,7 @@ package mockws
 
 import akka.actor
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import play.api.mvc.DefaultActionBuilder
 import play.api.mvc.PlayBodyParsers
 
@@ -33,10 +33,10 @@ import scala.concurrent.duration._
  *
  */
 trait MockWSHelpers {
-  private val actorSystem: ActorSystem         = actor.ActorSystem("unit-testing")
-  implicit val materializer: ActorMaterializer = ActorMaterializer()(actorSystem)
-  val BodyParser: PlayBodyParsers              = PlayBodyParsers()
-  val Action: DefaultActionBuilder             = DefaultActionBuilder(BodyParser.anyContent)
+  private val actorSystem: ActorSystem    = actor.ActorSystem("unit-testing")
+  implicit val materializer: Materializer = Materializer.matFromSystem(actorSystem)
+  val BodyParser: PlayBodyParsers         = PlayBodyParsers()
+  val Action: DefaultActionBuilder        = DefaultActionBuilder(BodyParser.anyContent)
 
   def shutdownHelpers(): Unit = {
     materializer.shutdown()

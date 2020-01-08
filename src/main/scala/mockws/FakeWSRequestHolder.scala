@@ -4,7 +4,7 @@ import java.io.File
 import java.net.URI
 import java.net.URLEncoder
 import java.util.Base64
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import mockws.MockWS.Routes
@@ -32,7 +32,7 @@ case class FakeWSRequestHolder(
     requestTimeout: Option[Duration] = None,
     timeoutProvider: TimeoutProvider = SchedulerExecutorServiceTimeoutProvider
 )(
-    implicit val materializer: ActorMaterializer,
+    implicit val materializer: Materializer,
     notFoundBehaviour: RouteNotDefined
 ) extends WSRequest {
 

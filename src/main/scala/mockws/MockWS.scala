@@ -4,7 +4,7 @@ import java.util.UUID
 
 import scala.concurrent.Future
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.WSRequest
 import play.api.mvc.EssentialAction
@@ -36,7 +36,7 @@ import play.api.mvc.Results.NotFound
  * @param routes routes defining the mock calls
  */
 class MockWS(routes: MockWS.Routes, shutdownHook: () => Unit)(
-    implicit val materializer: ActorMaterializer,
+    implicit val materializer: Materializer,
     notFoundBehaviour: RouteNotDefined
 ) extends WSClient {
   require(routes != null)
@@ -57,8 +57,7 @@ object MockWS {
    * @param routes simulation of the external web resource
    */
   def apply(routes: Routes)(implicit notFoundBehaviour: RouteNotDefined) = {
-    implicit val system       = ActorSystem("mock-ws-" + UUID.randomUUID().toString)
-    implicit val materializer = ActorMaterializer()
+    implicit val system = ActorSystem("mock-ws-" + UUID.randomUUID().toString)
     new MockWS(routes, () => system.terminate())
   }
 
@@ -66,7 +65,7 @@ object MockWS {
    * @param routes       simulation of the external web resource
    * @param materializer user-defined materializer
    */
-  def apply(routes: Routes, materializer: ActorMaterializer)(implicit notFoundBehaviour: RouteNotDefined) = {
+  def apply(routes: Routes, materializer: Materializer)(implicit notFoundBehaviour: RouteNotDefined) = {
     implicit val mat = materializer
     new MockWS(routes, () => ()) {}
   }
