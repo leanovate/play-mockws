@@ -32,11 +32,11 @@ class CookieTest extends FunSuite with Matchers with MockWSHelpers {
     response.cookies should have size 1
 
     response.cookie("session_id").get should have(
-      'value ("1"),
-      'maxAge (Some(3600)),
-      'path (Some("/account")),
-      'domain (Some("https://www.example.com")),
-      'secure (true)
+      Symbol("value")("1"),
+      Symbol("maxAge")(Some(3600)),
+      Symbol("path")(Some("/account")),
+      Symbol("domain")(Some("https://www.example.com")),
+      Symbol("secure")(true)
     )
 
     response.header("test") shouldBe Some("yo")
