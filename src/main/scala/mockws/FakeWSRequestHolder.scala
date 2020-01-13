@@ -4,7 +4,7 @@ import java.io.File
 import java.net.URI
 import java.net.URLEncoder
 import java.util.Base64
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import mockws.MockWS.Routes
@@ -32,7 +32,7 @@ case class FakeWSRequestHolder(
     requestTimeout: Option[Duration] = None,
     timeoutProvider: TimeoutProvider = SchedulerExecutorServiceTimeoutProvider
 )(
-    implicit val materializer: ActorMaterializer,
+    implicit val materializer: Materializer,
     notFoundBehaviour: RouteNotDefined
 ) extends WSRequest {
 
@@ -134,7 +134,7 @@ case class FakeWSRequestHolder(
     case None => req
     case Some((username, password, WSAuthScheme.BASIC)) =>
       val encoded = new String(Base64.getMimeEncoder().encode(s"$username:$password".getBytes("UTF-8")), "UTF-8")
-      req.withHeaders("Authorization" → s"Basic $encoded")
+      req.withHeaders("Authorization" -> s"Basic $encoded")
     case Some((_, _, unsupported)) =>
       throw new UnsupportedOperationException(s"""do not support auth method $unsupported.
                                                  |Help us to provide support for this.

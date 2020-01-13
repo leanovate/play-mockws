@@ -19,7 +19,7 @@ import play.shaded.ahc.io.netty.handler.codec.http.cookie.DefaultCookie
 import play.shaded.ahc.org.asynchttpclient.uri.Uri
 import play.shaded.ahc.org.asynchttpclient.util.HttpUtils
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * A simulated response from the async-http-client.
