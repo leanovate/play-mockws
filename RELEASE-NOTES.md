@@ -1,6 +1,10 @@
 # Release notes
 
-## 2.7.2-SNAPSHOT
+## 2.8.0
+
+This release targets Play 2.8 and Akka 2.6. Scala 2.11 is no longer supported!
+
+See [v2.8.0](https://github.com/leanovate/play-mockws/releases/tag/v2.8.0) for a full list of changes.
 
 ## 2.7.1
 
