@@ -14,13 +14,13 @@ libraryDependencies ++= Seq(
   "com.typesafe.play"      %% "play"                    % playVersion % "provided",
   "com.typesafe.play"      %% "play-ahc-ws"             % playVersion % "provided",
   "com.typesafe.play"      %% "play-test"               % playVersion % "provided",
-  "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.4"
+  "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.6"
 )
 
 libraryDependencies ++= Seq(
-  "org.scalatest"  %% "scalatest"   % "3.1.2",
-  "org.scalacheck" %% "scalacheck"  % "1.14.3",
-  "org.mockito"    % "mockito-core" % "3.3.3"
+  "org.scalatest"  %% "scalatest"    % "3.0.8",
+  "org.scalacheck" %% "scalacheck"   % "1.14.3",
+  "org.mockito"     % "mockito-core" % "3.3.3"
 ).map(_ % Test)
 
 Release.settings
