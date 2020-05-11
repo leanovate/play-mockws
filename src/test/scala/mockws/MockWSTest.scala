@@ -227,7 +227,7 @@ class MockWSTest extends FunSuite with Matchers with ScalaCheckPropertyChecks {
             }
         }
 
-        await(ws.url("/uri").addHttpHeaders(Seq(q           -> v): _*).get)
+        await(ws.url("/uri").addHttpHeaders(Seq(q -> v): _*).get)
         await(ws.url("/uri").addQueryStringParameters(Seq(q -> v): _*).get)
         ws.close()
       }
