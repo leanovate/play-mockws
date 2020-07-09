@@ -30,7 +30,6 @@ import scala.concurrent.duration._
  *   }
  * }
  * }}}
- *
  */
 trait MockWSHelpers {
   private val actorSystem: ActorSystem    = actor.ActorSystem("unit-testing")
