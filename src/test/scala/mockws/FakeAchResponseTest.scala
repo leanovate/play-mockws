@@ -4,13 +4,13 @@ import java.nio.charset.Charset
 
 import akka.util.ByteString
 import org.apache.commons.io.IOUtils
-import org.scalatest.FunSpec
-import org.scalatest.Matchers
 import play.api.http.HttpEntity.Strict
 import play.api.mvc.ResponseHeader
 import play.api.mvc.Result
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class FakeAchResponseTest extends FunSpec with Matchers {
+class FakeAchResponseTest extends AnyFunSpec with Matchers {
 
   describe("typical 200 response") {
     val bodyString  = "response body"
