@@ -18,7 +18,7 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scalatest"  %% "scalatest"    % "3.0.8",
+  "org.scalatest"  %% "scalatest"    % "3.0.9",
   "org.scalacheck" %% "scalacheck"   % "1.14.3",
   "org.mockito"     % "mockito-core" % "3.5.9"
 ).map(_ % Test)
