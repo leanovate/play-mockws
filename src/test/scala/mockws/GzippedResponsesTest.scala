@@ -14,16 +14,15 @@ import play.api.test.Helpers._
 class GzippedResponsesTest extends FunSuite with Matchers {
 
   test("mock WS handle gzipped responses") {
-    val ws = MockWS {
-      case (_, _) =>
-        Action {
-          val os   = new ByteArrayOutputStream()
-          val gzip = new GZIPOutputStream(os)
-          gzip.write("my response".getBytes())
-          gzip.close()
+    val ws = MockWS { case (_, _) =>
+      Action {
+        val os   = new ByteArrayOutputStream()
+        val gzip = new GZIPOutputStream(os)
+        gzip.write("my response".getBytes())
+        gzip.close()
 
-          Ok(os.toByteArray)
-        }
+        Ok(os.toByteArray)
+      }
     }
 
     val result = await(ws.url("").get())
