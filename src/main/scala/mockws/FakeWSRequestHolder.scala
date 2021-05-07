@@ -30,7 +30,8 @@ case class FakeWSRequestHolder(
     queryString: Map[String, Seq[String]] = Map.empty,
     auth: Option[(String, String, WSAuthScheme)] = None,
     requestTimeout: Option[Duration] = None,
-    timeoutProvider: TimeoutProvider = SchedulerExecutorServiceTimeoutProvider
+    timeoutProvider: TimeoutProvider = SchedulerExecutorServiceTimeoutProvider,
+    private val filters: Seq[WSRequestFilter] = Nil
 )(
     implicit val materializer: Materializer,
     notFoundBehaviour: RouteNotDefined
@@ -77,8 +78,8 @@ case class FakeWSRequestHolder(
   def withQueryString(parameters: (String, String)*): Self = withQueryStringParameters(parameters: _*)
 
   def withQueryStringParameters(parameters: (String, String)*): Self = copy(
-    queryString = parameters.foldLeft(Map.empty[String, Seq[String]]) {
-      case (m, (k, v)) => m + (k -> (v +: m.getOrElse(k, Nil)))
+    queryString = parameters.foldLeft(Map.empty[String, Seq[String]]) { case (m, (k, v)) =>
+      m + (k -> (v +: m.getOrElse(k, Nil)))
     }
   )
 
@@ -95,7 +96,7 @@ case class FakeWSRequestHolder(
         copy(requestTimeout = Some(d))
     }
 
-  def withRequestFilter(filter: WSRequestFilter): Self = this
+  def withRequestFilter(filter: WSRequestFilter): Self = copy(filters = filters :+ filter)
 
   override def withUrl(url: String): Self = this.copy(url = url)
 
@@ -106,11 +107,20 @@ case class FakeWSRequestHolder(
    * If you want to control the behaviour where you want to return something else in the cases where route can't be found then
    * you can use the overloaded method
    */
-  def execute(): Future[Response] =
-    for {
-      result       <- executeResult
-      responseBody <- result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
-    } yield new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
+  def execute(): Future[Response] = {
+    val executor = filterWSRequestExecutor(WSRequestExecutor { request =>
+      for {
+        result       <- request.asInstanceOf[FakeWSRequestHolder].executeResult()
+        responseBody <- result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
+      } yield new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
+    })
+
+    executor(this).mapTo[Response]
+  }
+
+  private def filterWSRequestExecutor(next: WSRequestExecutor): WSRequestExecutor = {
+    filters.foldRight(next)((filter, executor) => filter.apply(executor))
+  }
 
   def stream(): Future[Response] = execute()
 
@@ -171,13 +181,12 @@ case class FakeWSRequestHolder(
       def encode(s: String): String = URLEncoder.encode(s, "UTF-8")
 
       url + queryString
-        .flatMap {
-          case (key: String, values: Seq[String]) =>
-            values.map { value =>
-              val encodedKey   = encode(key)
-              val encodedValue = encode(value)
-              s"$encodedKey=$encodedValue"
-            }
+        .flatMap { case (key: String, values: Seq[String]) =>
+          values.map { value =>
+            val encodedKey   = encode(key)
+            val encodedValue = encode(value)
+            s"$encodedKey=$encodedValue"
+          }
         }
         .mkString("?", "&", "")
     }
