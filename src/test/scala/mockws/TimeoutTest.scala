@@ -21,8 +21,8 @@ class TimeoutTest extends FunSuite with Matchers with MockWSHelpers with BeforeA
   test("request timeout should fail calls that don't complete") {
     implicit val patienceConfig = PatienceConfig(timeout = Span(500, Milliseconds))
 
-    val ws = MockWS {
-      case (_, "/hang/forever") => Action.async(Promise[Result]().future)
+    val ws = MockWS { case (_, "/hang/forever") =>
+      Action.async(Promise[Result]().future)
     }
 
     val futureResponse = ws.url("/hang/forever").withRequestTimeout(1.millis).get()
