@@ -6,12 +6,12 @@ import java.util.zip.GZIPOutputStream
 
 import play.shaded.ahc.org.asynchttpclient.Response
 import mockws.MockWSHelpers._
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
 import play.api.mvc.Results._
 import play.api.test.Helpers._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class GzippedResponsesTest extends FunSuite with Matchers {
+class GzippedResponsesTest extends AnyFunSuite with Matchers {
 
   test("mock WS handle gzipped responses") {
     val ws = MockWS { case (_, _) =>

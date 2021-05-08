@@ -1,8 +1,6 @@
 package mockws
 
 import mockws.MockWSHelpers._
-import org.scalatest.FreeSpec
-import org.scalatest.Matchers
 import org.scalatest.OptionValues
 import play.api.libs.ws.WSClient
 import play.api.mvc.Results._
@@ -11,6 +9,8 @@ import play.api.test.Helpers._
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 import scala.util.Try
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 
 object ImplementationToTest {
 
@@ -55,7 +55,7 @@ trait TestScope {
   }
 }
 
-class Example extends FreeSpec with Matchers with OptionValues {
+class Example extends AnyFreeSpec with Matchers with OptionValues {
 
   // and we can test the implementation of GatewayToTest
 
@@ -102,7 +102,7 @@ class Example extends FreeSpec with Matchers with OptionValues {
  * import mockws.MockWSHelpers._
  * }}}
  */
-class ExampleWithImportMockWSHelpers extends FreeSpec with Matchers with OptionValues {
+class ExampleWithImportMockWSHelpers extends AnyFreeSpec with Matchers with OptionValues {
 
   // Just a simple import and Actions work, no mixins
   import mockws.MockWSHelpers._

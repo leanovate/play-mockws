@@ -1,12 +1,12 @@
 package mockws
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
 import play.api.mvc.Results._
 import play.api.test.Helpers._
 import play.api.libs.ws.WSRequestExecutor
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class RequestFilterTest extends FunSuite with Matchers with MockWSHelpers {
+class RequestFilterTest extends AnyFunSuite with Matchers with MockWSHelpers {
 
   test("A header can be added by a filter") {
     val ws = MockWS { case (_, _) =>
