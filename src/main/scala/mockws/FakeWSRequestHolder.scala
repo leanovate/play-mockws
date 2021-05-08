@@ -78,8 +78,8 @@ case class FakeWSRequestHolder(
   def withQueryString(parameters: (String, String)*): Self = withQueryStringParameters(parameters: _*)
 
   def withQueryStringParameters(parameters: (String, String)*): Self = copy(
-    queryString = parameters.foldLeft(Map.empty[String, Seq[String]]) {
-      case (m, (k, v)) => m + (k -> (v +: m.getOrElse(k, Nil)))
+    queryString = parameters.foldLeft(Map.empty[String, Seq[String]]) { case (m, (k, v)) =>
+      m + (k -> (v +: m.getOrElse(k, Nil)))
     }
   )
 
@@ -181,13 +181,12 @@ case class FakeWSRequestHolder(
       def encode(s: String): String = URLEncoder.encode(s, "UTF-8")
 
       url + queryString
-        .flatMap {
-          case (key: String, values: Seq[String]) =>
-            values.map { value =>
-              val encodedKey   = encode(key)
-              val encodedValue = encode(value)
-              s"$encodedKey=$encodedValue"
-            }
+        .flatMap { case (key: String, values: Seq[String]) =>
+          values.map { value =>
+            val encodedKey   = encode(key)
+            val encodedValue = encode(value)
+            s"$encodedKey=$encodedValue"
+          }
         }
         .mkString("?", "&", "")
     }

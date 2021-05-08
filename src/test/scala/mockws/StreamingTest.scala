@@ -37,15 +37,14 @@ class StreamingTest extends FunSuite with Matchers with ScalaCheckPropertyChecks
       }
     }
 
-    val ws = MockWS {
-      case (GET, "/") =>
-        Action {
-          val body: Source[ByteString, _] = Source(Seq("first", "second", "third").map(ByteString.apply))
-          Result(
-            header = ResponseHeader(201, Map("x-header" -> "x-value")),
-            body = HttpEntity.Streamed(body, None, None)
-          )
-        }
+    val ws = MockWS { case (GET, "/") =>
+      Action {
+        val body: Source[ByteString, _] = Source(Seq("first", "second", "third").map(ByteString.apply))
+        Result(
+          header = ResponseHeader(201, Map("x-header" -> "x-value")),
+          body = HttpEntity.Streamed(body, None, None)
+        )
+      }
     }
 
     val response = testedController(ws).apply(FakeRequest())
@@ -56,14 +55,13 @@ class StreamingTest extends FunSuite with Matchers with ScalaCheckPropertyChecks
   }
 
   test("mock WS supports streaming of MultipartFormData") {
-    val ws = MockWS {
-      case (PUT, "/") =>
-        Action { request =>
-          request.body.asMultipartFormData match {
-            case None       => InternalServerError("error")
-            case Some(data) => Ok(data.dataParts.toList.sortBy(_._1).mkString(", "))
-          }
+    val ws = MockWS { case (PUT, "/") =>
+      Action { request =>
+        request.body.asMultipartFormData match {
+          case None       => InternalServerError("error")
+          case Some(data) => Ok(data.dataParts.toList.sortBy(_._1).mkString(", "))
         }
+      }
     }
 
     val fileData: Source[Part[Source[ByteString, _]], NotUsed] = Source(
@@ -88,15 +86,14 @@ class StreamingTest extends FunSuite with Matchers with ScalaCheckPropertyChecks
       }
     }
 
-    val ws = MockWS {
-      case (POST, "/") =>
-        Action {
-          val body: Source[ByteString, _] = Source(Seq("first", "second", "third").map(ByteString.apply))
-          Result(
-            header = ResponseHeader(201, Map("x-header" -> "x-value")),
-            body = HttpEntity.Streamed(body, None, None)
-          )
-        }
+    val ws = MockWS { case (POST, "/") =>
+      Action {
+        val body: Source[ByteString, _] = Source(Seq("first", "second", "third").map(ByteString.apply))
+        Result(
+          header = ResponseHeader(201, Map("x-header" -> "x-value")),
+          body = HttpEntity.Streamed(body, None, None)
+        )
+      }
     }
 
     val response = testedController(ws).apply(FakeRequest())
@@ -109,14 +106,13 @@ class StreamingTest extends FunSuite with Matchers with ScalaCheckPropertyChecks
   test("should pass through all elements of a Source") {
     val content = Source(Seq("hello, ", "world").map(ByteString(_)))
 
-    val ws = MockWS {
-      case (GET, "/get") =>
-        Action {
-          Result(
-            header = ResponseHeader(200),
-            body = HttpEntity.Streamed(content, None, None)
-          )
-        }
+    val ws = MockWS { case (GET, "/get") =>
+      Action {
+        Result(
+          header = ResponseHeader(200),
+          body = HttpEntity.Streamed(content, None, None)
+        )
+      }
     }
 
     await(
@@ -139,9 +135,8 @@ class StreamingTest extends FunSuite with Matchers with ScalaCheckPropertyChecks
 
   test("receive a stream of back what we sent as [POST]") {
     val content = Source(Seq("hello,", " this", " is", " world")).map(v => DataPart("k1", v))
-    val ws = MockWS {
-      case (POST, "/post") =>
-        streamBackAction
+    val ws = MockWS { case (POST, "/post") =>
+      streamBackAction
     }
 
     await(ws.url("/post").post(content)).body shouldEqual "POST: hello, this is world"
@@ -150,9 +145,8 @@ class StreamingTest extends FunSuite with Matchers with ScalaCheckPropertyChecks
 
   test("receive a stream of back what we sent as [PUT]") {
     val content = Source(Seq("hello,", " this", " is", " world")).map(v => DataPart("k1", v))
-    val ws = MockWS {
-      case (PUT, "/put") =>
-        streamBackAction
+    val ws = MockWS { case (PUT, "/put") =>
+      streamBackAction
     }
 
     await(ws.url("/put").put(content)).body shouldEqual "PUT: hello, this is world"
@@ -161,9 +155,8 @@ class StreamingTest extends FunSuite with Matchers with ScalaCheckPropertyChecks
 
   test("receive a stream of back what we sent as  [PATCH]") {
     val content = Source(Seq("hello,", " this", " is", " world")).map(v => DataPart("k1", v))
-    val ws = MockWS {
-      case (PATCH, "/patch") =>
-        streamBackAction
+    val ws = MockWS { case (PATCH, "/patch") =>
+      streamBackAction
     }
 
     await(ws.url("/patch").patch(content)).body shouldEqual "PATCH: hello, this is world"
