@@ -1,5 +1,3 @@
-# Use container-based infrastructure
-sudo: false
 
 language: scala
 
@@ -35,6 +33,5 @@ jobs:
     - stage: test
       script: sbt clean coverage test
       name: "Run coverage tests"
-
-after_success:
-  - sbt coverageReport codacyCoverage coveralls
+      after_success:
+        - sbt coverageReport codacyCoverage coveralls
