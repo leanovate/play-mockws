@@ -28,8 +28,8 @@ import play.api.test.Helpers._
 class ResponseHeaderTest extends FunSuite with Matchers {
 
   test("Multiple response headers with comma separated values should be returned unmodified") {
-    val ws = MockWS {
-      case (_, _) => Action(NoContent.withHeaders("Cache-Control" -> "no-cache, no-store"))
+    val ws = MockWS { case (_, _) =>
+      Action(NoContent.withHeaders("Cache-Control" -> "no-cache, no-store"))
     }
 
     val headerValues = await(ws.url("/").get()).headers("Cache-Control")
