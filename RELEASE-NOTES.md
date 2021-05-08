@@ -1,5 +1,11 @@
 # Release notes
 
+## 2.8.1
+
+- add support for request filters (#150) @avdv
+
+See [v2.8.1](https://github.com/leanovate/play-mockws/releases/tag/v2.8.1) for a full list of changes.
+
 ## 2.8.0
 
 This release targets Play 2.8 and Akka 2.6. Scala 2.11 is no longer supported!
