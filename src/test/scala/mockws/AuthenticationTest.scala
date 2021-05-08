@@ -17,14 +17,13 @@ class AuthenticationTest extends FunSuite with Matchers with ScalaCheckPropertyC
 
     val BasicAuth = "Basic ((?:[A-Za-z0-9+/]{4})+(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)".r
 
-    val ws = MockWS {
-      case (_, _) =>
-        Action { request =>
-          request.headers.get(AUTHORIZATION) match {
-            case Some(BasicAuth("dXNlcjpzM2NyM3Q=")) => Ok
-            case _                                   => Unauthorized
-          }
+    val ws = MockWS { case (_, _) =>
+      Action { request =>
+        request.headers.get(AUTHORIZATION) match {
+          case Some(BasicAuth("dXNlcjpzM2NyM3Q=")) => Ok
+          case _                                   => Unauthorized
         }
+      }
     }
 
     val wsResponseOk = await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.BASIC).get)
@@ -39,11 +38,10 @@ class AuthenticationTest extends FunSuite with Matchers with ScalaCheckPropertyC
 
   test("mock WS does not support authentication with `WSAuthScheme.{NTLM, DIGEST, KERBEROS, SPNEGO}`") {
 
-    val ws = MockWS {
-      case (_, _) =>
-        Action { request =>
-          Ok
-        }
+    val ws = MockWS { case (_, _) =>
+      Action { request =>
+        Ok
+      }
     }
 
     a[UnsupportedOperationException] shouldBe thrownBy(

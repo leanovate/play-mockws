@@ -9,11 +9,10 @@ import play.api.libs.ws.WSRequestExecutor
 class RequestFilterTest extends FunSuite with Matchers with MockWSHelpers {
 
   test("A header can be added by a filter") {
-    val ws = MockWS {
-      case (_, _) =>
-        Action { req =>
-          NoContent.withHeaders("test" -> req.headers.get("test").getOrElse("missing"))
-        }
+    val ws = MockWS { case (_, _) =>
+      Action { req =>
+        NoContent.withHeaders("test" -> req.headers.get("test").getOrElse("missing"))
+      }
     }
 
     val headerValue = "filter applied"
