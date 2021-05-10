@@ -4,15 +4,15 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 import mockws.MockWSHelpers._
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
 import play.api.mvc.Results._
 import play.api.test.Helpers._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 /**
  * Tests [[Route]]
  */
-class RouteTest extends FunSuite with Matchers {
+class RouteTest extends AnyFunSuite with Matchers {
 
   test("a route knows if it was called") {
     val route1 = Route { case (GET, "/route1") =>

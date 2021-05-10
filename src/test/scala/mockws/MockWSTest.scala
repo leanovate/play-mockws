@@ -5,8 +5,6 @@ import java.util.concurrent.atomic.AtomicReference
 
 import mockws.MockWSHelpers._
 import org.mockito.Mockito._
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status
 import play.api.libs.json.Json
@@ -20,11 +18,13 @@ import play.api.test.Helpers._
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 /**
  * Tests that [[MockWS]] simulates a WS client
  */
-class MockWSTest extends FunSuite with Matchers with ScalaCheckPropertyChecks {
+class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks {
 
   test("mock WS simulates all HTTP methods") {
     val ws = MockWS {
