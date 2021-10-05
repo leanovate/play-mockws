@@ -15,7 +15,7 @@ before_cache:
   - find $HOME/.sbt        -name "*.lock"               -print -delete
 
 scala:
-  - 2.12.10
+  - 2.12.15
   - 2.13.1
 
 jdk:
