@@ -1,6 +1,8 @@
 target
 .idea
 .idea_modules
+.vscode
+.metals
 logs
 .java-version
 

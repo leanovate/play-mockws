@@ -2,7 +2,7 @@ package mockws
 
 import mockws.MockWSHelpers._
 import org.scalatest.OptionValues
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.StandaloneWSClient
 import play.api.mvc.Results._
 import play.api.test.Helpers._
 
@@ -21,7 +21,7 @@ object ImplementationToTest {
   }
 
   /** @param ws [[WSClient]] as dependency injection */
-  class GatewayToTest(ws: WSClient) {
+  class GatewayToTest(ws: StandaloneWSClient) {
 
     import GatewayToTest.userServiceUrl
 
