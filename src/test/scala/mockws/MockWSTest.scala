@@ -9,11 +9,12 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.libs.ws.WSAuthScheme
-import play.api.libs.ws.WSResponse
+import play.api.libs.ws.StandaloneWSResponse
 import play.api.libs.ws.WSSignatureCalculator
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import play.api.test.Helpers._
+import play.api.libs.ws.DefaultBodyWritables._
 
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
@@ -66,29 +67,14 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
     ws.close()
   }
 
-  test("mock WS simulates a POST with a JSON payload") {
-    val ws = MockWS { case (POST, "/") =>
-      Action { request =>
-        Ok((request.body.asJson.get \ "result").as[String])
-      }
-    }
-
-    val json = Json.parse("""{"result": "OK"}""")
-
-    val response = await(ws.url("/").post(json))
-    response.status shouldEqual OK
-    response.body shouldEqual "OK"
-    ws.close()
-  }
-
-  test("mock WS simulates a POST with a JSON payload with a custom content type") {
+  test("mock WS simulates a POST with a String payload with a custom content type") {
     val ws = MockWS { case (POST, "/") =>
       Action(BodyParser.tolerantJson) { request =>
         Ok((request.body \ "result").as[String])
       }
     }
 
-    val json = Json.parse("""{"result": "OK"}""")
+    val json = Json.parse("""{"result": "OK"}""").toString()
 
     val response = await(ws.url("/").addHttpHeaders(CONTENT_TYPE -> "application/my-json").post(json))
     response.status shouldEqual OK
@@ -107,32 +93,6 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
 
     text.header(CONTENT_TYPE) shouldEqual Some("text/plain; charset=utf-8")
     json.header(CONTENT_TYPE) shouldEqual Some("application/json")
-    ws.close()
-  }
-
-  test("mock WS can produce JSON") {
-    val ws = MockWS { case (GET, "/json") =>
-      Action {
-        Ok(Json.obj("field" -> "value"))
-      }
-    }
-
-    val wsResponse = await(ws.url("/json").get())
-    wsResponse.body shouldEqual """{"field":"value"}"""
-    (wsResponse.json \ "field").asOpt[String] shouldEqual Some("value")
-    ws.close()
-  }
-
-  test("mock WS can produce XML") {
-    val ws = MockWS { case (GET, "/xml") =>
-      Action {
-        Ok(<foo><bar>value</bar></foo>)
-      }
-    }
-
-    val wsResponse = await(ws.url("/xml").get())
-    wsResponse.body shouldEqual "<foo><bar>value</bar></foo>"
-    (wsResponse.xml \ "bar").text shouldEqual "value"
     ws.close()
   }
 
@@ -262,7 +222,7 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
       Action { Ok("get ok") }
     }
 
-    val request: Future[WSResponse] = ws
+    val request: Future[StandaloneWSResponse] = ws
       .url("/get")
       .sign(mock(classOf[WSSignatureCalculator]))
       .withVirtualHost("bla")
@@ -270,7 +230,7 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
       .withRequestTimeout(10.millis)
       .get()
 
-    val response: WSResponse = await(request)
+    val response: StandaloneWSResponse = await(request)
 
     response.body shouldEqual "get ok"
 

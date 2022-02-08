@@ -1,18 +1,16 @@
 package mockws
 
 import java.util.UUID
-
 import scala.concurrent.Future
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import play.api.libs.ws.WSClient
-import play.api.libs.ws.WSRequest
+import play.api.libs.ws.{StandaloneWSClient, StandaloneWSRequest}
 import play.api.mvc.EssentialAction
 import play.api.mvc.Result
 import play.api.mvc.Results.NotFound
 
 /**
- * Mock implementation for the [[play.api.libs.ws.WSClient]].
+ * Mock implementation for the [[play.api.libs.ws.StandaloneWSRequest]].
  * Usage:
  * {{{
  *   val ws = MockWS {
@@ -38,7 +36,7 @@ import play.api.mvc.Results.NotFound
 class MockWS(routes: MockWS.Routes, shutdownHook: () => Unit)(
     implicit val materializer: Materializer,
     notFoundBehaviour: RouteNotDefined
-) extends WSClient {
+) extends StandaloneWSClient {
   require(routes != null)
 
   override def underlying[T]: T = this.asInstanceOf[T]
@@ -47,7 +45,7 @@ class MockWS(routes: MockWS.Routes, shutdownHook: () => Unit)(
     shutdownHook()
   }
 
-  override def url(url: String): WSRequest = FakeWSRequestHolder(routes, url)
+  override def url(url: String): StandaloneWSRequest = FakeWSRequestHolder(routes, url)
 }
 
 object MockWS {

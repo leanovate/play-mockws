@@ -1,6 +1,5 @@
 package mockws
 
-import java.io.File
 import java.net.URI
 import java.net.URLEncoder
 import java.util.Base64
@@ -10,12 +9,11 @@ import akka.util.ByteString
 import mockws.MockWS.Routes
 import org.slf4j.LoggerFactory
 import play.api.libs.ws._
-import play.api.libs.ws.ahc.AhcWSResponse
-import play.api.mvc.MultipartFormData.Part
+import play.api.libs.ws.ahc.StandaloneAhcWSResponse
 import play.api.mvc.Result
-import play.api.mvc.Results
 import play.api.test.FakeRequest
 import play.shaded.ahc.io.netty.handler.codec.http.HttpHeaders
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -35,10 +33,10 @@ case class FakeWSRequestHolder(
 )(
     implicit val materializer: Materializer,
     notFoundBehaviour: RouteNotDefined
-) extends WSRequest {
+) extends StandaloneWSRequest {
 
-  override type Self     = WSRequest
-  override type Response = WSResponse
+  override type Self     = StandaloneWSRequest
+  override type Response = StandaloneWSResponse
 
   private val logger = LoggerFactory.getLogger(getClass)
 
@@ -63,7 +61,7 @@ case class FakeWSRequestHolder(
 
   def withMethod(method: String): Self = copy(method = method)
 
-  def withCookies(cookie: WSCookie*): Self = copy(cookies = this.cookies ++ cookie.toSeq)
+  def withCookies(cookie: WSCookie*): Self = copy(cookies = (this.cookies ++ cookie.toSeq).asInstanceOf[Seq[WSCookie]])
 
   def withHeaders(hdrs: (String, String)*): Self = withHttpHeaders(hdrs: _*)
 
@@ -112,7 +110,7 @@ case class FakeWSRequestHolder(
       for {
         result       <- request.asInstanceOf[FakeWSRequestHolder].executeResult()
         responseBody <- result.body.dataStream.runFold(ByteString.empty)(_ ++ _)
-      } yield new AhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
+      } yield new StandaloneAhcWSResponse(new FakeAhcResponse(result, responseBody.toArray))
     })
 
     executor(this).mapTo[Response]
@@ -191,15 +189,6 @@ case class FakeWSRequestHolder(
         .mkString("?", "&", "")
     }
 
-  override def patch(body: Source[Part[Source[ByteString, _]], _]): Future[Response] =
-    withBody(body).execute("PATCH")
-
-  override def post(body: Source[Part[Source[ByteString, _]], _]): Future[Response] =
-    withBody(body).execute("POST")
-
-  override def put(body: Source[Part[Source[ByteString, _]], _]): Future[Response] =
-    withBody(body).execute("PUT")
-
   override def get(): Future[Response] = execute("GET")
 
   override def contentType: Option[String] =
@@ -213,20 +202,11 @@ case class FakeWSRequestHolder(
 
   override def options(): Future[Response] = execute("OPTIONS")
 
-  override def patch(body: File): Future[Response] =
-    withBody(body).execute("PATCH")
-
   override def patch[T](body: T)(implicit ev: BodyWritable[T]): Future[Response] =
     withBody(body).execute("PATCH")
 
-  override def post(body: File): Future[Response] =
-    withBody(body).execute("POST")
-
   override def post[T](body: T)(implicit ev: BodyWritable[T]): Future[Response] =
     withBody(body).execute("POST")
-
-  override def put(body: File): Future[Response] =
-    withBody(body).execute("PUT")
 
   override def put[T](body: T)(implicit ev: BodyWritable[T]): Future[Response] =
     withBody(body).execute("PUT")
