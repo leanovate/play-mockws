@@ -43,6 +43,10 @@ await(ws.url("http://dns/url").get()).body == "http response"
 
 Add MockWS as test dependency in the `build.sbt`:
 
+* for play-ws standalone 2.1.x:
+```scala
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "3.0.0" % Test
+```
 * for Play 2.8.x:
 ```scala
 libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws" % "2.8.0" % Test
