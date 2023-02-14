@@ -2,7 +2,7 @@
 logLevel := Level.Warn
 
 // https://github.com/scoverage/sbt-scoverage/releases
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.8.2")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.7")
 
 // https://github.com/scoverage/sbt-coveralls/releases
 addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.2.7")
