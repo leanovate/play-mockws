@@ -11,7 +11,7 @@ addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.2.7")
 addSbtPlugin("com.codacy" % "sbt-codacy-coverage" % "1.3.17")
 
 // https://github.com/scalameta/scalafmt
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.2")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
 
 // https://github.com/sbt/sbt-github-actions
 addSbtPlugin("com.github.sbt" % "sbt-github-actions" % "0.19.0")
