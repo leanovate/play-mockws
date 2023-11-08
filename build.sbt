@@ -19,11 +19,18 @@ developers := List(
 
 val play28Version = "2.8.21"
 val play29Version = "2.9.0"
+val play30Version = "3.0.0"
 
 def play2Dependencies(version: String): Seq[ModuleID] = Seq(
   "com.typesafe.play" %% "play"        % version,
   "com.typesafe.play" %% "play-ahc-ws" % version,
   "com.typesafe.play" %% "play-test"   % version,
+).map(_ % Provided)
+
+def play3Dependencies(version: String): Seq[ModuleID] = Seq(
+  "org.playframework" %% "play"        % version,
+  "org.playframework" %% "play-ahc-ws" % version,
+  "org.playframework" %% "play-test"   % version,
 ).map(_ % Provided)
 
 lazy val testDependencies: Seq[ModuleID] = Seq(
@@ -57,7 +64,7 @@ lazy val root = (project in file("."))
     name            := "play-mockws",
     publishArtifact := false
   )
-  .aggregate(play28, play29)
+  .aggregate(play28, play29, play30)
 
 lazy val play28 = (project in file("play-mockws"))
   .settings(
@@ -92,6 +99,23 @@ lazy val play29 = (project in file("play-mockws"))
     Compile / unmanagedSourceDirectories += (Compile / sourceDirectory).value / "play-2-9",
     Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-2",
     Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-2-9",
+  )
+
+lazy val play30 = (project in file("play-mockws"))
+  .settings(
+    name               := "play-mockws-3-0",
+    target             := target.value / "play30",
+    crossScalaVersions := Seq(scala213, scala3)
+  )
+  .settings(
+    libraryDependencies ++= play3Dependencies(play30Version),
+    libraryDependencies ++= testDependencies
+  )
+  .settings(
+    Compile / unmanagedSourceDirectories += (Compile / sourceDirectory).value / "play-3",
+    Compile / unmanagedSourceDirectories += (Compile / sourceDirectory).value / "play-3-0",
+    Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-3",
+    Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-3-0",
   )
 
 // Sonatype profile for releases (otherwise it uses the organization name)
