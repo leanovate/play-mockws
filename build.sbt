@@ -4,9 +4,9 @@ scalacOptions ++= Seq("-deprecation", "-feature")
 
 organization := "de.leanovate.play-mockws"
 
-val playVersion = "2.8.1"
+val playVersion = "2.9.0"
 
-ThisBuild / crossScalaVersions := List("2.12.10", "2.13.1")
+ThisBuild / crossScalaVersions := List("2.13.1", "3.3.1")
 
 fork := true
 
