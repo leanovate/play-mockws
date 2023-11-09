@@ -16,7 +16,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.play"      %% "play"                    % playVersion % "provided",
   "com.typesafe.play"      %% "play-ahc-ws"             % playVersion % "provided",
   "com.typesafe.play"      %% "play-test"               % playVersion % "provided",
-  "org.scala-lang.modules" %% "scala-collection-compat" % "2.5.0"
 )
 
 libraryDependencies ++= Seq(
