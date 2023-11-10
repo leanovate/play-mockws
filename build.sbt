@@ -6,6 +6,8 @@ organization := "de.leanovate.play-mockws"
 
 val playVersion = "2.8.1"
 
+ThisBuild / crossScalaVersions := List("2.12.10", "2.13.1")
+
 fork := true
 
 resolvers += "Typesafe repository".at("https://repo.typesafe.com/typesafe/releases/")
