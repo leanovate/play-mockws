@@ -15,3 +15,6 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.2")
 
 // https://github.com/dwijnand/sbt-travisci
 addSbtPlugin("com.dwijnand" % "sbt-travisci" % "1.2.0")
+
+// https://github.com/sbt/sbt-github-actions
+addSbtPlugin("com.github.sbt" % "sbt-github-actions" % "0.19.0")
