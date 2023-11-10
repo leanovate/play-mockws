@@ -6,6 +6,8 @@ organization := "de.leanovate.play-mockws"
 
 val playVersion = "2.8.1"
 
+ThisBuild / crossScalaVersions := List("2.12.10", "2.13.1")
+
 fork := true
 
 resolvers += "Typesafe repository".at("https://repo.typesafe.com/typesafe/releases/")
@@ -25,3 +27,9 @@ libraryDependencies ++= Seq(
 ).map(_ % Test)
 
 Release.settings
+
+// code linting
+ThisBuild / githubWorkflowBuildPreamble += WorkflowStep.Run(
+  commands = List("scripts/validate-code check"),
+  name = Some("Lint")
+)
