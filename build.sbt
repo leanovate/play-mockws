@@ -27,3 +27,9 @@ libraryDependencies ++= Seq(
 ).map(_ % Test)
 
 Release.settings
+
+// code linting
+ThisBuild / githubWorkflowBuildPreamble += WorkflowStep.Run(
+  commands = List("scripts/validate-code check"),
+  name = Some("Lint")
+)

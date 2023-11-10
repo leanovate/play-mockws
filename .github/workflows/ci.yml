@@ -39,6 +39,9 @@ jobs:
           java-version: 8
           cache: sbt
 
+      - name: Lint
+        run: scripts/validate-code check
+
       - name: Check that workflows are up to date
         run: sbt '++ ${{ matrix.scala }}' githubWorkflowCheck
 
@@ -61,7 +64,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        scala: [2.13.1]
+        scala: [2.12.18]
         java: [temurin@8]
     runs-on: ${{ matrix.os }}
     steps:
