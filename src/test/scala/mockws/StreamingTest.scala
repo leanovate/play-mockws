@@ -11,10 +11,13 @@ import play.api.mvc.MultipartFormData.DataPart
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.MultipartFormData.Part
 import play.api.mvc.Results._
+import play.api.mvc.AnyContent
+import play.api.mvc.Request
 import play.api.mvc.ResponseHeader
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.api.libs.ws.readableAsString
 
 import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext.Implicits._
@@ -122,7 +125,7 @@ class StreamingTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChe
     ws.close()
   }
 
-  val streamBackAction = Action { req =>
+  val streamBackAction = Action { (req: Request[AnyContent]) =>
     val inputWords: Seq[String]             = Seq() ++ req.body.asMultipartFormData.toSeq.flatMap(_.dataParts("k1"))
     val returnWords                         = Seq(req.method + ": ") ++ inputWords
     val outputStream: Source[ByteString, _] = Source(returnWords.map(v => ByteString(v)))
