@@ -27,6 +27,8 @@ libraryDependencies ++= Seq(
 
 Release.settings
 
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
+
 // code linting
 ThisBuild / githubWorkflowBuildPreamble += WorkflowStep.Run(
   commands = List("scripts/validate-code check"),
