@@ -11,6 +11,7 @@ import scala.concurrent.Future
 import scala.util.Try
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
+import play.api.libs.ws.readableAsString
 
 object ImplementationToTest {
 

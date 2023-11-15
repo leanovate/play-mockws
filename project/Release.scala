@@ -8,10 +8,10 @@ object Release {
 
   val settings =
     Seq(
-      releaseCrossBuild := true,
+      releaseCrossBuild   := true,
       sonatypeProfileName := "de.leanovate",
-      publishMavenStyle := true,
-      publishTo := sonatypePublishTo.value,
+      publishMavenStyle   := true,
+      publishTo           := sonatypePublishTo.value,
       pomExtra := {
         <url>https://github.com/leanovate/play-mockws</url>
           <licenses>

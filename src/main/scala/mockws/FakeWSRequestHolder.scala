@@ -45,6 +45,7 @@ case class FakeWSRequestHolder(
   /* Not implemented. */
   val calc: Option[WSSignatureCalculator] = None
   val followRedirects: Option[Boolean]    = None
+  val disableUrlEncoding: Option[Boolean] = None
   val proxyServer: Option[WSProxyServer]  = None
   val virtualHost: Option[String]         = None
 
@@ -55,6 +56,8 @@ case class FakeWSRequestHolder(
 
   def withFollowRedirects(follow: Boolean): Self = this
 
+  def withDisableUrlEncoding(disableUrlEncoding: Boolean): Self = this
+
   def withProxyServer(proxyServer: WSProxyServer): Self = this
 
   def withVirtualHost(vh: String): Self = this
@@ -64,6 +67,8 @@ case class FakeWSRequestHolder(
   def withMethod(method: String): Self = copy(method = method)
 
   def withCookies(cookie: WSCookie*): Self = copy(cookies = this.cookies ++ cookie.toSeq)
+
+  override def addCookies(cookies: WSCookie*): Self = withCookies(this.cookies ++ cookies: _*)
 
   def withHeaders(hdrs: (String, String)*): Self = withHttpHeaders(hdrs: _*)
 

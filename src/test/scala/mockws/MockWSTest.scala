@@ -20,6 +20,9 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import play.api.libs.ws.writeableOf_String
+import play.api.libs.ws.readableAsString
+import play.api.libs.ws.writeableOf_JsValue
 
 /**
  * Tests that [[MockWS]] simulates a WS client
@@ -180,7 +183,7 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
       }
     }
 
-    val wsResponse = await(ws.url("/").addHttpHeaders(CONTENT_TYPE -> "hello/world").get)
+    val wsResponse = await(ws.url("/").addHttpHeaders(CONTENT_TYPE -> "hello/world").get())
     wsResponse.status shouldEqual OK
     wsResponse.body shouldEqual "hello/world"
     ws.close()
@@ -198,7 +201,7 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
           }
         }
 
-        val wsResponse = await(ws.url("/uri").addQueryStringParameters(q -> v).get)
+        val wsResponse = await(ws.url("/uri").addQueryStringParameters(q -> v).get())
         wsResponse.status shouldEqual OK
         wsResponse.body shouldEqual v
         ws.close()
@@ -218,8 +221,8 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
           }
         }
 
-        await(ws.url("/uri").addHttpHeaders(Seq(q -> v): _*).get)
-        await(ws.url("/uri").addQueryStringParameters(Seq(q -> v): _*).get)
+        await(ws.url("/uri").addHttpHeaders(Seq(q -> v): _*).get())
+        await(ws.url("/uri").addQueryStringParameters(Seq(q -> v): _*).get())
         ws.close()
       }
     }
