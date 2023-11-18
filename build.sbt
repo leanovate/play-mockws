@@ -4,10 +4,19 @@ scalacOptions ++= Seq("-deprecation", "-feature")
 
 organization := "de.leanovate.play-mockws"
 
+developers := List(
+  Developer(
+    "yanns",
+    "Yann Simon",
+    "",
+    url("http://yanns.github.io/")
+  )
+)
+
 val playVersion = "2.9.0"
 
 ThisBuild / crossScalaVersions := List("2.13.12", "3.3.1")
-ThisBuild / scalaVersion := crossScalaVersions.value.head
+ThisBuild / scalaVersion       := crossScalaVersions.value.head
 
 fork := true
 
@@ -26,9 +35,27 @@ libraryDependencies ++= Seq(
   "org.mockito"        % "mockito-core"    % "3.12.4"
 ).map(_ % Test)
 
-Release.settings
-
+// sbt github actions config
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
+
+ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
+ThisBuild / githubWorkflowPublishTargetBranches := Seq(
+  RefPredicate.StartsWith(Ref.Tag("v")),
+  RefPredicate.Equals(Ref.Branch("master"))
+)
+
+ThisBuild / githubWorkflowPublish := Seq(
+  WorkflowStep.Sbt(
+    commands = List("ci-release"),
+    name = Some("Publish project"),
+    env = Map(
+      "PGP_PASSPHRASE"    -> "${{ secrets.PGP_PASSPHRASE }}",
+      "PGP_SECRET"        -> "${{ secrets.PGP_SECRET }}",
+      "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}",
+      "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}"
+    )
+  )
+)
 
 // code linting
 ThisBuild / githubWorkflowBuildPreamble += WorkflowStep.Run(
