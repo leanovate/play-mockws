@@ -6,7 +6,7 @@ organization := "de.leanovate.play-mockws"
 
 val playVersion = "2.9.0"
 
-ThisBuild / crossScalaVersions := List("2.13.1", "3.3.1")
+ThisBuild / crossScalaVersions := List("2.13.12", "3.3.1")
 
 fork := true
 
