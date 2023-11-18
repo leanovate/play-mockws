@@ -26,10 +26,10 @@ class AuthenticationTest extends AnyFunSuite with Matchers with ScalaCheckProper
       }
     }
 
-    val wsResponseOk = await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.BASIC).get)
+    val wsResponseOk = await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.BASIC).get())
     wsResponseOk.status shouldEqual OK
 
-    val wsResponseUnauthorized = await(ws.url("/").withAuth("user", "secret", WSAuthScheme.BASIC).get)
+    val wsResponseUnauthorized = await(ws.url("/").withAuth("user", "secret", WSAuthScheme.BASIC).get())
     wsResponseUnauthorized.status shouldEqual UNAUTHORIZED
 
     ws.close()
@@ -45,16 +45,16 @@ class AuthenticationTest extends AnyFunSuite with Matchers with ScalaCheckProper
     }
 
     a[UnsupportedOperationException] shouldBe thrownBy(
-      await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.NTLM).get)
+      await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.NTLM).get())
     )
     a[UnsupportedOperationException] shouldBe thrownBy(
-      await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.DIGEST).get)
+      await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.DIGEST).get())
     )
     a[UnsupportedOperationException] shouldBe thrownBy(
-      await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.KERBEROS).get)
+      await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.KERBEROS).get())
     )
     a[UnsupportedOperationException] shouldBe thrownBy(
-      await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.SPNEGO).get)
+      await(ws.url("/").withAuth("user", "s3cr3t", WSAuthScheme.SPNEGO).get())
     )
 
   }
