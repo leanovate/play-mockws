@@ -1,9 +1,8 @@
 package mockws
 
-import java.util.concurrent._
-
 import play.core.NamedThreadFactory
 
+import java.util.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.Future
@@ -34,7 +33,7 @@ object SchedulerExecutorServiceTimeoutProvider extends TimeoutProvider {
     executor
   }
 
-  def timeout[T](future: Future[T], delay: FiniteDuration, msg: String): Future[T] = {
+  override def timeout[T](future: Future[T], delay: FiniteDuration, msg: String): Future[T] = {
     val p = Promise[T]()
 
     // happy path

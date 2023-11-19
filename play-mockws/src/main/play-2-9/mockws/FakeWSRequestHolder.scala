@@ -13,7 +13,6 @@ import play.api.libs.ws._
 import play.api.libs.ws.ahc.AhcWSResponse
 import play.api.mvc.MultipartFormData.Part
 import play.api.mvc.Result
-import play.api.mvc.Results
 import play.api.test.FakeRequest
 import play.shaded.ahc.io.netty.handler.codec.http.HttpHeaders
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -43,36 +42,33 @@ case class FakeWSRequestHolder(
   private val logger = LoggerFactory.getLogger(getClass)
 
   /* Not implemented. */
-  val calc: Option[WSSignatureCalculator] = None
-  val followRedirects: Option[Boolean]    = None
-  val disableUrlEncoding: Option[Boolean] = None
-  val proxyServer: Option[WSProxyServer]  = None
-  val virtualHost: Option[String]         = None
+  override val calc: Option[WSSignatureCalculator] = None
+  override val followRedirects: Option[Boolean]    = None
+  override val proxyServer: Option[WSProxyServer]  = None
+  override val virtualHost: Option[String]         = None
 
-  def withAuth(username: String, password: String, scheme: WSAuthScheme): Self =
+  override def withAuth(username: String, password: String, scheme: WSAuthScheme): Self =
     copy(auth = Some((username, password, scheme)))
 
-  def sign(calc: WSSignatureCalculator): Self = this
+  override def sign(calc: WSSignatureCalculator): Self = this
 
-  def withFollowRedirects(follow: Boolean): Self = this
+  override def withFollowRedirects(follow: Boolean): Self = this
 
-  def withDisableUrlEncoding(disableUrlEncoding: Boolean): Self = this
+  override def withDisableUrlEncoding(disableUrlEncoding: Boolean): Self = this
 
-  def withProxyServer(proxyServer: WSProxyServer): Self = this
+  override def withProxyServer(proxyServer: WSProxyServer): Self = this
 
-  def withVirtualHost(vh: String): Self = this
+  override def withVirtualHost(vh: String): Self = this
 
-  def withBody(body: WSBody): Self = copy(body = body)
+  override def withMethod(method: String): Self = copy(method = method)
 
-  def withMethod(method: String): Self = copy(method = method)
-
-  def withCookies(cookie: WSCookie*): Self = copy(cookies = this.cookies ++ cookie.toSeq)
+  override def withCookies(cookie: WSCookie*): Self = copy(cookies = this.cookies ++ cookie.toSeq)
 
   override def addCookies(cookies: WSCookie*): Self = withCookies(this.cookies ++ cookies: _*)
 
-  def withHeaders(hdrs: (String, String)*): Self = withHttpHeaders(hdrs: _*)
+  override def withHeaders(hdrs: (String, String)*): Self = withHttpHeaders(hdrs: _*)
 
-  def withHttpHeaders(hdrs: (String, String)*): Self = {
+  override def withHttpHeaders(hdrs: (String, String)*): Self = {
     val headers = hdrs.foldLeft(Map.empty[String, Seq[String]])((m, hdr) =>
       if (m.contains(hdr._1)) m.updated(hdr._1, m(hdr._1) :+ hdr._2)
       else m + (hdr._1 -> Seq(hdr._2))
@@ -80,15 +76,15 @@ case class FakeWSRequestHolder(
     copy(headers = headers)
   }
 
-  def withQueryString(parameters: (String, String)*): Self = withQueryStringParameters(parameters: _*)
+  override def withQueryString(parameters: (String, String)*): Self = withQueryStringParameters(parameters: _*)
 
-  def withQueryStringParameters(parameters: (String, String)*): Self = copy(
+  override def withQueryStringParameters(parameters: (String, String)*): Self = copy(
     queryString = parameters.foldLeft(Map.empty[String, Seq[String]]) { case (m, (k, v)) =>
       m + (k -> (v +: m.getOrElse(k, Nil)))
     }
   )
 
-  def withRequestTimeout(timeout: Duration): Self =
+  override def withRequestTimeout(timeout: Duration): Self =
     timeout match {
       case Duration.Inf =>
         copy(requestTimeout = None)
@@ -101,7 +97,7 @@ case class FakeWSRequestHolder(
         copy(requestTimeout = Some(d))
     }
 
-  def withRequestFilter(filter: WSRequestFilter): Self = copy(filters = filters :+ filter)
+  override def withRequestFilter(filter: WSRequestFilter): Self = copy(filters = filters :+ filter)
 
   override def withUrl(url: String): Self = this.copy(url = url)
 
@@ -112,7 +108,7 @@ case class FakeWSRequestHolder(
    * If you want to control the behaviour where you want to return something else in the cases where route can't be found then
    * you can use the overloaded method
    */
-  def execute(): Future[Response] = {
+  override def execute(): Future[Response] = {
     val executor = filterWSRequestExecutor(WSRequestExecutor { request =>
       for {
         result       <- request.asInstanceOf[FakeWSRequestHolder].executeResult()
@@ -127,7 +123,7 @@ case class FakeWSRequestHolder(
     filters.foldRight(next)((filter, executor) => filter.apply(executor))
   }
 
-  def stream(): Future[Response] = execute()
+  override def stream(): Future[Response] = execute()
 
   private def executeResult(): Future[Result] = {
     logger.debug(s"calling $method $url")
@@ -239,7 +235,7 @@ case class FakeWSRequestHolder(
   override def withBody[T](body: T)(implicit ev: BodyWritable[T]): Self =
     withBodyAndContentType(ev.transform(body), ev.contentType)
 
-  lazy val uri: URI = {
+  override lazy val uri: URI = {
     val enc = (p: String) => java.net.URLEncoder.encode(p, "utf-8")
     new java.net.URI(
       if (queryString.isEmpty) url
@@ -260,4 +256,7 @@ case class FakeWSRequestHolder(
       withBody(wsBody).addHttpHeaders("Content-Type" -> contentType)
     }
   }
+
+  private def withBody(body: WSBody): Self = copy(body = body)
+
 }
