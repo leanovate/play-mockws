@@ -4,6 +4,10 @@ scalacOptions ++= Seq("-deprecation", "-feature")
 
 organization := "de.leanovate.play-mockws"
 
+// Those are mandatory for the release to Sonatype
+homepage := Some(url("https://github.com/leanovate/play-mockws"))
+licenses := List("MIT" -> url("http://opensource.org/licenses/MIT"))
+
 developers := List(
   Developer(
     "yanns",
