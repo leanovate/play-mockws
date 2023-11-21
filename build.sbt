@@ -17,7 +17,7 @@ developers := List(
   )
 )
 
-val playVersion = "2.9.0"
+val playVersion = "3.0.0"
 
 ThisBuild / crossScalaVersions := List("2.13.12", "3.3.1")
 ThisBuild / scalaVersion       := crossScalaVersions.value.head
@@ -27,9 +27,9 @@ fork := true
 resolvers += "Typesafe repository".at("https://repo.typesafe.com/typesafe/releases/")
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play"        % playVersion % "provided",
-  "com.typesafe.play" %% "play-ahc-ws" % playVersion % "provided",
-  "com.typesafe.play" %% "play-test"   % playVersion % "provided",
+  "org.playframework" %% "play"        % playVersion % "provided",
+  "org.playframework" %% "play-ahc-ws" % playVersion % "provided",
+  "org.playframework" %% "play-test"   % playVersion % "provided",
 )
 
 libraryDependencies ++= Seq(
