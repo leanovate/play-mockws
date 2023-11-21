@@ -35,8 +35,8 @@ libraryDependencies ++= Seq(
   "org.mockito"        % "mockito-core"    % "3.12.4"
 ).map(_ % Test)
 
-// Sonatype profile for releases
-ThisBuild / sonatypeProfileName := "de.leanovate"
+// Sonatype profile for releases (otherwise it uses the organization name)
+sonatypeProfileName := "de.leanovate"
 
 // sbt github actions config
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
