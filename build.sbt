@@ -4,7 +4,7 @@ scalacOptions ++= Seq("-deprecation", "-feature")
 
 organization := "de.leanovate.play-mockws"
 
-val playVersion = "3.0.0"
+val playVersion = "2.9.0"
 
 ThisBuild / crossScalaVersions := List("2.13.1", "3.3.1")
 
@@ -13,9 +13,9 @@ fork := true
 resolvers += "Typesafe repository".at("https://repo.typesafe.com/typesafe/releases/")
 
 libraryDependencies ++= Seq(
-  "org.playframework" %% "play"        % playVersion % "provided",
-  "org.playframework" %% "play-ahc-ws" % playVersion % "provided",
-  "org.playframework" %% "play-test"   % playVersion % "provided",
+  "com.typesafe.play" %% "play"        % playVersion % "provided",
+  "com.typesafe.play" %% "play-ahc-ws" % playVersion % "provided",
+  "com.typesafe.play" %% "play-test"   % playVersion % "provided",
 )
 
 libraryDependencies ++= Seq(
