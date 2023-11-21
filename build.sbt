@@ -36,7 +36,7 @@ libraryDependencies ++= Seq(
   "org.scalatest"     %% "scalatest"       % "3.2.17",
   "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0",
   "org.scalacheck"    %% "scalacheck"      % "1.17.0",
-  "org.mockito"        % "mockito-core"    % "3.12.4"
+  "org.mockito"        % "mockito-core"    % "5.7.0"
 ).map(_ % Test)
 
 // Sonatype profile for releases (otherwise it uses the organization name)
