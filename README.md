@@ -2,7 +2,7 @@ Play MockWS
 =================
 
 ![CI Workflow](https://github.com/leanovate/play-mockws/actions/workflows/ci.yml/badge.svg)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws_2.13)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws-3-0_3/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws-3-0_3)
 
 * [Goal](#goal)
 * [Simple example](#example)
@@ -49,7 +49,7 @@ Add MockWS as test dependency in the `build.sbt`.
 
 | play-mock-ws version | Play versions | Scala versions   |
 |----------------------|---------------|------------------|
-| 3.0                  | 2.8, 2.9, 3.0 | 2.12, 2.13, 3.3  |
+| 3.0.x                | 2.8, 2.9, 3.0 | 2.12, 2.13, 3.3  |
 | 2.9.x                | 2.9           | 2.13, 3.3        |
 | 2.8.x                | 2.8           | 2.12, 2.13       |
 | 2.7.1                | 2.7           | 2.11, 2.12, 2.13 |
@@ -63,13 +63,13 @@ Add MockWS as test dependency in the `build.sbt`.
 
 ```scala
 // Play 3.0.x
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws-3-0" % "3.0.0" % Test
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws-3-0" % "3.0.1" % Test
 
 // Play 2.9.x
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws-2-9" % "3.0.0" % Test
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws-2-9" % "3.0.1" % Test
 
 // Play 2.8.x
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws-2-8" % "3.0.0" % Test
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws-2-8" % "3.0.1" % Test
 ```
 
 ### play-mockws 2.x
