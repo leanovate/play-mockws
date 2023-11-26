@@ -17,6 +17,24 @@ developers := List(
   )
 )
 
+// Relocation details for version 3.x
+pomExtra := {
+  val suffix = CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, 13)) => "2.13"
+    case Some((3, _))  => "3"
+    case _             => ""
+  }
+
+  <distributionManagement>
+    <relocation>
+      <groupId>de.leanovate.play-mockws</groupId>
+      <artifactId>play-mockws-2-9_{suffix}</artifactId>
+      <version>3.0.0</version>
+      <message>The project is shipped for multiple Play versions now.</message>
+    </relocation>
+  </distributionManagement>
+}
+
 val playVersion = "2.9.0"
 
 ThisBuild / crossScalaVersions := List("2.13.12", "3.3.1")
