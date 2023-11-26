@@ -1,8 +1,13 @@
 # Release notes
 
+# 3.0.0
+
+**This release brings a new naming and versioning scheme.**
+Starting with 3.0.0, artifacts are published for a specific Play version: `play-mockws-2-9` and `play-mockws-2-8` instead of `play-mockws`.
+
 # 2.9.0
 
-This release targets Play 2.9 and Akka 2.6. Scala 2.12 and Java 8 are longer supported.
+This release targets Play 2.9 and Akka 2.6. Scala 2.12 and Java 8 are no longer supported.
 
 See [v2.9.0](https://github.com/leanovate/play-mockws/releases/tag/v2.9.0) for a full list of changes.
 
@@ -144,4 +149,4 @@ See [v2.8.0](https://github.com/leanovate/play-mockws/releases/tag/v2.8.0) for a
 
 ## 0.11
 
-- add [Route](src/main/scala/mockws/Route.scala)
+- add [Route](play-mockws/src/main/scala/mockws/Route.scala)
