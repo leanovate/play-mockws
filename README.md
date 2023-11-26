@@ -1,19 +1,21 @@
-Table of Contents
+Play MockWS
 =================
 
-* [Introduction](#play-mockws)
-* [Release notes](#release-notes)
+![CI Workflow](https://github.com/leanovate/play-mockws/actions/workflows/ci.yml/badge.svg)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws_2.13)
+
+* [Goal](#goal)
 * [Simple example](#example)
 * [Adding play-mockws to your project](#adding-play-mockws-to-your-project)
+  * [Compatibility matrix](#compatibility-matrix)
+  * [play-mockws 3+](#play-mockws-3)
+  * [play-mockws 2.x](#play-mockws-2x)
 * [Usage](#usage)
-* [Compatibility matrix](#compatibility-matrix)
+  * [General usage](#general-usage) 
+  * [Controlling the routes](#controlling-the-routes) 
+* [Release notes](#release-notes)
 
-## play-mockws
-
-[![Build Status](https://travis-ci.org/leanovate/play-mockws.svg?branch=master)](https://travis-ci.org/leanovate/play-mockws)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a7f45a8cbd2a4085ac03ff8c163e3394)](https://app.codacy.com/app/yann-simon-fr/play-mockws?utm_source=github.com&utm_medium=referral&utm_content=leanovate/play-mockws&utm_campaign=Badge_Grade_Dashboard)
-[![Coverage Status](https://coveralls.io/repos/github/leanovate/play-mockws/badge.svg)](https://coveralls.io/github/leanovate/play-mockws)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws_2.13)
+## Goal
 
 Play MockWS is a mock WS client for Play Framework.
 
@@ -24,11 +26,7 @@ If:
   the [WS client](https://www.playframework.com/documentation/latest/ScalaWS)
 - you want to test your implementation
 
-then you can use `play-mockws` to simulate HTTP requests to external web services in your tests.
-
-## Release Notes
-
-see [RELEASE-NOTES.md](RELEASE-NOTES.md)
+then you can use Play MockWS to simulate HTTP requests to external web services in your tests.
 
 ## Example
 
@@ -180,3 +178,7 @@ An example how to structure an implementation to test it with MockWS can be
 found [here](play-mockws/src/test/scala/mockws/Example.scala).
 
 Other examples can be found in the [tests](play-mockws/src/test/).
+
+## Release notes
+
+See [RELEASE-NOTES.md](RELEASE-NOTES.md) or [GitHub releases](https://github.com/leanovate/play-mockws/releases).
