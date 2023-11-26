@@ -1,9 +1,9 @@
 # Release notes
 
-# 3.0.0
+# 3.0.1
 
 **This release brings a new naming and versioning scheme.**
-Starting with 3.0.0, artifacts are published for a specific Play version: `play-mockws-3-0`, `play-mockws-2-9` and `play-mockws-2-8` instead of `play-mockws`.
+Starting with 3.0, artifacts are published for a specific Play version: `play-mockws-3-0`, `play-mockws-2-9` and `play-mockws-2-8` instead of `play-mockws`.
 
 This is the first release to support Play 3.0 and Pekko 1.0. 
 
