@@ -1,14 +1,14 @@
 import scala.collection.immutable
 
-scalacOptions ++= Seq("-deprecation", "-feature")
+ThisBuild / scalacOptions ++= Seq("-deprecation", "-feature")
 
-organization := "de.leanovate.play-mockws"
+ThisBuild / organization := "de.leanovate.play-mockws"
 
 // Those are mandatory for the release to Sonatype
-homepage := Some(url("https://github.com/leanovate/play-mockws"))
-licenses := List("MIT" -> url("http://opensource.org/licenses/MIT"))
+ThisBuild / homepage := Some(url("https://github.com/leanovate/play-mockws"))
+ThisBuild / licenses := List("MIT" -> url("http://opensource.org/licenses/MIT"))
 
-developers := List(
+ThisBuild / developers := List(
   Developer(
     "yanns",
     "Yann Simon",
