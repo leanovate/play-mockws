@@ -18,8 +18,8 @@ ThisBuild / developers := List(
 )
 
 val play28Version = "2.8.21"
-val play29Version = "2.9.0"
-val play30Version = "3.0.0"
+val play29Version = "2.9.1"
+val play30Version = "3.0.1"
 
 def play2Dependencies(version: String): Seq[ModuleID] = Seq(
   "com.typesafe.play" %% "play"        % version,
