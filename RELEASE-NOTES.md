@@ -1,5 +1,11 @@
 # Release notes
 
+# 3.0.2
+
+Bugfix upgrades of Play.
+
+See [v3.0.2](https://github.com/leanovate/play-mockws/releases/tag/v2.9.0) for a full list of changes.
+
 # 3.0.1
 
 **This release brings a new naming and versioning scheme.**

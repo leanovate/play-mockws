@@ -19,7 +19,8 @@ ThisBuild / developers := List(
 
 val play28Version = "2.8.21"
 val play29Version = "2.9.1"
-val play30Version = "3.0.0"
+val play30Version = "3.0.1"
+
 
 def play2Dependencies(version: String): Seq[ModuleID] = Seq(
   "com.typesafe.play" %% "play"        % version,
@@ -37,7 +38,7 @@ lazy val testDependencies: Seq[ModuleID] = Seq(
   "org.scalatest"     %% "scalatest"       % "3.2.17",
   "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0",
   "org.scalacheck"    %% "scalacheck"      % "1.17.0",
-  "org.mockito"        % "mockito-core"    % "5.8.0"
+  "org.mockito"        % "mockito-core"    % "5.9.0"
 ).map(_ % Test)
 
 def scalaCollectionsCompat(scalaVersion: String): immutable.Seq[ModuleID] = {
