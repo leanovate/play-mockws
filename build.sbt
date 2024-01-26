@@ -37,7 +37,7 @@ lazy val testDependencies: Seq[ModuleID] = Seq(
   "org.scalatest"     %% "scalatest"       % "3.2.17",
   "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0",
   "org.scalacheck"    %% "scalacheck"      % "1.17.0",
-  "org.mockito"        % "mockito-core"    % "5.9.0"
+  "org.mockito"        % "mockito-core"    % "5.10.0"
 ).map(_ % Test)
 
 def scalaCollectionsCompat(scalaVersion: String): immutable.Seq[ModuleID] = {
