@@ -34,7 +34,7 @@ def play3Dependencies(version: String): Seq[ModuleID] = Seq(
 ).map(_ % Provided)
 
 lazy val testDependencies: Seq[ModuleID] = Seq(
-  "org.scalatest"     %% "scalatest"       % "3.2.17",
+  "org.scalatest"     %% "scalatest"       % "3.2.18",
   "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0",
   "org.scalacheck"    %% "scalacheck"      % "1.17.0",
   "org.mockito"        % "mockito-core"    % "5.10.0"
