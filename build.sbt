@@ -50,7 +50,7 @@ def scalaCollectionsCompat(scalaVersion: String): immutable.Seq[ModuleID] = {
 }
 
 val scala212 = "2.12.19"
-val scala213 = "2.13.12"
+val scala213 = "2.13.13"
 val scala3   = "3.3.1"
 
 ThisBuild / scalaVersion := scala213
