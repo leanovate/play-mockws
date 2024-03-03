@@ -14,3 +14,5 @@ jobs:
         with:
           configurationFile: .github/renovate-config.js
           token: ${{ secrets.RENOVATE_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.RENOVATE_GITHUB_TOKEN }}
