@@ -43,7 +43,7 @@ lazy val testDependencies: Seq[ModuleID] = Seq(
 def scalaCollectionsCompat(scalaVersion: String): immutable.Seq[ModuleID] = {
   CrossVersion.partialVersion(scalaVersion) match {
     case Some((2, n)) if n == 12 =>
-      List("org.scala-lang.modules" %% "scala-collection-compat" % "2.8.1")
+      List("org.scala-lang.modules" %% "scala-collection-compat" % "2.11.0")
     case _ =>
       Nil
   }
