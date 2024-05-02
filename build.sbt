@@ -1,37 +1,29 @@
 import scala.collection.immutable
 
-ThisBuild / scalacOptions ++= Seq("-deprecation", "-feature")
-
-ThisBuild / organization := "de.leanovate.play-mockws"
+ThisBuild / organization := "io.github.hiveteq.play"
 
 // Those are mandatory for the release to Sonatype
-ThisBuild / homepage := Some(url("https://github.com/leanovate/play-mockws"))
+ThisBuild / homepage := Some(url("https://github.com/hiveteq/play-mockws-standalone"))
 ThisBuild / licenses := List("MIT" -> url("http://opensource.org/licenses/MIT"))
-
 ThisBuild / developers := List(
   Developer(
-    "yanns",
-    "Yann Simon",
+    "sdudzin",
+    "Siarhei Dudzin",
     "",
-    url("http://yanns.github.io/")
+    url("https://hiveteq.github.io")
   )
 )
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+sonatypeRepository                 := "https://s01.oss.sonatype.org/service/local"
 
-val play28Version = "2.8.21"
-val play29Version = "2.9.2"
-val play30Version = "3.0.2"
+// GPG signing
+usePgpKeyHex("3B3697C72B4D7CAA458E232D3759F1DA9FA19F17")
 
-def play2Dependencies(version: String): Seq[ModuleID] = Seq(
-  "com.typesafe.play" %% "play"        % version,
-  "com.typesafe.play" %% "play-ahc-ws" % version,
-  "com.typesafe.play" %% "play-test"   % version,
-).map(_ % Provided)
+val playWsStandaloneVersion = "3.0.2"
 
-def play3Dependencies(version: String): Seq[ModuleID] = Seq(
-  "org.playframework" %% "play"        % version,
-  "org.playframework" %% "play-ahc-ws" % version,
-  "org.playframework" %% "play-test"   % version,
-).map(_ % Provided)
+fork := true
+
+val playVersion = "3.0.2"
 
 lazy val testDependencies: Seq[ModuleID] = Seq(
   "org.scalatest"     %% "scalatest"       % "3.2.18",
@@ -49,74 +41,34 @@ def scalaCollectionsCompat(scalaVersion: String): immutable.Seq[ModuleID] = {
   }
 }
 
-val scala212 = "2.12.19"
 val scala213 = "2.13.13"
 val scala3   = "3.3.3"
 
-ThisBuild / scalaVersion := scala213
-
-ThisBuild / fork := true
-
+ThisBuild / scalaVersion := scala3
+ThisBuild / fork         := true
 ThisBuild / resolvers += "Typesafe repository".at("https://repo.typesafe.com/typesafe/releases/")
 
 lazy val root = (project in file("."))
   .settings(
-    name            := "play-mockws",
+    name            := "play-mockws-standalone-root",
     publishArtifact := false
   )
-  .aggregate(play28, play29, play30)
+  .aggregate(play30)
 
-lazy val play28 = (project in file("play-mockws"))
+lazy val play30 = (project in file("play-mockws-standalone"))
   .settings(
-    name               := "play-mockws-2-8",
-    target             := target.value / "play28",
-    crossScalaVersions := Seq(scala212, scala213)
-  )
-  .settings(
-    libraryDependencies ++= play2Dependencies(play28Version),
-    libraryDependencies ++= scalaCollectionsCompat(scalaVersion.value),
-    libraryDependencies ++= testDependencies
-  )
-  .settings(
-    Compile / unmanagedSourceDirectories += (Compile / sourceDirectory).value / "play-2",
-    Compile / unmanagedSourceDirectories += (Compile / sourceDirectory).value / "play-2-8",
-    Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-2",
-    Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-2-8",
-  )
-
-lazy val play29 = (project in file("play-mockws"))
-  .settings(
-    name               := "play-mockws-2-9",
-    target             := target.value / "play29",
+    name               := "play-mockws-standalone",
     crossScalaVersions := Seq(scala213, scala3)
   )
   .settings(
-    libraryDependencies ++= play2Dependencies(play29Version),
+    libraryDependencies ++= Seq(
+      "org.playframework" %% "play-ahc-ws-standalone"  % playWsStandaloneVersion % "provided",
+      "org.playframework" %% "play-ws-standalone-json" % playWsStandaloneVersion % "provided",
+      "org.playframework" %% "play-ws-standalone-xml"  % playWsStandaloneVersion % "provided",
+      "org.playframework" %% "play-test"               % playVersion             % "provided"
+    ),
     libraryDependencies ++= testDependencies
-  )
-  .settings(
-    Compile / unmanagedSourceDirectories += (Compile / sourceDirectory).value / "play-2",
-    Compile / unmanagedSourceDirectories += (Compile / sourceDirectory).value / "play-2-9",
-    Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-2",
-    Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-2-9",
-  )
-
-lazy val play30 = (project in file("play-mockws"))
-  .settings(
-    name               := "play-mockws-3-0",
-    target             := target.value / "play30",
-    crossScalaVersions := Seq(scala213, scala3)
-  )
-  .settings(
-    libraryDependencies ++= play3Dependencies(play30Version),
-    libraryDependencies ++= testDependencies
-  )
-  .settings(
-    Compile / unmanagedSourceDirectories += (Compile / sourceDirectory).value / "play-3",
-    Compile / unmanagedSourceDirectories += (Compile / sourceDirectory).value / "play-3-0",
-    Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-3",
-    Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-3-0",
   )
 
 // Sonatype profile for releases (otherwise it uses the organization name)
-sonatypeProfileName := "de.leanovate"
+sonatypeProfileName := "io.github.hiveteq"

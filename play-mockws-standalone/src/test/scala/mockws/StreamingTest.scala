@@ -1,12 +1,12 @@
 package mockws
 
-import akka.NotUsed
-import akka.stream.scaladsl.Source
-import akka.util.ByteString
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.util.ByteString
 import mockws.MockWSHelpers._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.HttpEntity
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.StandaloneWSClient
 import play.api.mvc.MultipartFormData.DataPart
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.MultipartFormData.Part
@@ -17,9 +17,8 @@ import play.api.mvc.ResponseHeader
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.libs.ws.readableAsString
+import play.api.libs.ws.DefaultBodyWritables._
 
-import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext.Implicits._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -31,7 +30,7 @@ class StreamingTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChe
 
   test("mock WS simulates a streaming") {
 
-    def testedController(ws: WSClient) = Action.async {
+    def testedController(ws: StandaloneWSClient) = Action.async {
       ws.url("/").stream().map { resp =>
         Result(
           header = ResponseHeader(resp.status, resp.headers.map { case (k, v) => (k, v.head) }),
@@ -57,30 +56,8 @@ class StreamingTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChe
     ws.close()
   }
 
-  test("mock WS supports streaming of MultipartFormData") {
-    val ws = MockWS { case (PUT, "/") =>
-      Action { request =>
-        request.body.asMultipartFormData match {
-          case None       => InternalServerError("error")
-          case Some(data) => Ok(data.dataParts.toList.sortBy(_._1).mkString(", "))
-        }
-      }
-    }
-
-    val fileData: Source[Part[Source[ByteString, _]], NotUsed] = Source(
-      FilePart("file", "", Some(BINARY), Source.single(ByteString("test"))) ::
-        DataPart("key 1", "data 1") ::
-        DataPart("key 2", "data 2") ::
-        Nil
-    )
-
-    val response = await(ws.url("/").put(fileData))
-    response.body shouldEqual "(key 1,Vector(data 1)), (key 2,Vector(data 2))"
-    ws.close()
-  }
-
   test("mock WS supports method in stream") {
-    def testedController(ws: WSClient) = Action.async {
+    def testedController(ws: StandaloneWSClient) = Action.async {
       ws.url("/").withMethod("POST").stream().map { resp =>
         Result(
           header = ResponseHeader(resp.status, resp.headers.map { case (k, v) => (k, v.head) }),
@@ -118,6 +95,8 @@ class StreamingTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChe
       }
     }
 
+    import play.api.libs.ws.DefaultBodyReadables.readableAsString
+
     await(
       ws.url("/get")
         .get()
@@ -134,35 +113,5 @@ class StreamingTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChe
       header = ResponseHeader(200),
       body = HttpEntity.Streamed(outputStream, None, None)
     )
-  }
-
-  test("receive a stream of back what we sent as [POST]") {
-    val content = Source(Seq("hello,", " this", " is", " world")).map(v => DataPart("k1", v))
-    val ws = MockWS { case (POST, "/post") =>
-      streamBackAction
-    }
-
-    await(ws.url("/post").post(content)).body shouldEqual "POST: hello, this is world"
-    ws.close()
-  }
-
-  test("receive a stream of back what we sent as [PUT]") {
-    val content = Source(Seq("hello,", " this", " is", " world")).map(v => DataPart("k1", v))
-    val ws = MockWS { case (PUT, "/put") =>
-      streamBackAction
-    }
-
-    await(ws.url("/put").put(content)).body shouldEqual "PUT: hello, this is world"
-    ws.close()
-  }
-
-  test("receive a stream of back what we sent as  [PATCH]") {
-    val content = Source(Seq("hello,", " this", " is", " world")).map(v => DataPart("k1", v))
-    val ws = MockWS { case (PATCH, "/patch") =>
-      streamBackAction
-    }
-
-    await(ws.url("/patch").patch(content)).body shouldEqual "PATCH: hello, this is world"
-    ws.close()
   }
 }

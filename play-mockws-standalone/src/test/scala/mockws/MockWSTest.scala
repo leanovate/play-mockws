@@ -2,27 +2,28 @@ package mockws
 
 import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicReference
-
 import mockws.MockWSHelpers._
 import org.mockito.Mockito._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status
+import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 import play.api.libs.ws.WSAuthScheme
-import play.api.libs.ws.WSResponse
+import play.api.libs.ws.StandaloneWSResponse
 import play.api.libs.ws.WSSignatureCalculator
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import play.api.test.Helpers._
 
-import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.matchers.should.Matchers
-import play.api.libs.ws.writeableOf_String
-import play.api.libs.ws.readableAsString
-import play.api.libs.ws.writeableOf_JsValue
+import scala.xml.Elem
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import play.api.libs.ws.DefaultBodyReadables.readableAsString
+//import play.api.libs.ws.JsonBodyReadables.readableAsJson
 
 /**
  * Tests that [[MockWS]] simulates a WS client
@@ -122,7 +123,8 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
 
     val wsResponse = await(ws.url("/json").get())
     wsResponse.body shouldEqual """{"field":"value"}"""
-    (wsResponse.json \ "field").asOpt[String] shouldEqual Some("value")
+    import play.api.libs.ws.JsonBodyReadables.readableAsJson
+    (wsResponse.body[JsValue] \ "field").asOpt[String] shouldEqual Some("value")
     ws.close()
   }
 
@@ -135,7 +137,8 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
 
     val wsResponse = await(ws.url("/xml").get())
     wsResponse.body shouldEqual "<foo><bar>value</bar></foo>"
-    (wsResponse.xml \ "bar").text shouldEqual "value"
+    import play.api.libs.ws.XMLBodyReadables.readableAsXml
+    (wsResponse.body[Elem] \ "bar").text shouldEqual "value"
     ws.close()
   }
 
@@ -265,7 +268,7 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
       Action { Ok("get ok") }
     }
 
-    val request: Future[WSResponse] = ws
+    val request: Future[StandaloneWSResponse] = ws
       .url("/get")
       .sign(mock(classOf[WSSignatureCalculator]))
       .withVirtualHost("bla")
@@ -273,7 +276,7 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
       .withRequestTimeout(10.millis)
       .get()
 
-    val response: WSResponse = await(request)
+    val response: StandaloneWSResponse = await(request)
 
     response.body shouldEqual "get ok"
 
