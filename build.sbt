@@ -17,7 +17,7 @@ ThisBuild / developers := List(
   )
 )
 
-val play28Version = "2.8.21"
+val play28Version = "2.8.22"
 val play29Version = "2.9.3"
 val play30Version = "3.0.3"
 
