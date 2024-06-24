@@ -1,19 +1,34 @@
 # Release notes
 
-# 3.0.2
+## 3.0.5
+
+- Update Play to 2.8.22/2.9.4/3.0.4
+  - ⚠️ _This is the latest 2.8.x version of Play (EOL), as a consequence, we'll stop publishing new versions of play-mockws-2-8._
+- Update scalatest to v3.2.19
+
+## 3.0.4
+
+- Update Play to 2.9.3/3.0.3
+
+## 3.0.3
+
+- Update Play to 2.9.2/3.0.2
+- Update Scala to 2.12.19/2.13.13/3.3.3
+
+## 3.0.2
 
 Bugfix upgrades of Play.
 
 See [v3.0.2](https://github.com/leanovate/play-mockws/releases/tag/v2.9.0) for a full list of changes.
 
-# 3.0.1
+## 3.0.1
 
 **This release brings a new naming and versioning scheme.**
 Starting with 3.0, artifacts are published for a specific Play version: `play-mockws-3-0`, `play-mockws-2-9` and `play-mockws-2-8` instead of `play-mockws`.
 
 This is the first release to support Play 3.0 and Pekko 1.0. 
 
-# 2.9.0
+## 2.9.0
 
 This release targets Play 2.9 and Akka 2.6. Scala 2.12 and Java 8 are no longer supported.
 
