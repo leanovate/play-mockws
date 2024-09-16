@@ -36,8 +36,8 @@ def play3Dependencies(version: String): Seq[ModuleID] = Seq(
 lazy val testDependencies: Seq[ModuleID] = Seq(
   "org.scalatest"     %% "scalatest"       % "3.2.19",
   "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0",
-  "org.scalacheck"    %% "scalacheck"      % "1.18.0",
-  "org.mockito"        % "mockito-core"    % "5.12.0"
+  "org.scalacheck"    %% "scalacheck"      % "1.18.1",
+  "org.mockito"        % "mockito-core"    % "5.13.0"
 ).map(_ % Test)
 
 def scalaCollectionsCompat(scalaVersion: String): immutable.Seq[ModuleID] = {
