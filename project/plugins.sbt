@@ -14,7 +14,7 @@ addSbtPlugin("com.codacy" % "sbt-codacy-coverage" % "3.0.3")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
 
 // https://github.com/sbt/sbt-ci-release
-addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.6.1")
+addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.7.0")
 
 // Scoverage coverage-parser relies on version 1.x
 // scala-xml 2.0 is most of the time non breaking
