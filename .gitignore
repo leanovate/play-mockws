@@ -4,5 +4,6 @@ target
 logs
 .java-version
 .bsp
-
+.metals
+.vscode
 
