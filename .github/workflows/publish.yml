@@ -28,6 +28,9 @@ jobs:
           java-version: 11
           cache: sbt
 
+      - name: Setup SBT
+        uses: sbt/setup-sbt@v1
+
       - name: Publish project
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
