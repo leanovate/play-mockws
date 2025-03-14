@@ -18,7 +18,7 @@ ThisBuild / developers := List(
 )
 
 val play28Version = "2.8.22"
-val play29Version = "2.9.6"
+val play29Version = "2.9.7"
 val play30Version = "3.0.7"
 
 def play2Dependencies(version: String): Seq[ModuleID] = Seq(
