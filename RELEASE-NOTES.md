@@ -1,5 +1,10 @@
 # Release notes
 
+## 3.0.6
+
+- Update Play to 2.9.7/3.0.7
+- Update Scala to 2.12.20/2.13.16/3.3.5
+
 ## 3.0.5
 
 - Update Play to 2.8.22/2.9.4/3.0.4
