@@ -1,5 +1,11 @@
 # Release notes
 
+## 3.0.7
+
+* Update Scala to 3.3.6
+* Update SBT to 1.11.0
+* Publish to Sonatype Central Portal
+
 ## 3.0.6
 
 - Update Play to 2.9.7/3.0.7
