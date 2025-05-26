@@ -1,5 +1,4 @@
 import scala.collection.immutable
-import xerial.sbt.Sonatype.sonatypeCentralHost
 
 ThisBuild / scalacOptions ++= Seq("-deprecation", "-feature")
 
@@ -118,9 +117,3 @@ lazy val play30 = (project in file("play-mockws"))
     Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-3",
     Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-3-0",
   )
-
-// Publish to Central Portal
-// https://github.com/xerial/sbt-sonatype?tab=readme-ov-file#sonatype-central-host
-ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
-// Sonatype profile for releases (otherwise it uses the organization name)
-sonatypeProfileName := "de.leanovate"
