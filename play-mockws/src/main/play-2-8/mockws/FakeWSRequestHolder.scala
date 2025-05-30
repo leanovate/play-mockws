@@ -140,7 +140,7 @@ case class FakeWSRequestHolder(
   }
 
   private def sign(req: FakeRequest[_]): FakeRequest[_] = auth match {
-    case None => req
+    case None                                           => req
     case Some((username, password, WSAuthScheme.BASIC)) =>
       val encoded = new String(Base64.getMimeEncoder().encode(s"$username:$password".getBytes("UTF-8")), "UTF-8")
       req.withHeaders("Authorization" -> s"Basic $encoded")

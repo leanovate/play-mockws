@@ -151,7 +151,7 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
   test("a call to an unknown route produces implicit behaviour") {
 
     implicit val notDefinedBehaviour = RouteNotDefined(BadGateway)
-    val ws = MockWS { case (GET, "/url") =>
+    val ws                           = MockWS { case (GET, "/url") =>
       Action { Ok("") }
     }
     await(ws.url("/url2").get()).status should be(Status.BAD_GATEWAY)
@@ -304,7 +304,7 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
 
   test("discard old headers when setting withHttpHeaders") {
     val headers = new AtomicReference[Map[String, scala.Seq[String]]](Map.empty)
-    val ws = MockWS { case (GET, "/get") =>
+    val ws      = MockWS { case (GET, "/get") =>
       Action { req =>
         headers.set(req.headers.toMap)
         Ok(req.headers.getAll("key1").zipWithIndex.toString)
@@ -324,7 +324,7 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
 
   test("discard old query parameters when setting withQueryStringParameters") {
     val queryString = new AtomicReference[Map[String, scala.Seq[String]]](Map.empty)
-    val ws = MockWS { case (GET, "/get") =>
+    val ws          = MockWS { case (GET, "/get") =>
       Action { req =>
         queryString.set(req.queryString)
         Ok("")
@@ -343,7 +343,7 @@ class MockWSTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChecks
 
   test("keep headers with content type from BodyWritable") {
     val headers = new AtomicReference[Map[String, scala.Seq[String]]](Map.empty)
-    val ws = MockWS { case (POST, "/") =>
+    val ws      = MockWS { case (POST, "/") =>
       Action { req =>
         headers.set(req.headers.toMap)
         Ok
