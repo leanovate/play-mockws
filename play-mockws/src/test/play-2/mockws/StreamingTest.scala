@@ -138,7 +138,7 @@ class StreamingTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChe
 
   test("receive a stream of back what we sent as [POST]") {
     val content = Source(Seq("hello,", " this", " is", " world")).map(v => DataPart("k1", v))
-    val ws = MockWS { case (POST, "/post") =>
+    val ws      = MockWS { case (POST, "/post") =>
       streamBackAction
     }
 
@@ -148,7 +148,7 @@ class StreamingTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChe
 
   test("receive a stream of back what we sent as [PUT]") {
     val content = Source(Seq("hello,", " this", " is", " world")).map(v => DataPart("k1", v))
-    val ws = MockWS { case (PUT, "/put") =>
+    val ws      = MockWS { case (PUT, "/put") =>
       streamBackAction
     }
 
@@ -158,7 +158,7 @@ class StreamingTest extends AnyFunSuite with Matchers with ScalaCheckPropertyChe
 
   test("receive a stream of back what we sent as  [PATCH]") {
     val content = Source(Seq("hello,", " this", " is", " world")).map(v => DataPart("k1", v))
-    val ws = MockWS { case (PATCH, "/patch") =>
+    val ws      = MockWS { case (PATCH, "/patch") =>
       streamBackAction
     }
 

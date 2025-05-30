@@ -64,7 +64,7 @@ class RouteTest extends AnyFunSuite with Matchers {
     val numberOfTimes = 20
 
     val executor = Executors.newFixedThreadPool(numberOfTimes)
-    val task = new Runnable {
+    val task     = new Runnable {
       override def run(): Unit = {
         await(ws.url("/route").get())
       }
