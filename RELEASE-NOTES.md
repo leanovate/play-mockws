@@ -7,7 +7,7 @@
 
 ## 3.0.8
 
-- Publish to Sonatype Central Portal
+- (Internal) Update sbt-ci-release 1.11.0
 
 ## 3.0.7
 
