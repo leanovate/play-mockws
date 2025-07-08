@@ -1,5 +1,10 @@
 # Release notes
 
+## 3.0.8
+
+- Update Play to 2.9.8/3.0.8
+- Update SBT to 1.11.2
+
 ## 3.0.7
 
 * Update Scala to 3.3.6
