@@ -1,9 +1,13 @@
 # Release notes
 
-## 3.0.8
+## 3.0.9
 
 - Update Play to 2.9.8/3.0.8
 - Update SBT to 1.11.2
+
+## 3.0.8
+
+- Publish to Sonatype Central Portal
 
 ## 3.0.7
 
