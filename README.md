@@ -2,7 +2,7 @@ Play MockWS
 =================
 
 ![CI Workflow](https://github.com/leanovate/play-mockws/actions/workflows/ci.yml/badge.svg)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws-3-0_3/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.leanovate.play-mockws/play-mockws-3-0_3)
+[![Maven Central](https://img.shields.io/maven-central/v/de.leanovate.play-mockws/play-mockws-3-0_3)](https://central.sonatype.com/namespace/de.leanovate.play-mockws)
 
 * [Goal](#goal)
 * [Simple example](#example)
