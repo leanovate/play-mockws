@@ -18,13 +18,13 @@ ThisBuild / developers := List(
 )
 
 val play28Version = "2.8.22"
-val play29Version = "2.9.9"
+val play29Version = "3.0.9"
 val play30Version = "3.0.8"
 
 def play2Dependencies(version: String): Seq[ModuleID] = Seq(
-  "com.typesafe.play" %% "play"        % version,
-  "com.typesafe.play" %% "play-ahc-ws" % version,
-  "com.typesafe.play" %% "play-test"   % version,
+  "org.playframework" %% "play"        % version,
+  "org.playframework" %% "play-ahc-ws" % version,
+  "org.playframework" %% "play-test"   % version,
 ).map(_ % Provided)
 
 def play3Dependencies(version: String): Seq[ModuleID] = Seq(
