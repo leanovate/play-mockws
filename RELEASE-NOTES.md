@@ -1,5 +1,9 @@
 # Release notes
 
+## 3.1.0
+
+- Update Play to 2.9.9/3.0.9
+
 ## 3.0.9
 
 - Update Play to 2.9.8/3.0.8
