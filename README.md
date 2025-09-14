@@ -4,16 +4,17 @@ Play MockWS
 ![CI Workflow](https://github.com/leanovate/play-mockws/actions/workflows/ci.yml/badge.svg)
 [![Maven Central](https://img.shields.io/maven-central/v/de.leanovate.play-mockws/play-mockws-3-0_3)](https://central.sonatype.com/namespace/de.leanovate.play-mockws)
 
-* [Goal](#goal)
-* [Simple example](#example)
-* [Adding play-mockws to your project](#adding-play-mockws-to-your-project)
-  * [Compatibility matrix](#compatibility-matrix)
-  * [play-mockws 3+](#play-mockws-3)
-  * [play-mockws 2.x](#play-mockws-2x)
-* [Usage](#usage)
-  * [General usage](#general-usage) 
-  * [Controlling the routes](#controlling-the-routes) 
-* [Release notes](#release-notes)
+- [Play MockWS](#play-mockws)
+  - [Goal](#goal)
+  - [Example](#example)
+  - [Adding play-mockws to your project](#adding-play-mockws-to-your-project)
+    - [Compatibility Matrix](#compatibility-matrix)
+    - [play-mockws 3+](#play-mockws-3)
+    - [play-mockws 2.x](#play-mockws-2x)
+  - [Usage](#usage)
+    - [General usage](#general-usage)
+    - [Controlling the routes](#controlling-the-routes)
+  - [Release notes](#release-notes)
 
 ## Goal
 
@@ -49,6 +50,7 @@ Add MockWS as test dependency in the `build.sbt`.
 
 | play-mock-ws version | Play versions | Scala versions   |
 |----------------------|---------------|------------------|
+| 3.1.x                | 2.9, 3.0      | 2.13, 3.3        |
 | 3.0.x                | 2.8, 2.9, 3.0 | 2.12, 2.13, 3.3  |
 | 2.9.x                | 2.9           | 2.13, 3.3        |
 | 2.8.x                | 2.8           | 2.12, 2.13       |
@@ -63,13 +65,10 @@ Add MockWS as test dependency in the `build.sbt`.
 
 ```scala
 // Play 3.0.x
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws-3-0" % "3.0.1" % Test
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws-3-0" % "x.y.z" % Test
 
 // Play 2.9.x
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws-2-9" % "3.0.1" % Test
-
-// Play 2.8.x
-libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws-2-8" % "3.0.1" % Test
+libraryDependencies += "de.leanovate.play-mockws" %% "play-mockws-2-9" % "x.y.z" % Test
 ```
 
 ### play-mockws 2.x
