@@ -3,6 +3,7 @@
 ## 3.1.0
 
 - Update Play to 2.9.9/3.0.9
+- Stop publishing `play-mockws-2-8`
 
 ## 3.0.9
 

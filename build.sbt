@@ -17,7 +17,6 @@ ThisBuild / developers := List(
   )
 )
 
-val play28Version = "2.8.22"
 val play29Version = "2.9.9"
 val play30Version = "3.0.9"
 
@@ -40,16 +39,6 @@ lazy val testDependencies: Seq[ModuleID] = Seq(
   "org.mockito"        % "mockito-core"    % "5.19.0"
 ).map(_ % Test)
 
-def scalaCollectionsCompat(scalaVersion: String): immutable.Seq[ModuleID] = {
-  CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, n)) if n == 12 =>
-      List("org.scala-lang.modules" %% "scala-collection-compat" % "2.13.0")
-    case _ =>
-      Nil
-  }
-}
-
-val scala212 = "2.12.20"
 val scala213 = "2.13.16"
 val scala3   = "3.3.6"
 
@@ -64,25 +53,7 @@ lazy val root = (project in file("."))
     name            := "play-mockws",
     publishArtifact := false
   )
-  .aggregate(play28, play29, play30)
-
-lazy val play28 = (project in file("play-mockws"))
-  .settings(
-    name               := "play-mockws-2-8",
-    target             := target.value / "play28",
-    crossScalaVersions := Seq(scala212, scala213)
-  )
-  .settings(
-    libraryDependencies ++= play2Dependencies(play28Version),
-    libraryDependencies ++= scalaCollectionsCompat(scalaVersion.value),
-    libraryDependencies ++= testDependencies
-  )
-  .settings(
-    Compile / unmanagedSourceDirectories += (Compile / sourceDirectory).value / "play-2",
-    Compile / unmanagedSourceDirectories += (Compile / sourceDirectory).value / "play-2-8",
-    Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-2",
-    Test / unmanagedSourceDirectories += (Test / sourceDirectory).value / "play-2-8",
-  )
+  .aggregate(play29, play30)
 
 lazy val play29 = (project in file("play-mockws"))
   .settings(
