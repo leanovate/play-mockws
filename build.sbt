@@ -39,7 +39,7 @@ lazy val testDependencies: Seq[ModuleID] = Seq(
   "org.mockito"        % "mockito-core"    % "5.20.0"
 ).map(_ % Test)
 
-val scala213 = "2.13.16"
+val scala213 = "2.13.17"
 val scala3   = "3.3.6"
 
 ThisBuild / scalaVersion := scala213
