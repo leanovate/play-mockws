@@ -40,7 +40,7 @@ lazy val testDependencies: Seq[ModuleID] = Seq(
 ).map(_ % Test)
 
 val scala213 = "2.13.17"
-val scala3   = "3.3.6"
+val scala3   = "3.3.7"
 
 ThisBuild / scalaVersion := scala213
 
