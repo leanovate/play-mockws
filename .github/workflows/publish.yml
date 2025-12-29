@@ -2,8 +2,10 @@ name: Publish artifacts
 
 on:
   push:
-    branches:
-      - 'master'
+    # Disabling SNAPSHOT publication
+    # If we wanted to, we should first enable it on Central: https://central.sonatype.org/publish/publish-portal-snapshots/
+    #branches:
+    #  - 'master'
     tags:
       - 'v*'
 
