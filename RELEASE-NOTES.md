@@ -1,5 +1,10 @@
 # Release notes
 
+## 3.1.2
+
+- Update Play 2.9 version to 2.9.10
+- Update Play 3.0 version to 3.0.10
+
 ## 3.1.1
 
 - Upgrade Scala to 2.13.18 and 3.3.7
