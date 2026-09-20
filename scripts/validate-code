@@ -13,7 +13,13 @@ printMessage() {
 }
 
 runSbt() {
-  sbt 'set concurrentRestrictions in Global += Tags.limitAll(1)' "$@" | grep --line-buffered -v 'Resolving \|Generating '
+  # sbt 2.x's CLI concatenates several positional arguments into a single command line,
+  # so multiple commands must be passed as one ';'-separated string.
+  local cmd="set Global / concurrentRestrictions += Tags.limitAll(1)"
+  for task in "$@"; do
+    cmd="$cmd; $task"
+  done
+  sbt "$cmd" | grep --line-buffered -v 'Resolving \|Generating '
 }
 
 # Runs code formating validation in the current directory

@@ -1,19 +1,20 @@
 import scala.collection.immutable
 
-ThisBuild / scalacOptions ++= Seq("-deprecation", "-feature")
+// Building with sbt 2.x / JDK 17+, but keep published artifacts usable on JDK 11
+scalacOptions ++= Seq("-deprecation", "-feature", "-release", "11")
 
-ThisBuild / organization := "de.leanovate.play-mockws"
+organization := "de.leanovate.play-mockws"
 
 // Those are mandatory for the release to Sonatype
-ThisBuild / homepage := Some(url("https://github.com/leanovate/play-mockws"))
-ThisBuild / licenses := List("MIT" -> url("http://opensource.org/licenses/MIT"))
+homepage := Some(uri("https://github.com/leanovate/play-mockws"))
+licenses := List("MIT" -> uri("http://opensource.org/licenses/MIT"))
 
-ThisBuild / developers := List(
+developers := List(
   Developer(
     "yanns",
     "Yann Simon",
     "",
-    url("http://yanns.github.io/")
+    uri("http://yanns.github.io/")
   )
 )
 
@@ -42,11 +43,11 @@ lazy val testDependencies: Seq[ModuleID] = Seq(
 val scala213 = "2.13.18"
 val scala3   = "3.3.8"
 
-ThisBuild / scalaVersion := scala213
+scalaVersion := scala213
 
-ThisBuild / fork := true
+fork := true
 
-ThisBuild / resolvers += "Typesafe repository".at("https://repo.typesafe.com/typesafe/releases/")
+resolvers += "Typesafe repository".at("https://repo.typesafe.com/typesafe/releases/")
 
 lazy val root = (project in file("."))
   .settings(
