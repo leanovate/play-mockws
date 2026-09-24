@@ -37,7 +37,7 @@ lazy val testDependencies: Seq[ModuleID] = Seq(
   "org.scalatest"     %% "scalatest"       % "3.2.20",
   "org.scalatestplus" %% "scalacheck-1-19" % "3.2.20.0",
   "org.scalacheck"    %% "scalacheck"      % "1.20.0",
-  "org.mockito"        % "mockito-core"    % "5.23.0"
+  "org.mockito"        % "mockito-core"    % "5.24.0"
 ).map(_ % Test)
 
 val scala213 = "2.13.18"
